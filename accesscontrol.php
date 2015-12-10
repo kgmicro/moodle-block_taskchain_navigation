@@ -466,6 +466,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $names = array_values($names); // re-index the array
                     } else {
                         $names = array(); // no module-specific fields
+                        $fields = array();
                     }
                     if ($modhaslibfile) {
                         // fields that are common to all modules - see "lib/moodleform_mod.php"
@@ -1568,11 +1569,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             } // end foreach $selected_settings
 
             if ($completion_updated) {
+                $completion = $completiontracking;
 
-                // only switch to automatic completion
-                // if some completion conditions are set
+                // if automatic completion (=2) is requested,
+                // check that some completion conditions are set
                 if ($completion==2) {
-                    $completion = 0; // default = disabled
+                    $completion = 0;
                     $table = 'course_modules';
                     $params = array('id' => $cm->id);
                     $names = array('completionview' => 0,
@@ -1593,10 +1595,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             $completion = $completiontracking;
                         }
                     }
-                } else {
-                    // no completion (=0) and manual completion (=1)
-                    // are always possible, so no checking required
-                    $completion = $completiontracking;
                 }
 
                 // force completion to be something sensible
@@ -3723,3 +3721,4 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
         'cmfield' => $cmfield
     );
 }
+
