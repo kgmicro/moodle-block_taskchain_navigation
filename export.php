@@ -1,0 +1,89 @@
+<?php
+/**
+ * blocks/taskchain_navigation/export.php
+ *
+ * @package    blocks
+ * @subpackage taskchain_navigation
+ * @copyright  2014 Gordon Bateson <gordon.bateson@gmail.com>
+ * @license    you may not copy of distribute any part of this package without prior written permission
+ */
+
+require_once('../../config.php');
+require_once($CFG->dirroot.'/lib/filelib.php'); // send_file()
+
+$id = required_param('id', PARAM_INT); // block_instance id
+
+if (! $block_instance = $DB->get_record('block_instances', array('id' => $id))) {
+    print_error('invalidinstanceid', 'block_taskchain_navigation');
+}
+if (! $block = $DB->get_record('block', array('name' => $block_instance->blockname))) {
+    print_error('invalidblockid', 'block_taskchain_navigation', $block_instance->blockid);
+}
+if (! $context = $DB->get_record('context', array('id' => $block_instance->parentcontextid))) {
+    print_error('invalidcontextid', 'block_taskchain_navigation', $block_instance->parentcontextid);
+}
+if (! $course = $DB->get_record('course', array('id' => $context->instanceid))) {
+    print_error('invalidcourseid', 'block_taskchain_navigation', $context->instanceid);
+}
+
+require_login($course->id);
+
+if (class_exists('context_course')) {
+    $context = context_course::instance($course->id);
+} else {
+    $context = get_context_instance(CONTEXT_COURSE, $course->id);
+}
+require_capability('moodle/site:manageblocks', $context);
+
+if (! isset($block->version)) {
+    $params = array('plugin' => 'block_taskchain_navigation', 'name' => 'version');
+    $block->version = $DB->get_field('config_plugins', 'value', $params);
+}
+
+$content = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+if ($config = unserialize(base64_decode($block_instance->configdata))) {
+
+    $content .= '<TASKCHAINNAVIGATIONBLOCK>'."\n";
+    $content .= '  <VERSION>'.$block->version.'</VERSION>'."\n";
+    $content .= '  <POSITION>'.$block_instance->defaultregion.'</POSITION>'."\n";
+    $content .= '  <WEIGHT>'.$block_instance->defaultweight.'</WEIGHT>'."\n";
+    $content .= '  <VISIBLE>1</VISIBLE>'."\n";
+    $content .= '  <CONFIGFIELDS>'."\n";
+
+    $config = get_object_vars($config);
+    foreach ($config as $name => $value) {
+        if (empty($name) || is_array($value) || is_object($value)) {
+            continue; // shouldn't happen !!
+        }
+        $content .= '    <CONFIGFIELD>'."\n";
+        $content .= '      <NAME>'.xml_tag_safe_content($name).'</NAME>'."\n";
+        $content .= '      <VALUE>'.xml_tag_safe_content($value).'</VALUE>'."\n";
+        $content .= '    </CONFIGFIELD>'."\n";
+    }
+
+    $content .= '  </CONFIGFIELDS>'."\n";
+    $content .= '</TASKCHAINNAVIGATIONBLOCK>'."\n";
+}
+
+if (empty($config['title'])) {
+    $filename = $block->name.'.xml';
+} else {
+    $filename = clean_filename(strip_tags(format_string($config['title'], true)).'.xml');
+}
+send_file($content, $filename, 0, 0, true, true);
+
+/**
+ * xml_tag_safe_content
+ *
+ * copied from Moodle 1.9 backup/backuplib.php
+ */
+function xml_tag_safe_content($content) {
+    global $CFG;
+    //If enabled, we strip all the control chars (\x0-\x1f) from the text but tabs (\x9),
+    //newlines (\xa) and returns (\xd). The delete control char (\x7f) is also included.
+    //because they are forbiden in XML 1.0 specs. The expression below seems to be
+    //UTF-8 safe too because it simply ignores the rest of characters.
+    $content = preg_replace("/[\x-\x8\xb-\xc\xe-\x1f\x7f]/is","",$content);
+    $content = preg_replace("/\r\n|\r/", "\n", htmlspecialchars($content));
+    return $content;
+}
