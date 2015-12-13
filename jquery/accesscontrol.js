@@ -4,6 +4,13 @@ $(document).ready(function(){
     // set wwwroot from page URL
     var wwwroot = location.href.replace(new RegExp("^(.*?)/blocks/taskchain_navigation.*$"), "$1");
 
+    // set URL of the first available help icon
+    // this will be used to generate URLs for other images
+    var helpiconurl = $("img.iconhelp").first().attr("src");
+    if (helpiconurl=='') {
+        helpiconurl = wwwroot + "/pix/help.gif";
+    }
+
     // set all itemname cells to uniform width
     var w = 0;
     $("td.itemname").each(function(){
@@ -38,11 +45,11 @@ $(document).ready(function(){
             // create new IMG element
             var img = document.createElement("IMG");
             if (selected) {
-                var src = "switch_minus.png";
+                var src = "t/switch_minus";
             } else {
-                var src = "switch_plus.png";
+                var src = "t/switch_plus";
             }
-            img.src = wwwroot + "/pix/t/" + src;
+            img.src = helpiconurl.replace('help', src);
 
             // add IMG click event handler
             $(img).click(function(){

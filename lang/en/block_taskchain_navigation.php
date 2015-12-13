@@ -279,7 +279,7 @@ $string['nextsamesection'] = 'Next activity, of the same type, in this section';
 $string['noactivitiesselected'] = 'Please select some activities.';
 $string['nosettingsselected'] = 'Please select some settings you wish to apply.';
 $string['phpuploadlimit'] = 'PHP upload limit';
-$string['pluginuploadlimits'] = 'Plugin uploads limits';
+$string['pluginuploadlimits'] = 'Plugin upload limits';
 $string['prefixchars'] = 'Prefix delimiters';
 $string['prefixchars_help'] = 'If any characters are specified here, they will be used to detect the end of the prefix.
 
@@ -475,7 +475,7 @@ $string['singlesection_help'] = '**Yes**
 
 **No**
 : users will be allowed to expand the course to view all sections if they want to';
-$string['siteuploadlimit'] = 'Site upload limit';
+$string['siteuploadlimit'] = 'Moodle upload limit';
 $string['specificactivitytypes'] = 'Specific activity types';
 $string['specifictext'] = 'Specific text';
 $string['sortactivities'] = 'Sort activities';

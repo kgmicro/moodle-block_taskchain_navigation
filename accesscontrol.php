@@ -2333,30 +2333,26 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     // ============================
     //
     if (count($filemods)) {
-        print_sectionheading(get_string('filesanduploads'), 'files', true);
+        print_sectionheading(get_string('fileuploads', 'install'), 'files', true);
+
+        $href = 'http://php.net/manual/'.substr(current_language(), 0, 2).'/ini.core.php';
+        $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/info', ''), 'title' => get_string('info')));
+        $params = array('onclick' => 'this.target="_blank"');
 
         echo '<tr>'."\n";
         echo '<td class="itemname">'.get_string('phpuploadlimit', $plugin).':</td>'."\n";
         echo '<td class="itemvalue">';
         if ($limit = ini_get('upload_max_filesize')) {
-            echo display_size(get_real_size($limit)).' upload_max_filesize';
+            echo display_size(get_real_size($limit)).' upload_max_filesize ';
+            echo html_writer::link($href.'#ini.upload-max-filesize', $icon, $params);
             echo html_writer::empty_tag('br');
         }
         if ($limit = ini_get('post_max_size')) {
-            echo display_size(get_real_size($limit)).' post_max_size';
+            echo display_size(get_real_size($limit)).' post_max_size ';
+            echo html_writer::link($href.'#ini.post-max-size', $icon, $params);
         }
         echo '</td>'."\n";
-        echo '<td class="itemselect">';
-        $href = substr(current_language(), 0, 2);
-        $href = "http://php.net/manual/$href/ini.core.php";
-        echo html_writer::start_tag('small');
-        echo html_writer::tag('a', get_string('info'), array('href' => $href.'#ini.upload-max-filesize',
-                                                             'onclick' => 'this.target="_blank"'));
-        echo html_writer::empty_tag('br');
-        echo html_writer::tag('a', get_string('info'), array('href' => $href.'#ini.post-max-size',
-                                                             'onclick' => 'this.target="_blank"'));
-        echo html_writer::end_tag('small');
-        echo '</td>'."\n";
+        echo '<td class="itemselect"></td>'."\n";
         echo '</tr>'."\n";
 
         echo '<tr>'."\n";
@@ -2368,14 +2364,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         } else {
             echo html_writer::tag('i', get_string('phpuploadlimit', $plugin));
         }
-        echo '</td>'."\n";
-        echo '<td class="itemselect">';
         if (has_capability('moodle/course:update', $sitecontext)) {
-            $link = new moodle_url('/admin/settings.php', array('section' => 'frontpagesettings'));
-            $link = html_writer::link($link, get_string('update'), array('onclick' => 'this.target="_blank"'));
-            echo html_writer::tag('small', $link);
+            $href = new moodle_url('/admin/settings.php', array('section' => 'sitepolicies'));
+            $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
+            echo ' '.html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
         }
         echo '</td>'."\n";
+        echo '<td class="itemselect"></td>'."\n";
         echo '</tr>'."\n";
 
         echo '<tr>'."\n";
@@ -2386,47 +2381,40 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         } else {
             echo html_writer::tag('i', get_string('siteuploadlimit', $plugin));
         }
-        echo '</td>'."\n";
-        echo '<td class="itemselect">';
         if (has_capability('moodle/course:update', $course->context)) {
-            $link = new moodle_url('/course/edit.php', array('id' => $course->id));
-            $link = html_writer::link($link, get_string('update'), array('onclick' => 'this.target="_blank"'));
-            echo html_writer::tag('small', $link);
+            $href = new moodle_url('/course/edit.php', array('id' => $course->id));
+            $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
+            echo ' '.html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
         }
         echo '</td>'."\n";
+        echo '<td class="itemselect"></td>'."\n";
         echo '</tr>'."\n";
 
-        $printname = false;
+        echo '<tr>'."\n";
+        echo '<td class="itemname">'.get_string('pluginuploadlimits', $plugin).':</td>'."\n";
+        echo '<td class="itemvalue">';
         foreach ($filemods as $name => $limit) {
-            echo '<tr>'."\n";
-            echo '<td class="itemname">';
-            if ($printname==false) {
-                $printname = true;
-                echo get_string('pluginuploadlimits', $plugin).':';
-            }
-            echo '</td>'."\n";
-            echo '<td class="itemvalue">';
             if ($limit) {
                 $limit = display_size($limit);
             } else {
                 $limit = html_writer::tag('i', get_string('courseuploadlimit', $plugin));
             }
             echo $limit.': '.get_string('pluginname', $name);
-            echo '</td>'."\n";
-            echo '<td class="itemselect">';
             if ($hassiteconfig) {
                 if ($name=='assign') {
-                    $link = $name.'submission_file';
+                    $href = $name.'submission_file';
                 } else {
-                    $link = 'modsetting'.$name;
+                    $href = 'modsetting'.$name;
                 }
-                $link = new moodle_url('/admin/settings.php', array('section' => $link));
-                $link = html_writer::link($link, get_string('update'), array('onclick' => 'this.target="_blank"'));
-                echo html_writer::tag('small', $link);
+                $href = new moodle_url('/admin/settings.php', array('section' => $href));
+                $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
+                echo ' '.html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
             }
-            echo '</td>'."\n";
-            echo '</tr>'."\n";
+            echo html_writer::empty_tag('br');
         }
+        echo '</td>'."\n";
+        echo '<td class="itemselect"></td>'."\n";
+        echo '</tr>'."\n";
 
         echo '<tr>'."\n";
         echo '<td class="itemname">'.get_string('activityuploadlimit', $plugin).':</td>'."\n";
