@@ -30,6 +30,7 @@ $string['activitynamefilters'] = 'Activity name filters';
 $string['activitytypes'] = 'Activity types';
 $string['activityupdatefailure'] = 'Oops, one or more activities could not be updated.';
 $string['activityupdatesuccess'] = 'The selected activities were updated successfully';
+$string['activityuploadlimit'] = 'Activity upload limit';
 $string['allgradeableactivities'] = 'All gradeable activities';
 $string['apply'] = 'Apply';
 $string['applyselectedvalues'] = 'Apply selected values to the following courses';
@@ -133,6 +134,7 @@ $string['coursenamefield_help'] = 'This setting defines the string to be used as
 $string['coursepage'] = 'Course page';
 $string['coursepageshortcuts'] = 'Course page shortcuts';
 $string['coursesections'] = 'Course sections';
+$string['courseuploadlimit'] = 'Course upload limit';
 $string['createdgradecategories'] = 'Grade book categories have been created';
 $string['creategradecategories'] = 'Create grade categories';
 $string['creategradecategories_help'] = 'Clicking the "Create grade categories" link will initiate creating of the grade categories in the gradebook, one for each section of the course.
@@ -276,6 +278,8 @@ $string['nextsamecourse'] = 'Next activity, of the same type, in this course';
 $string['nextsamesection'] = 'Next activity, of the same type, in this section';
 $string['noactivitiesselected'] = 'Please select some activities.';
 $string['nosettingsselected'] = 'Please select some settings you wish to apply.';
+$string['phpuploadlimit'] = 'PHP upload limit';
+$string['pluginuploadlimits'] = 'Plugin uploads limits';
 $string['prefixchars'] = 'Prefix delimiters';
 $string['prefixchars_help'] = 'If any characters are specified here, they will be used to detect the end of the prefix.
 
@@ -471,6 +475,7 @@ $string['singlesection_help'] = '**Yes**
 
 **No**
 : users will be allowed to expand the course to view all sections if they want to';
+$string['siteuploadlimit'] = 'Site upload limit';
 $string['specificactivitytypes'] = 'Specific activity types';
 $string['specifictext'] = 'Specific text';
 $string['sortactivities'] = 'Sort activities';
@@ -520,3 +525,4 @@ $string['usedbyall'] = 'used by ALL activities, resources and labels';
 $string['useparentcategory'] = 'Yes - display parent name';
 $string['validimportfile'] = 'Configuration settings were successfully imported';
 $string['visibility'] = 'Visibility filter';
+

@@ -117,6 +117,16 @@ echo $OUTPUT->footer($course);
 function taskchain_navigation_accesscontrol_form($course, $block_instance, $action) {
     global $CFG, $DB, $OUTPUT, $PAGE;
 
+    // site and system contexts
+    if (class_exists('context')) {
+        $sitecontext = context_course::instance(SITEID);
+        $systemcontext = context_system::instance();
+    } else {
+        $sitecontext = get_context_instance(CONTEXT_COURSE, SITEID);
+        $systemcontext = get_context_instance(CONTEXT_SYSTEM);
+    }
+    $hassiteconfig = has_capability('moodle/site:config', $systemcontext);
+
     // we need the DB manager to check which
     // DB tables and fields are available
     $dbman = $DB->get_manager();
@@ -169,6 +179,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $indent           = optional_param('indent',           0, PARAM_INT);
     $section          = optional_param('section',          0, PARAM_INT);
     $position         = optional_param('position',         0, PARAM_INT);
+
+    $uploadlimit      = optional_param('uploadlimit',      0, PARAM_INT);
+    $siteuploadlimit  = get_config(null, 'maxbytes');
+    $courseuploadlimit = $course->maxbytes;
+    $uploadlimitmenu  = get_max_upload_sizes($siteuploadlimit, $courseuploadlimit);
 
     $removeconditions = optional_param('removeconditions', 0, PARAM_INT);
     $removecompletion = optional_param('removecompletion', 0, PARAM_INT);
@@ -295,7 +310,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                       'rating',          'maxgrade',       'gradepass',  'gradecat',
                       'gradeitemhidden', 'extracredit',    'regrade',
                       'groupmode',       'groupingid',     'groupmembersonly',
-                      'visible',         'indent',         'section');
+                      'visible',         'indent',         'section',    'uploadlimit');
 
     // add "availability" settings, if enabled
     if (empty($CFG->enableavailability)) {
@@ -409,6 +424,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $modules = array();
     $sections = array();
 
+    $filemods = array();
     $labelmods = array();
     $ratingmods = array();
     $resourcemods = array();
@@ -491,6 +507,14 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $completionfields[$name]->mods[$cm->modname] = $modules[$cm->modname];
                     }
                     unset($fields, $names, $name);
+                }
+
+                // get file sitewide upload limits, if any, for this module
+                switch ($cm->modname) {
+                    case 'assign'     : $filemods[$cm->modname] = get_config('assignsubmission_file', 'maxbytes'); break;
+                    case 'assignment' : $filemods[$cm->modname] = get_config(null, 'assignment_maxbytes'); break;
+                    case 'forum'      : $filemods[$cm->modname] = get_config(null, 'forum_maxbytes'); break;
+                    case 'workshop'   : $filemods[$cm->modname] = get_config('workshop', 'maxbytes'); break;
                 }
 
                 if ($modhaslibfile) {
@@ -1358,6 +1382,47 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         }
                         break;
 
+                    // uploadlimit
+                    case 'uploadlimit':
+                        switch ($cm->modname) {
+
+                            case 'assign': // Moodle >= 2.3
+                                $table = 'assign_plugin_config';
+                                $params = array('assignment' => $cm->instance,
+                                                'subtype'    => 'assignsubmission',
+                                                'plugin'     => 'file',
+                                                'name'       => 'maxsubmissionsizebytes');
+                                if ($DB->record_exists($table, $params)) {
+                                    if ($DB->set_field($table, 'value', $$setting, $params)) {
+                                        $updated = true;
+                                    } else {
+                                        $success = false;
+                                    }
+                                } else {
+                                    $params['value'] = $$setting;
+                                    if ($DB->insert_record($table, $params)) {
+                                        $updated = true;
+                                    } else {
+                                        $success = false;
+                                    }
+                                }
+                                break;
+
+                            case 'assignment': // Moodle <= 2.2
+                            case 'forum':
+                            case 'workshop':
+                                if ($DB->set_field($cm->modname, 'maxbytes', $$setting, array('id' => $cm->instance))) {
+                                    $updated = true;
+                                } else {
+                                    $success = false;
+                                }
+                                break;
+
+                            // skip all other modules
+                            default: $skipped = true;
+                        }
+                        break;
+
                     // course module settings
                     case 'groupmode':
                     case 'groupingid':
@@ -1639,7 +1704,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $setting, $$setting,
                         $ratings, $gradecategories,
                         $groupmodes, $groupings,
-                        $indentmenu, $sectionmenu, $positionmenu,
+                        $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
                         $conditiongradeitemidmenu,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
@@ -2264,6 +2329,118 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '</tr>'."\n";
 
     // ============================
+    // Files and uploads
+    // ============================
+    //
+    if (count($filemods)) {
+        print_sectionheading(get_string('filesanduploads'), 'files', true);
+
+        echo '<tr>'."\n";
+        echo '<td class="itemname">'.get_string('phpuploadlimit', $plugin).':</td>'."\n";
+        echo '<td class="itemvalue">';
+        if ($limit = ini_get('upload_max_filesize')) {
+            echo display_size(get_real_size($limit)).' upload_max_filesize';
+            echo html_writer::empty_tag('br');
+        }
+        if ($limit = ini_get('post_max_size')) {
+            echo display_size(get_real_size($limit)).' post_max_size';
+        }
+        echo '</td>'."\n";
+        echo '<td class="itemselect">';
+        $href = substr(current_language(), 0, 2);
+        $href = "http://php.net/manual/$href/ini.core.php";
+        echo html_writer::start_tag('small');
+        echo html_writer::tag('a', get_string('info'), array('href' => $href.'#ini.upload-max-filesize',
+                                                             'onclick' => 'this.target="_blank"'));
+        echo html_writer::empty_tag('br');
+        echo html_writer::tag('a', get_string('info'), array('href' => $href.'#ini.post-max-size',
+                                                             'onclick' => 'this.target="_blank"'));
+        echo html_writer::end_tag('small');
+        echo '</td>'."\n";
+        echo '</tr>'."\n";
+
+        echo '<tr>'."\n";
+        echo '<td class="itemname">'.get_string('siteuploadlimit', $plugin).':</td>'."\n";
+        echo '<td class="itemvalue">';
+        // Site administration -> Security -> Site policies: Maximum uploaded file size
+        if ($siteuploadlimit) {
+            echo display_size($siteuploadlimit);
+        } else {
+            echo html_writer::tag('i', get_string('phpuploadlimit', $plugin));
+        }
+        echo '</td>'."\n";
+        echo '<td class="itemselect">';
+        if (has_capability('moodle/course:update', $sitecontext)) {
+            $link = new moodle_url('/admin/settings.php', array('section' => 'frontpagesettings'));
+            $link = html_writer::link($link, get_string('update'), array('onclick' => 'this.target="_blank"'));
+            echo html_writer::tag('small', $link);
+        }
+        echo '</td>'."\n";
+        echo '</tr>'."\n";
+
+        echo '<tr>'."\n";
+        echo '<td class="itemname">'.get_string('courseuploadlimit', $plugin).':</td>'."\n";
+        echo '<td class="itemvalue">';
+        if ($courseuploadlimit) {
+            echo display_size($courseuploadlimit);
+        } else {
+            echo html_writer::tag('i', get_string('siteuploadlimit', $plugin));
+        }
+        echo '</td>'."\n";
+        echo '<td class="itemselect">';
+        if (has_capability('moodle/course:update', $course->context)) {
+            $link = new moodle_url('/course/edit.php', array('id' => $course->id));
+            $link = html_writer::link($link, get_string('update'), array('onclick' => 'this.target="_blank"'));
+            echo html_writer::tag('small', $link);
+        }
+        echo '</td>'."\n";
+        echo '</tr>'."\n";
+
+        $printname = false;
+        foreach ($filemods as $name => $limit) {
+            echo '<tr>'."\n";
+            echo '<td class="itemname">';
+            if ($printname==false) {
+                $printname = true;
+                echo get_string('pluginuploadlimits', $plugin).':';
+            }
+            echo '</td>'."\n";
+            echo '<td class="itemvalue">';
+            if ($limit) {
+                $limit = display_size($limit);
+            } else {
+                $limit = html_writer::tag('i', get_string('courseuploadlimit', $plugin));
+            }
+            echo $limit.': '.get_string('pluginname', $name);
+            echo '</td>'."\n";
+            echo '<td class="itemselect">';
+            if ($hassiteconfig) {
+                if ($name=='assign') {
+                    $link = $name.'submission_file';
+                } else {
+                    $link = 'modsetting'.$name;
+                }
+                $link = new moodle_url('/admin/settings.php', array('section' => $link));
+                $link = html_writer::link($link, get_string('update'), array('onclick' => 'this.target="_blank"'));
+                echo html_writer::tag('small', $link);
+            }
+            echo '</td>'."\n";
+            echo '</tr>'."\n";
+        }
+
+        echo '<tr>'."\n";
+        echo '<td class="itemname">'.get_string('activityuploadlimit', $plugin).':</td>'."\n";
+        echo '<td class="itemvalue">';
+        echo html_writer::select($uploadlimitmenu, 'uploadlimit', $uploadlimit, '');
+        echo '</td>'."\n";
+        echo '<td class="itemselect">';
+        $script = "return set_disabled(this.form, new Array('uploadlimit'), (! this.checked))";
+        echo html_writer::checkbox('select_uploadlimit', 1, optional_param('select_uploadlimit', 0, PARAM_INT), '', array('onclick' => $script));
+        echo '</td>'."\n";
+        echo '</tr>'."\n";
+    }
+
+    // ============================
     // Access restrictions (Moodle >= 2.7)
     // Restrict access     (Moodle <= 2.6)
     // ============================
@@ -2667,7 +2844,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 function format_setting($name, $value,
                         $ratings, $gradecategories,
                         $groupmodes, $groupings,
-                        $indentmenu, $sectionmenu, $positionmenu,
+                        $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
                         $conditiongradeitemidmenu,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
@@ -2756,6 +2933,11 @@ function format_setting($name, $value,
         case 'position':
             $name = get_string('position', $plugin);
             $value = $positionmenu[$value];
+            break;
+
+        case 'uploadlimit':
+            $name = get_string('activityuploadlimit', $plugin);
+            $value = $uploadlimitmenu[$value];
             break;
 
         case 'removeconditions':
