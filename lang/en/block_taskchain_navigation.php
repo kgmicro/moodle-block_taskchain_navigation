@@ -314,6 +314,7 @@ $string['removeconditions_help'] = 'Previous access restrictions on selected act
 $string['removedgradecategories'] = 'Empty grade categories have been removed from the gradebook';
 $string['removegradecategories'] = 'Remove empty grade categories';
 $string['removegradecategories_help'] = 'Clicking the "Remove empty grade categories" link will initiate the removal of empty grade categories from the gradebook.';
+$string['sameas'] = 'same as {$a}';
 $string['save'] = 'Save';
 $string['sectionignorechars'] = 'Ignore these characters';
 $string['sectionignorechars_help'] = 'any characters specified here will be removed from the section titles';
@@ -475,7 +476,7 @@ $string['singlesection_help'] = '**Yes**
 
 **No**
 : users will be allowed to expand the course to view all sections if they want to';
-$string['siteuploadlimit'] = 'Moodle upload limit';
+$string['siteuploadlimit'] = 'Site upload limit';
 $string['specificactivitytypes'] = 'Specific activity types';
 $string['specifictext'] = 'Specific text';
 $string['sortactivities'] = 'Sort activities';

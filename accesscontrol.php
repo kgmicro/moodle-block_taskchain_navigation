@@ -2343,12 +2343,14 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '<td class="itemname">'.get_string('phpuploadlimit', $plugin).':</td>'."\n";
         echo '<td class="itemvalue">';
         if ($limit = ini_get('upload_max_filesize')) {
-            echo display_size(get_real_size($limit)).' upload_max_filesize ';
+            $limit = display_size(get_real_size($limit)).' upload_max_filesize ';
+            echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
             echo html_writer::link($href.'#ini.upload-max-filesize', $icon, $params);
             echo html_writer::empty_tag('br');
         }
         if ($limit = ini_get('post_max_size')) {
-            echo display_size(get_real_size($limit)).' post_max_size ';
+            $limit = display_size(get_real_size($limit)).' post_max_size ';
+            echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
             echo html_writer::link($href.'#ini.post-max-size', $icon, $params);
         }
         echo '</td>'."\n";
@@ -2356,18 +2358,21 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '</tr>'."\n";
 
         echo '<tr>'."\n";
-        echo '<td class="itemname">'.get_string('siteuploadlimit', $plugin).':</td>'."\n";
+        echo '<td class="itemname">'.get_string('siteuploadlimit', $plugin).':'.'</td>'."\n";
         echo '<td class="itemvalue">';
         // Site administration -> Security -> Site policies: Maximum uploaded file size
         if ($siteuploadlimit) {
-            echo display_size($siteuploadlimit);
+            $limit = display_size($siteuploadlimit);
         } else {
-            echo html_writer::tag('i', get_string('phpuploadlimit', $plugin));
+            $limit = get_string('phpuploadlimit', $plugin);
+            $limit = get_string('sameas', $plugin, $limit);
+            $limit = html_writer::tag('i', $limit);
         }
+        echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
         if (has_capability('moodle/course:update', $sitecontext)) {
             $href = new moodle_url('/admin/settings.php', array('section' => 'sitepolicies'));
             $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
-            echo ' '.html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
+            echo html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
         }
         echo '</td>'."\n";
         echo '<td class="itemselect"></td>'."\n";
@@ -2377,14 +2382,17 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '<td class="itemname">'.get_string('courseuploadlimit', $plugin).':</td>'."\n";
         echo '<td class="itemvalue">';
         if ($courseuploadlimit) {
-            echo display_size($courseuploadlimit);
+            $limit = display_size($courseuploadlimit);
         } else {
-            echo html_writer::tag('i', get_string('siteuploadlimit', $plugin));
+            $limit = get_string('siteuploadlimit', $plugin);
+            $limit = get_string('sameas', $plugin, $limit);
+            $limit = html_writer::tag('i', $limit);
         }
+        echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
         if (has_capability('moodle/course:update', $course->context)) {
             $href = new moodle_url('/course/edit.php', array('id' => $course->id));
             $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
-            echo ' '.html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
+            echo html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
         }
         echo '</td>'."\n";
         echo '<td class="itemselect"></td>'."\n";
@@ -2397,9 +2405,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             if ($limit) {
                 $limit = display_size($limit);
             } else {
-                $limit = html_writer::tag('i', get_string('courseuploadlimit', $plugin));
+                $limit = get_string('courseuploadlimit', $plugin);
+                $limit = get_string('sameas', $plugin, $limit);
+                $limit = html_writer::tag('i', $limit);
             }
-            echo $limit.': '.get_string('pluginname', $name);
+            $limit .= ': '.get_string('pluginname', $name);
+            echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
             if ($hassiteconfig) {
                 if ($name=='assign') {
                     $href = $name.'submission_file';
@@ -2408,7 +2419,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 }
                 $href = new moodle_url('/admin/settings.php', array('section' => $href));
                 $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
-                echo ' '.html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
+                echo html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
             }
             echo html_writer::empty_tag('br');
         }

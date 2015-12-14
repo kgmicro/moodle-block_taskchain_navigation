@@ -118,6 +118,12 @@
     font-size: 1.2em;
 }
 
+#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td span.uploadlimit {
+    display: inline-block;
+    margin-right: 12px;
+    min-width: 200px;
+}
+
 #page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue {
     text-align: left;
 }
