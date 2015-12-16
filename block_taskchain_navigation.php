@@ -2244,12 +2244,17 @@ class block_taskchain_navigation extends block_base {
             return;
         }
 
-        $select  = 'id,itemid,rawgrade,finalgrade';
-        $from    = $CFG->prefix.'grade_grades';
-        $where   = "itemid IN ($itemids)";
-
         if ($showaverages) {
             // a teacher - or at least someone who can view all users' grades
+
+            $select = 'itemid,'
+                     .'SUM(rawgrade) AS sum_rawgrade,'
+                     .'COUNT(rawgrade) AS count_rawgrade,'
+                     .'SUM(finalgrade) AS sum_finalgrade,'
+                     .'COUNT(finalgrade) AS count_finalgrade';
+            $from    = '{grade_grades}';
+            $where   = "itemid IN ($itemids)";
+            $groupby = 'GROUP BY itemid';
 
             // get specific groupid (optional)
             $groupid = $this->get_groupid();
@@ -2285,16 +2290,11 @@ class block_taskchain_navigation extends block_base {
                     }
                 }
             }
-            $select .= ''
-                .',SUM(rawgrade) AS sum_rawgrade'
-                .',COUNT(rawgrade) AS count_rawgrade'
-                .',SUM(finalgrade) AS sum_finalgrade'
-                .',COUNT(finalgrade) AS count_finalgrade'
-            ;
-            $groupby = 'GROUP BY itemid';
         } else {
             // show only the current user's grades (e.g. student)
-            $where .= " AND userid=$USER->id";
+            $select = 'id,itemid,rawgrade,finalgrade';
+            $from    = '{grade_grades}';
+            $where   = "itemid IN ($itemids) AND userid = $USER->id";
             $groupby = '';
         }
 
