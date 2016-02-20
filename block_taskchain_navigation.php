@@ -538,7 +538,7 @@ class block_taskchain_navigation extends block_base {
             switch ($items[$id]->itemtype) {
 
                 case 'course':
-                    if ($this->config->showcourse || $items[$id]->depth >= $this->config->minimumdepth) {
+                    if ($this->config->showcourse || ($this->config->minimumdepth && $items[$id]->depth >= $this->config->minimumdepth)) {
                         if ($name = $this->config->coursenamefield) {
                             switch ($name) {
                                 case 'fullname':
@@ -1716,6 +1716,11 @@ class block_taskchain_navigation extends block_base {
                         } else {
                             // show border-left
                             array_push($class, 'b1l');
+                            if ($record->itemtype=='ungraded') {
+                                // the ungraded row has only one-cell
+                                // so it needs both left and right styles
+                                array_push($class, 'b1r');
+                            }
                         }
                         break;
                 }
