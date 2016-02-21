@@ -1349,34 +1349,40 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
                     case 'section':
                         if ($cm->sectionnum==$section) {
-                            $success = true;
+                            $skipped = true;
                         } else {
                             // remove cm from old section
                             $params = array('course' => $course->id, 'section' => $cm->sectionnum);
-                            $sequence = $DB->get_field('course_sections', 'sequence', $params);
-                            if (is_string($sequence)) {
-                                $sequence = explode(',', $sequence);
-                                $sequence = preg_grep('/^'.$cm->id.'$/', $sequence, PREG_GREP_INVERT);
-                                $sequence = implode(',', $sequence);
-                                $DB->set_field('course_sections', 'sequence', $sequence, $params);
-                            }
-                            // add cm to target $section
-                            if ($position==1) {
-                                $add_cm_to_sequence = 'array_unshift'; // prepend to start of section
-                            } else {
-                                $add_cm_to_sequence = 'array_push'; // append to end of section
-                            }
-                            $params = array('course' => $course->id, 'section' => ($section > 0 ? $section : $cm->sectionnum));
-                            $sequence = $DB->get_field('course_sections', 'sequence', $params);
-                            if (is_string($sequence)) {
-                                $sequence = explode(',', $sequence);
-                                $sequence = preg_grep('/^'.$cm->id.'$/', $sequence, PREG_GREP_INVERT);
+                            if ($sectionid = $DB->get_field('course_sections', 'id', $params)) {
+                                $sequence = $DB->get_field('course_sections', 'sequence', $params);
+                                if (is_string($sequence)) {
+                                    $sequence = explode(',', $sequence);
+                                    $sequence = array_filter($sequence); // remove blanks
+                                    $sequence = preg_grep('/^'.$cm->id.'$/', $sequence, PREG_GREP_INVERT);
+                                    $sequence = implode(',', $sequence);
+                                    $DB->set_field('course_sections', 'sequence', $sequence, $params);
+                                }
+                                // add cm to target $section
+                                if ($position==1) {
+                                    $add_cm_to_sequence = 'array_unshift'; // prepend to start of section
+                                } else {
+                                    $add_cm_to_sequence = 'array_push'; // append to end of section
+                                }
+                                $params = array('course' => $course->id, 'section' => ($section >= 0 ? $section : $cm->sectionnum));
+                                $sectionid = $DB->get_field('course_sections', 'id', $params);
+                                $sequence = $DB->get_field('course_sections', 'sequence', $params);
+                                if (is_string($sequence)) {
+                                    $sequence = explode(',', $sequence);
+                                    $sequence = array_filter($sequence); // remove blanks
+                                    $sequence = preg_grep('/^'.$cm->id.'$/', $sequence, PREG_GREP_INVERT);
+                                } else {
+                                    $sequence = array(); // shouldn't happen !!
+                                }
                                 $add_cm_to_sequence($sequence, $cm->id);
                                 $sequence = implode(',', $sequence);
                                 $DB->set_field('course_sections', 'sequence', $sequence, $params);
+                                $DB->set_field('course_modules', 'section', $sectionid, array('id' => $cm->id));
                                 $updated = true;
-                            }
-                            if ($success) {
                                 $rebuild_course_cache = true;
                             }
                         }
