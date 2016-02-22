@@ -1326,7 +1326,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             // Note: there is no need to rebuild cache
                             $field = 'visibleold';
                         }
-                        if ($DB->set_field('course_modules', $field, $$setting, array('id', $cm->id))) {
+                        if ($DB->set_field('course_modules', $field, $$setting, array('id' => $cm->id))) {
                             $updated = true;
                         } else {
                             $success = false;
