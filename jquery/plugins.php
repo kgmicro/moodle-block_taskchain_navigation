@@ -31,9 +31,11 @@
  * Themes and other plugins may override any jquery plugin,
  * for example to override default jQueryUI theme.
  *
- * @package    core
- * @copyright  2013 Petr Skoda  {@link http://skodak.org}
+ * @package    blocks
+ * @subpackage taskchain_navigation
+ * @copyright  2014 Gordon Bateson <gordon.bateson@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 2.0
  */
 
 $plugins = array(

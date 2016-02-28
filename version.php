@@ -14,11 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * blocks/taskchain_navigation/version.php
+ *
+ * @package    blocks
+ * @subpackage taskchain_navigation
+ * @copyright  2014 Gordon Bateson <gordon.bateson@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 2.0
+ */
+
 $plugin->component = 'block_taskchain_navigation';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires  = 2010112400; // Moodle 2.0
-$plugin->version   = 2016022267;
-$plugin->release   = '2016-02-22 (67)';
+$plugin->version   = 2016022868;
+$plugin->release   = '2016-02-28 (68)';
 
 if (defined('ANY_VERSION')) { // Moodle >= 2.2
     $plugin->dependencies = array('mod_taskchain' => ANY_VERSION);
