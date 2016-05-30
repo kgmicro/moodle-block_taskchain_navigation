@@ -448,6 +448,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $cutoffdatemods = array();
 
     $completionfields = array();
+    $durationfields = array('completiontimespent');
 
     $count_cmids = 0;
     $selected_cmids = array();
@@ -517,6 +518,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                                 $$name = array_sum($$name); // i.e. same as logical AND
                             } else {
                                 $$name = optional_param($name, 0, PARAM_INT);
+                            }
+                            if (in_array($name, $durationfields)) {
+                                $$name *= optional_param($name.'_unit', 1, PARAM_INT);
                             }
                             $completionfields[$name] = get_completionfield($strman, $plugin, $cm->modname, $name, $$name, $fields);
                         }
@@ -1252,27 +1256,33 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     // Moodle <= 2.4
                     $filepath = $CFG->dirroot.'/mod/'.$cm->modname.'/lib.php';
                     if (! file_exists($filepath)) {
-                        notify("$cm->modname lib.php not found at $filepath");
+                        $msg = "$cm->modname lib.php not found at $filepath";
+                        echo $OUTPUT->notification($msg);
                     }
                     require_once($filepath);
 
                     $deleteinstancefunction = $cm->modname.'_delete_instance';
                     if (! function_exists($deleteinstancefunction)) {
-                        notify("$cm->modname delete function not found ($deleteinstancefunction)");
+                        $msg = "$cm->modname delete function not found ($deleteinstancefunction)";
+                        echo $OUTPUT->notification($msg);
                     }
 
                     // copied from "course/mod.php"
                     if (! $deleteinstancefunction($cm->instance)) {
-                        notify("Could not delete the $cm->modname (instance id=$cm->instance)");
+                        $msg = "Could not delete the $cm->modname (instance id=$cm->instance)";
+                        echo $OUTPUT->notification($msg);
                     }
                     if (! delete_course_module($cm->id)) {
-                        notify("Could not delete the $cm->modname (coursemodule, id=$cm->id)");
+                        $msg = "Could not delete the $cm->modname (coursemodule, id=$cm->id)";
+                        echo $OUTPUT->notification($msg);
                     }
                     if (! $sectionid = $DB->get_field('course_sections', 'id', array('course' => $cm->course, 'section' => $cm->sectionnum))) {
-                        notify("Could not get section id (course id=$cm->course, section num=$cm->sectionnum)");
+                        $msg = "Could not get section id (course id=$cm->course, section num=$cm->sectionnum)";
+                        echo $OUTPUT->notification($msg);
                     }
                     if (! delete_mod_from_section($cm->id, $sectionid)) {
-                        notify("Could not delete the $cm->modname (id=$cm->id) from that section (id=$sectionid)");
+                        $msg = "Could not delete the $cm->modname (id=$cm->id) from that section (id=$sectionid)";
+                        echo $OUTPUT->notification($msg);
                     }
 
                     add_to_log($cm->course, 'course', 'delete mod', "view.php?id=$cm->course", "$cm->modname $cm->instance", $cm->id);
@@ -1766,17 +1776,20 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         }
         if ($sortgradeitems) {
             echo '<tr><td class="notifymessage" colspan="2">';
-            notify(get_string('sortedgradeitems', $plugin), 'notifysuccess');
+            $msg = get_string('sortedgradeitems', $plugin);
+            echo $OUTPUT->notification($msg, 'notifysuccess');
             echo '</td></tr>'."\n";
         }
         if ($creategradecats) {
             echo '<tr><td class="notifymessage" colspan="2">';
-            notify(get_string('createdgradecategories', $plugin), 'notifysuccess');
+            $msg = get_string('createdgradecategories', $plugin);
+            echo $OUTPUT->notification($msg, 'notifysuccess');
             echo '</td></tr>'."\n";
         }
         if ($removegradecats) {
             echo '<tr><td class="notifymessage" colspan="2">';
-            notify(get_string('removedgradecategories', $plugin), 'notifysuccess');
+            $msg = get_string('removedgradecategories', $plugin);
+            echo $OUTPUT->notification($msg, 'notifysuccess');
             echo '</td></tr>'."\n";
         }
         if ($rebuild_course_cache) {
@@ -1793,12 +1806,14 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         }
         if ($success===true) {
             echo '<tr><td class="notifymessage" colspan="2">';
-            notify(get_string('success'), 'notifysuccess');
+            $msg = get_string('success');
+            echo $OUTPUT->notification($msg, 'notifysuccess');
             echo '</td></tr>'."\n";
         }
         if ($success===false) {
             echo '<tr><td class="notifymessage" colspan="2">';
-            notify(get_string('activityupdatefailure', $plugin), 'notifyproblem');
+            $msg = get_string('activityupdatefailure', $plugin);
+            echo $OUTPUT->notification($msg, 'notifyproblem');
             echo '</td></tr>'."\n";
         }
     }
@@ -2821,18 +2836,28 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 case 'checkbox':
                     echo html_writer::checkbox($name, 1, $$name, ' '.$desc.$modnames, $field->params);
                     break;
-                case 'textbox':
-                    echo $desc.' '.html_writer::empty_tag('input', $field->params).' '.$modnames;
+                case 'duration':
+                    $options = implode('', $field->options);
+                    echo $desc.' '.
+                         html_writer::empty_tag('input', $field->params['number']).' '.
+                         html_writer::tag('select', $options, $field->params['unit']).' '.$modnames;
                     break;
                 case 'select':
                     $options = implode('', $field->options);
                     echo $desc.' '.html_writer::tag('select', $options, $field->params).$modnames;
                     break;
+                case 'textbox':
+                    echo $desc.' '.html_writer::empty_tag('input', $field->params).' '.$modnames;
+                    break;
             }
             echo '</td>'."\n";
             echo '<td class="itemselect">';
+            $fieldnames = "'$fieldname'";
+            if ($type=='duration') {
+                $fieldnames .= ",'".$fieldname."_unit'";
+            }
             $script = ($type=='checkbox' ? 'true' : 'false'); // sync_checkbox
-            $script = "return set_disabled(this.form, new Array('$fieldname'), (! this.checked), $script)";
+            $script = "return set_disabled(this.form, new Array($fieldnames), (! this.checked), $script)";
             echo html_writer::checkbox('select_'.$name, 1, optional_param('select_'.$name, 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -3109,8 +3134,13 @@ function format_setting($name, $value,
                 $field = $completionfields[$name];
                 $name = $field->text;
                 switch ($field->type) {
-                    case 'checkbox': $value = format_yesno($value); break;
-                    case 'textbox' : $value = number_format($value); break;
+                    case 'checkbox':
+                        $value = format_yesno($value);
+                        break;
+                    case 'duration':
+                        list($value, $unit) = convert_seconds_to_duration($value);
+                        $value .= ' '.get_duration_units($unit);
+                        break;
                     case 'select':
                         $i = 1;
                         $num = $value;
@@ -3123,6 +3153,10 @@ function format_setting($name, $value,
                         }
                         $value = array_filter($value);
                         $value = implode(', ', $value);
+                        break;
+                    case 'textbox':
+                        $value = number_format($value);
+                        break;
                 }
             }
     }
@@ -3825,6 +3859,22 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
             $type = 'textbox';
             break;
 
+        case ($modname=='lesson'):
+            // fields: completionendreached, completiontimespent
+            switch ($name) {
+                case 'completiontimespent':
+                    $type = 'duration';
+                    $text = get_string($name.'group', $modname);
+                    $desc = get_string($name, $modname);
+                    break;
+                case 'completionendreached':
+                default:
+                    $type = 'checkbox';
+                    $text = get_string($name, $modname);
+                    $desc = get_string($name.'_desc', $modname);
+            }
+            break;
+
         case ($modname=='scorm'):
             // fields: statusrequired, scorerequired
             $text = get_string($name, $modname);
@@ -3886,14 +3936,31 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
                             'class'  => 'completionfield');
             break;
 
-        case 'textbox':
-            $params = array('id'     => "id_$name",
-                            'name'   => $name,
-                            'type'   => 'text',
-                            'size'   => 4,
-                            'maxlen' => 4,
-                            'value'  => $value,
-                            'class'  => 'completionfield');
+        case 'duration':
+            // adjust $value and set $unit
+            list($value, $unit) = convert_seconds_to_duration($value);
+
+            $options = get_duration_units();
+            foreach ($options as $i => $option) {
+                $params = array('value' => $i);
+                if ($i==$unit) {
+                    $params['selected'] = 'selected';
+                }
+                $options[$i] = html_writer::tag('option', $option, $params);
+            }
+
+            $params = array(
+                'number' => array('id'     => 'id_'.$name,
+                                  'name'   => $name,
+                                  'type'   => 'text',
+                                  'size'   => 4,
+                                  'maxlen' => 4,
+                                  'value'  => $value,
+                                  'class'  => 'completionfield'),
+                'unit' => array('id'       => 'id_'.$name.'_unit',
+                                'name'     => $name.'_unit',
+                                'class'    => 'completionfield',
+                                'selected' => $unit));
             break;
 
         case 'select':
@@ -3911,6 +3978,20 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
                             'size'     => count($options),
                             'class'    => 'completionfield');
             break;
+
+        case 'textbox':
+            $params = array('id'     => "id_$name",
+                            'name'   => $name,
+                            'type'   => 'text',
+                            'size'   => 4,
+                            'maxlen' => 4,
+                            'value'  => $value,
+                            'class'  => 'completionfield');
+            break;
+
+        default:
+            //echo 'Unknown completion element type: '.$type;
+            //die;
     }
 
     return (object)array(
@@ -3925,3 +4006,30 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
     );
 }
 
+function get_duration_units($unit=null) {   
+    $units = array(WEEKSECS => get_string('weeks'),
+                   DAYSECS  => get_string('days'),
+                   HOURSECS => get_string('hours'),
+                   MINSECS  => get_string('minutes'),
+                   1        => get_string('seconds'));
+    if ($unit===null) {
+        return $units;
+    }
+    if (array_key_exists($unit, $units)) {
+        return $units[$unit];
+    }
+    return $unit; // unknown $unit - shouldn't happen !!
+}
+
+function convert_seconds_to_duration($seconds) {
+    if (empty($seconds)) {
+        return array(0, 60);
+    }
+    $units = get_duration_units();
+    foreach ($units as $unit => $text) {
+        if (($seconds % $unit)==0) {
+            return array($seconds / $unit, $unit);
+        }
+    }
+    return array($seconds, 1); // shouldn't happen !!
+}
