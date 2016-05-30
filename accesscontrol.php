@@ -541,12 +541,18 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $is_label    = (plugin_supports('mod', $cm->modname, FEATURE_NO_VIEW_LINK, false)==true);
                     $is_resource = (plugin_supports('mod', $cm->modname, FEATURE_MOD_ARCHETYPE, MOD_ARCHETYPE_OTHER)==MOD_ARCHETYPE_RESOURCE);
                     $has_rating  = (plugin_supports('mod', $cm->modname, FEATURE_RATE, false)==true);
-                    $has_grading = (plugin_supports('mod', $cm->modname, FEATURE_ADVANCED_GRADING, false)==true);
                 } else {
                     $is_label    = in_array($cm->modname, array('label'));
                     $is_resource = in_array($cm->modname, array('book', 'folder', 'imscp', 'page', 'resource', 'url'));
                     $has_rating  = in_array($cm->modname, array('data', 'forum', 'glossary'));
-                    $has_grading = in_array($cm->modname, array('assign'));
+                }
+                if ($has_grading = defined('FEATURE_ADVANCED_GRADING')) {
+                    // Moodle >= 2.2
+                    if ($modhaslibfile) {
+                        $has_grading = (plugin_supports('mod', $cm->modname, FEATURE_ADVANCED_GRADING, false)==true);
+                    } else {
+                        $has_grading = in_array($cm->modname, array('assign'));
+                    }
                 }
                 if ($is_label) {
                     $labelmods[] = $cm->modname;;

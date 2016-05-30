@@ -1981,12 +1981,14 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function get_sectiontext($modinfo, $sectionnum) {
-        global $COURSE, $USER;
+        global $COURSE, $DB, $USER;
 
         if (method_exists($modinfo, 'get_section_info')) {
+            // Moodle >= 2.3
             $section = $modinfo->get_section_info($sectionnum);
         } else {
-            $section = $modinfo->sections[$sectionnum];
+            // Moodle <= 2.2
+            $section = $DB->get_record('course_sections', array('course' => $COURSE->id, 'section' => $sectionnum));
         }
 
         $text = '';
@@ -2037,12 +2039,14 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function format_sectioninfo($modinfo, $sectionnums) {
-        global $COURSE, $USER;
+        global $COURSE, $DB, $USER;
 
         if (method_exists($modinfo, 'get_section_info_all')) {
+            // Moodle >= 2.3
             $sections = $modinfo->get_section_info_all();
         } else {
-            $sections = $modinfo->sections;
+            // Moodle <= 2.2
+            $sections = $DB->get_records('course_sections', array('course' => $COURSE->id), 'section');
         }
 
         $sectioninfo = array();
