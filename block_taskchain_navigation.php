@@ -2435,7 +2435,7 @@ class block_taskchain_navigation extends block_base {
         global $CFG, $COURSE, $DB, $USER, $modinfo, $mods;
 
         $modinfo = get_fast_modinfo($COURSE, $USER->id);
-        $sections = $modinfo->get_section_info_all($modinfo);
+        $sections = $this->get_section_info_all($modinfo);
 
         if (empty($sections)) {
             return false;

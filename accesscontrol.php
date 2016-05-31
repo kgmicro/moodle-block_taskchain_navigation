@@ -859,6 +859,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $conditiongroupidmenu       = array();
     $conditiongroupingidmenu    = array();
     $conditionactionmenu        = array();
+    $conditioncmcompletionmenu  = array();
 
     if ($enableavailability) {
         $basemenuitems = array(
