@@ -320,11 +320,8 @@ class block_taskchain_navigation extends block_base {
         }
 
         $modinfo = get_fast_modinfo($COURSE, $USER->id);
-        if (method_exists($modinfo, 'get_section_info')) {
-            $section = $modinfo->get_section_info(0);
-        } else {
-            $section = $modinfo->sections[0];
-        }
+        $section = $this->get_section_info($modinfo, $sectionnum);
+
         $search = '/<script[^>]+>.*?<\/script>[\n\r]*/s';
         $summary = preg_replace($search, '', $section->summary);
         $summary .= $js;
@@ -1207,11 +1204,7 @@ class block_taskchain_navigation extends block_base {
     function format_shortcuts($sectioninfo, $modinfo, $depths) {
         global $CFG, $COURSE, $USER;
 
-        if (method_exists($modinfo, 'get_section_info_all')) {
-            $sections = $modinfo->get_section_info_all();
-        } else {
-            $sections = $modinfo->sections;
-        }
+        $sections = $this->get_section_info_all($modinfo);
 
         $rows = array();
         if ($this->config->gradebooklink) {
@@ -1981,18 +1974,9 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function get_sectiontext($modinfo, $sectionnum) {
-        global $COURSE, $DB, $USER;
-
-        if (method_exists($modinfo, 'get_section_info')) {
-            // Moodle >= 2.3
-            $section = $modinfo->get_section_info($sectionnum);
-        } else {
-            // Moodle <= 2.2
-            $section = $DB->get_record('course_sections', array('course' => $COURSE->id, 'section' => $sectionnum));
-        }
 
         $text = '';
-        if ($section) {
+        if ($section = $this->get_section_info($modinfo, $sectionnum)) {
             if (isset($section->name)) {
                 $text = self::filter_text($section->name);
             }
@@ -2039,21 +2023,15 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function format_sectioninfo($modinfo, $sectionnums) {
-        global $COURSE, $DB, $USER;
-
-        if (method_exists($modinfo, 'get_section_info_all')) {
-            // Moodle >= 2.3
-            $sections = $modinfo->get_section_info_all();
-        } else {
-            // Moodle <= 2.2
-            $sections = $DB->get_records('course_sections', array('course' => $COURSE->id), 'section');
-        }
 
         $sectioninfo = array();
 
+        $sections = $this->get_section_info_all($modinfo);
         if (empty($sections)) {
             $sections = array(); // shouldn't happen !!
         }
+
+        $courseid = $modinfo->get_course_id();
 
         $canviewhiddensections = $this->can_course_viewhiddensections();
 
@@ -2078,7 +2056,7 @@ class block_taskchain_navigation extends block_base {
             }
 
             if ($showlink) {
-                $href = 'view.php?id='.$COURSE->id.'&amp;section='.$sectionnum;
+                $href = 'view.php?id='.$courseid.'&amp;section='.$sectionnum;
             } else {
                 $href = '';
             }
@@ -2457,11 +2435,7 @@ class block_taskchain_navigation extends block_base {
         global $CFG, $COURSE, $DB, $USER, $modinfo, $mods;
 
         $modinfo = get_fast_modinfo($COURSE, $USER->id);
-        if (method_exists($modinfo, 'get_section_info_all')) {
-            $sections = $modinfo->get_section_info_all();
-        } else {
-            $sections = $modinfo->sections;
-        }
+        $sections = $modinfo->get_section_info_all($modinfo);
 
         if (empty($sections)) {
             return false;
@@ -2945,6 +2919,59 @@ class block_taskchain_navigation extends block_base {
             $text = $head.' ... '.$tail;
         }
         return $text;
+    }
+
+    /**
+     * get_section_info
+     *
+     * a wrapper method to offer consistent API
+     * to get info for a single section
+     *
+     * @param xxx $modinfo
+     * @param xxx $sectionnum
+     * @return xxx
+     */
+    function get_section_info($modinfo, $sectionnum) {
+        global $DB;
+
+        if (method_exists($modinfo, 'get_section_info')) {
+            // Moodle >= 2.3
+            return $modinfo->get_section_info($sectionnum);
+        }
+
+        // Moodle <= 2.2
+        $params = array('course' => $modinfo->get_course_id(),
+                        'section' => $sectionnum);
+        return $DB->get_record('course_sections', $params);
+    }
+
+    /**
+     * get_section_info_all
+     *
+     * a wrapper method to offer consistent API
+     * to get info for all sections
+     *
+     * @param xxx $modinfo
+     * @return xxx
+     */
+    function get_section_info_all($modinfo) {
+        global $DB;
+
+        if (method_exists($modinfo, 'get_section_info_all')) {
+            // Moodle >= 2.3
+            return $modinfo->get_section_info_all();
+        }
+
+        // Moodle <= 2.2
+        $info = array();
+        $params = array('course' => $modinfo->get_course_id());
+        if ($sections = $DB->get_records('course_sections', $params, 'section')) {
+            foreach ($sections as $section) {
+                $sectionnum = $section->section;
+                $info[$sectionnum] = $section;
+            }
+        }
+        return $info;
     }
 
     /**
