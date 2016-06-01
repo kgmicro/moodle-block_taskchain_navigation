@@ -231,6 +231,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     // additionally, there may be a number of activity-specific completion fields
     // (e.g. the "completionpass" field used by the Quiz and TaskChain modules)
 
+    // Competency settings
+    $competencyrule = optional_param('competencyrule', 0, PARAM_INT);
+
     $conditiondate = array();
     $conditiondatetime = array();
 
@@ -347,6 +350,17 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
     if ($enablecompletion) {
         array_push($settings, 'removecompletion', 'erasecompletion', 'completiontracking', 'completiondate');
+    }
+
+    // are we using competencies
+    // (available in Moodle >= 3.1)
+    if (get_config('core_competency', 'enabled')) {
+        $enablecompetency = true;
+    } else {
+        $enablecompetency = false;
+    }
+    if ($enablecompetency) {
+        array_push($settings, 'competencyrule');
     }
 
     // custom html tags that delimit section title
@@ -1046,6 +1060,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         $completiontrackingmenu = array();
     }
 
+    if (class_exists('core_competency\\course_module_competency')) { // Moodle >= 3.1
+        $competencyrulemenu = \core_competency\course_module_competency::get_ruleoutcome_list();
+    } else {
+        $competencyrulemenu = array();
+    }
+
+
     // initialize state flags
     $success               = null;
     $started_list          = false;
@@ -1661,6 +1682,17 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         }
                         break;
 
+                    case 'competencyrule':
+                        $data = (object)array(
+                            'coursemodule' => $cm->id,
+                            'competencies' => array(),
+                            'competency_rule' => $competencyrule
+                        );
+                        // see "admin/tool/lp/lib.php"
+                        $data = tool_lp_coursemodule_edit_post_actions($data, $course);
+                        $updated = true;
+                        break;
+
                     default:
                         if (array_key_exists($setting, $completionfields)) {
                             $field = $completionfields[$setting];
@@ -1751,7 +1783,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
                         $conditiongroupidmenu, $conditiongroupingidmenu,
-                        $conditionactionmenu, $completiontrackingmenu, $completionfields
+                        $conditionactionmenu, $completiontrackingmenu,
+                        $completionfields, $competencyrulemenu
                     );
                     echo '<tr><td class="itemname">'.$name.':</td><td class="itemvalue">'.$value.'</td></tr>'. "\n";
                 }
@@ -2874,6 +2907,27 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         }
     }
 
+    // ============================
+    // Activity competency
+    // ============================
+    //
+    if ($enablecompetency) {
+
+        print_sectionheading(get_string('competencies', 'competency'), 'competency', true);
+
+        echo '<tr>'."\n";
+        echo '<td class="itemname">'.get_string('uponcoursemodulecompletion', 'tool_lp').':</td>'."\n";
+        echo '<td class="itemvalue">';
+        echo html_writer::select($competencyrulemenu, 'competencyrule', $competencyrule, '');
+        echo html_writer::empty_tag('br').'('.get_string('usedbyall', $plugin).')';
+        echo '</td>'."\n";
+        echo '<td class="itemselect">';
+        $script = "return set_disabled(this.form, new Array('competencyrule'), (! this.checked))";
+        echo html_writer::checkbox('select_competencyrule', 1, optional_param('select_competencyrule', 0, PARAM_INT), '', array('onclick' => $script));
+        echo '</td>'."\n";
+        echo '</tr>'."\n";
+    }
+
     print_sectionheading(get_string('actions'), 'actions', false);
 
     echo '<tr>'."\n";
@@ -2905,7 +2959,7 @@ function format_setting($name, $value,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
                         $conditiongroupidmenu, $conditiongroupingidmenu, $conditionactionmenu,
-                        $completiontrackingmenu, $completionfields) {
+                        $completiontrackingmenu, $completionfields, $competencyrulemenu) {
 
     $plugin = 'block_taskchain_navigation';
     switch ($name) {
@@ -3137,6 +3191,11 @@ function format_setting($name, $value,
         case 'completiondate':
             $name = get_string('completionexpected', 'completion');
             $value = ($value ? userdate($value) : get_string('disable'));
+            break;
+
+        case 'competencyrule':
+            $name = get_string('uponcoursemodulecompletion', 'tool_lp');
+            $value = $competencyrulemenu[$value];
             break;
 
         default:
