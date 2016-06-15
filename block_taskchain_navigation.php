@@ -41,11 +41,15 @@ require_once($CFG->dirroot.'/lib/gradelib.php');
  */
 class block_taskchain_navigation extends block_base {
 
+    /** the current group id */
+    protected $groupid = null;
+
     /**
      * init
      */
     function init() {
         $this->title = get_string('blockname', 'block_taskchain_navigation');
+        $this->set_groupid();
     }
 
     /**
@@ -159,6 +163,7 @@ class block_taskchain_navigation extends block_base {
             'groupsmenu'      => 0, // 0=hide, 1=show groups menu
             'groupslabel'     => 0, // 0=hide, 1=show label next to groups menu
             'groupscountusers' => 0, // 0=hide 1=show count of users in each group in groups menu
+            'groupssort'      => 0, // 0=name, 1=idnumber, 2=timecreated, 3=timemodified
 
             'loginasmenu'     => 0, // 0=hide, 1=show loginas menu
             'loginassort'     => 1, // 0=fullname, 1=firstname, 2=lastname, 3=username, 4=idnumber
@@ -2259,8 +2264,8 @@ class block_taskchain_navigation extends block_base {
             $where   = "itemid IN ($itemids)";
             $groupby = 'GROUP BY itemid';
 
-            // get specific groupid (optional)
-            $groupid = $this->get_groupid();
+            // get active groupid for this course during this $SESSION
+            $groupid = $this->groupid;
 
             // get groupmode: 0=NOGROUPS, 1=VISIBLEGROUPS, 2=SEPARATEGROUPS
             $groupmode = groups_get_course_groupmode($COURSE);
@@ -2671,7 +2676,18 @@ class block_taskchain_navigation extends block_base {
             return ''; // no groups in this course
         }
 
+        switch ($this->config->groupssort) {
+            case 3: $sortfield = 'g.timemodified'; break;
+            case 2: $sortfield = 'g.timecreated'; break;
+            case 1: $sortfield = 'g.idnumber'; break;
+            case 0: // this is the default value
+            default: $sortfield = 'g.name';
+        }
+
         $select = 'g.id, g.name';
+        if (strpos($select, $sortfield)===false) {
+            $select .= ", $sortfield";
+        }
         $from   = "{$CFG->prefix}groups g";
         if ($this->config->groupscountusers) {
             $select .= ', gm.groupid, COUNT(gm.userid) AS countusers';
@@ -2687,26 +2703,26 @@ class block_taskchain_navigation extends block_base {
         }
 
         // get list of groups
-        $groups = $DB->get_records_sql("SELECT $select FROM $from WHERE $where GROUP BY g.id ORDER BY g.name");
+        $groups = $DB->get_records_sql("SELECT $select FROM $from WHERE $where GROUP BY g.id ORDER BY $sortfield");
 
         if (empty($groups)) {
             return ''; // no groups found for this course ?!
         }
 
-        ## get groupid (optional)
-        $groupid = $this->get_groupid();
+        // get active groupid for this course during this $SESSION
+        $groupid = $this->groupid;
 
         $href = $CFG->wwwroot.'/course/view.php?id='.$COURSE->id;
         if ($section = optional_param('section', 0, PARAM_INT)) {
             $href .= "&section=$section";
         }
-        $menu = '<form class="groupid_form" method="post" action="'.$href.'"><div>';
+        $menu = '<form class="group_form" method="post" action="'.$href.'"><div>';
 
         if ($this->config->groupslabel) {
             $menu .= get_string('group').': ';
         }
 
-        $menu .= '<select id="groupidselect" name="groupid" onchange="this.form.submit()">';
+        $menu .= '<select id="id_group" name="group" onchange="this.form.submit()">';
 
         if (count($groups) > 1) {
             $menu .= '<option value="0">'.get_string('allgroups').'</option>';
@@ -2725,11 +2741,11 @@ class block_taskchain_navigation extends block_base {
         }
         $menu .= '</select>';
 
-        $menu .= '<input id="groupidsubmit" class="submitbutton" type="submit" value="'.get_string('go').'" />';
+        $menu .= '<input id="id_groupsubmit" class="submitbutton" type="submit" value="'.get_string('go').'" />';
         $menu .= ''
             .'<script type="text/javascript">'."\n"
             .'//<![CDATA['."\n"
-            .'document.getElementById("groupidsubmit").style.display = "none";'."\n"
+            .'document.getElementById("id_groupsubmit").style.display = "none";'."\n"
             .'//]]>'."\n"
             .'</script>'."\n"
         ;
@@ -2762,8 +2778,8 @@ class block_taskchain_navigation extends block_base {
         $where  = '';
         $orderby  = 'firstname, lastname';
 
-        // get specific groupid (optional)
-        $groupid = $this->get_groupid();
+        // get active groupid for this course during this $SESSION
+        $groupid = $this->groupid;
 
         // get groupmode: 0=NOGROUPS, 1=VISIBLEGROUPS, 2=SEPARATEGROUPS
         $groupmode = groups_get_course_groupmode($COURSE);
@@ -2854,29 +2870,63 @@ class block_taskchain_navigation extends block_base {
     }
 
     /**
-     * get_groupid
-     *
-     * @param int $default (optional, default=0)
-     * @return int id of selected user group
+     * set active groupid for this course during this $SESSION
      */
-    function get_groupid($default=0) {
-        global $COURSE, $DB;
-        static $groupid = null;
+    protected function set_groupid() {
+        global $COURSE, $DB, $SESSION;
 
-        if (is_null($groupid)) {
-            $preferencename = 'taskchain_navigation_groupid_'.$COURSE->id;
-            $groupid = get_user_preferences($preferencename, $default);
-            if ($groupid = optional_param('groupid', $groupid, PARAM_INT)) {
-                if ($DB->record_exists('groups', array('id' => $groupid, 'courseid' => $COURSE->id))) {
-                    set_user_preference($preferencename, $groupid);
-                } else {
-                    unset_user_preference($preferencename);
-                    $groupid = $default;
-                }
-            }
+        // the user_preference that stores the groupid for this course
+        // this is used to maintain the preference between sessions
+        $preferencename = 'taskchain_navigation_groupid_'.$COURSE->id;
+
+        // get course context
+        if (isset($COURSE->context)) {
+            $context = $COURSE->context;
+        } else {
+            $context = self::context(CONTEXT_COURSE, $COURSE->id);
         }
 
-        return $groupid;
+        // get groupmode: 0=NOGROUPS, 1=VISIBLEGROUPS, 2=SEPARATEGROUPS
+        if (has_capability('moodle/site:accessallgroups', $context)) {
+            $groupmode = 'aag';
+        } else {
+            $groupmode = $COURSE->groupmode;
+        }
+
+        // get the activegroup for this course
+        // if this is the first time to access $SESSION
+        // we fetch the activegroup from the user preferences
+        if (! isset($SESSION->activegroup)) {
+            $SESSION->activegroup = array();
+        }
+        if (! isset($SESSION->activegroup[$COURSE->id])) {
+            $SESSION->activegroup[$COURSE->id] = array();
+        }
+        if (! isset($SESSION->activegroup[$COURSE->id][$groupmode])) {
+             $SESSION->activegroup[$COURSE->id][$groupmode] = array();
+        }
+        if (! isset($SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid])) {
+            $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid] = get_user_preferences($preferencename, 0);
+        }
+        $groupid = $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid];
+
+        // check the groupid is valid
+        if ($groupid = optional_param('group', $groupid, PARAM_INT)) {
+            $exists = $DB->record_exists('groups', array('id' => $groupid, 'courseid' => $COURSE->id));
+        } else {
+            $exists = false;
+        }
+
+        // if $groupid is valid, cache it for next time
+        if ($exists) {
+            $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid] = $groupid;
+            set_user_preference($preferencename, $groupid);
+            $this->groupid = $groupid;
+        } else {
+            unset($SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid]);
+            unset_user_preference($preferencename);
+            $this->groupid = 0;
+        }
     }
 
     /**

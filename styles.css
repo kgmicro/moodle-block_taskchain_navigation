@@ -300,11 +300,11 @@ tr.hidden {
  * styles for the taskchain_navigation block
  */
 
-form.groupid_form {
+form.group_form {
     margin: 4px auto;
 }
 
-form.groupid_form select {
+form.group_form select {
     font-size: 0.9em;
     /* === round corners === **
     border-width: 2px;

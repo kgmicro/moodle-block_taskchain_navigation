@@ -218,6 +218,18 @@ $string['groupsmenu_help'] = '**Yes**
 If the course is using "separate groups" and the user is a non-editing teacher assigned to a specific group, he or she can only see groups to which he or she belongs.
 
 If the course is not using groups, or it is using visible groups, or if the user is a teacher or other user who has the "moodle/site:accessallgroups" capability in this course, the full list of groups will be displayed.';
+$string['groupssort'] = 'Sort groups menu';
+$string['groupssort_help'] = '**Name**
+: The list of groups will be sorted by group name.
+
+**ID number**
+: The list of groups will be sorted by group ID number.
+
+**Date and time created**
+: The list of groups will sorted by the date and time that each group was created.
+
+**Date and time modified**
+: The list of groups will sorted by the date and time that each group was last modified.';
 $string['head'] = 'Head';
 $string['hiddensections'] = 'Hidden sections';
 $string['hiddensections_help'] = 'If this setting is set to "Yes", then this block will display a list of course sections that allows a teacher to select which sections are visible and which are hidden.
@@ -537,6 +549,8 @@ $string['suffixlong_help'] = '**Short**
 **Long**
 : the longest suffix will be used';
 $string['tail'] = 'Tail';
+$string['timecreated'] = 'Date and time created';
+$string['timemodified'] = 'Date and time modified';
 $string['title'] = 'Title';
 $string['title_help'] = 'This is the string that will be displayed as the title of this block.
 If this field is blank, no title will be displayed for this block.';

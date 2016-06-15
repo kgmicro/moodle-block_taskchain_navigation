@@ -486,6 +486,19 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, $name, $plugin);
 
+        $name = 'groupssort';
+        $config_name = 'config_'.$name;
+        $options = array(
+            0 => get_string('name'),
+            1 => get_string('idnumber'),
+            2 => get_string('timecreated', $plugin),
+            3 => get_string('timemodified', $plugin)
+        );
+        $mform->addElement('select', $config_name, get_string($name, $plugin), $options);
+        $mform->setType($config_name, PARAM_INT);
+        $mform->setDefault($config_name, $this->defaultvalue($name));
+        $mform->addHelpButton($config_name, $name, $plugin);
+
         $name = 'loginasmenu';
         $config_name = 'config_'.$name;
         $mform->addElement('selectyesno', $config_name, get_string($name, $plugin));
