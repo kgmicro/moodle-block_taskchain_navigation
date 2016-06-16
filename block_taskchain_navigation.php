@@ -49,7 +49,7 @@ class block_taskchain_navigation extends block_base {
      */
     function init() {
         $this->title = get_string('blockname', 'block_taskchain_navigation');
-        $this->set_groupid();
+        $this->get_groupid();
     }
 
     /**
@@ -2265,7 +2265,7 @@ class block_taskchain_navigation extends block_base {
             $groupby = 'GROUP BY itemid';
 
             // get active groupid for this course during this $SESSION
-            $groupid = $this->groupid;
+            $groupid = $this->get_groupid();
 
             // get groupmode: 0=NOGROUPS, 1=VISIBLEGROUPS, 2=SEPARATEGROUPS
             $groupmode = groups_get_course_groupmode($COURSE);
@@ -2710,7 +2710,7 @@ class block_taskchain_navigation extends block_base {
         }
 
         // get active groupid for this course during this $SESSION
-        $groupid = $this->groupid;
+        $groupid = $this->get_groupid();
 
         $href = $CFG->wwwroot.'/course/view.php?id='.$COURSE->id;
         if ($section = optional_param('section', 0, PARAM_INT)) {
@@ -2779,7 +2779,7 @@ class block_taskchain_navigation extends block_base {
         $orderby  = 'firstname, lastname';
 
         // get active groupid for this course during this $SESSION
-        $groupid = $this->groupid;
+        $groupid = $this->get_groupid();
 
         // get groupmode: 0=NOGROUPS, 1=VISIBLEGROUPS, 2=SEPARATEGROUPS
         $groupmode = groups_get_course_groupmode($COURSE);
@@ -2872,8 +2872,23 @@ class block_taskchain_navigation extends block_base {
     /**
      * set active groupid for this course during this $SESSION
      */
-    protected function set_groupid() {
-        global $COURSE, $DB, $SESSION;
+    protected function get_groupid() {
+        global $COURSE, $DB, $SESSION, $USER;
+
+        // if we have already set the groupid,
+        // just return it and stop here
+        if (isset($this->groupid)) {
+            return $this->groupid;
+        }
+
+        // intialize groupid
+        $this->groupid = 0;
+
+        // if groups are not used in this course,
+        // set to groupid to zero and stop here
+        if ($COURSE->groupmode==NOGROUPS) {
+            return $this->groupid;
+        }
 
         // the user_preference that stores the groupid for this course
         // this is used to maintain the preference between sessions
@@ -2900,33 +2915,41 @@ class block_taskchain_navigation extends block_base {
             $SESSION->activegroup = array();
         }
         if (! isset($SESSION->activegroup[$COURSE->id])) {
-            $SESSION->activegroup[$COURSE->id] = array();
+            $SESSION->activegroup[$COURSE->id] = array(VISIBLEGROUPS => array(), SEPARATEGROUPS => array(), 'aag' => array());
         }
         if (! isset($SESSION->activegroup[$COURSE->id][$groupmode])) {
              $SESSION->activegroup[$COURSE->id][$groupmode] = array();
         }
         if (! isset($SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid])) {
-            $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid] = get_user_preferences($preferencename, 0);
+            $groupid = get_user_preferences($preferencename, 0); // first time this $SESSION
+        } else {
+            $groupid = $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid];
         }
-        $groupid = $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid];
 
-        // check the groupid is valid
+        // override previously set $groupid with incoming form value, if any
+        // and then store $groupid locally, if it is valid
         if ($groupid = optional_param('group', $groupid, PARAM_INT)) {
-            $exists = $DB->record_exists('groups', array('id' => $groupid, 'courseid' => $COURSE->id));
-        } else {
-            $exists = false;
+            if ($groupmode==SEPARATEGROUPS) {
+                $groups = groups_get_all_groups($COURSE->id, $USER->id);
+            } else {
+                $groups = groups_get_all_groups($COURSE->id); // all groups
+            }
+            if ($groups && count($groups)) {
+                if (array_key_exists($groupid, $groups)) {
+                    $this->groupid = $groupid;
+                } else if ($groupmode==SEPARATEGROUPS) {
+                    $this->groupid = key($groups);
+                }
+            }
         }
 
-        // if $groupid is valid, cache it for next time
-        if ($exists) {
-            $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid] = $groupid;
-            set_user_preference($preferencename, $groupid);
-            $this->groupid = $groupid;
-        } else {
-            unset($SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid]);
-            unset_user_preference($preferencename);
-            $this->groupid = 0;
-        }
+        // cache $this->groupid for other scripts (via $SESSION)
+        // and also later sessions (passing it via user preferences)
+        $SESSION->activegroup[$COURSE->id][$groupmode][$COURSE->defaultgroupingid] = $this->groupid;
+        set_user_preference($preferencename, $this->groupid);
+
+        // return valid groupid
+        return $this->groupid;
     }
 
     /**
