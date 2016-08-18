@@ -363,7 +363,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         array_push($settings, 'competencyrule');
     }
 
-    // custom html tags that delimit section title
+    // custom html tags that delimit section title in the section summary
     $sectiontags = optional_param('sectiontags', '', PARAM_TEXT);
 
     // set course section type
@@ -597,11 +597,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $cms[$sectionnum] = array();
             }
 
-			if (in_array($cmid, $cmids_array)) {
-				$selected = ' selected="selected"';
-			} else {
-				$selected = '';
-			}
+            if (in_array($cmid, $cmids_array)) {
+                $selected = ' selected="selected"';
+            } else {
+                $selected = '';
+            }
 
             $url = $PAGE->theme->pix_url('icon', $cm->modname)->out();
             $style = ' style="background-image: url('.$url.'); background-repeat: no-repeat; background-position: 1px 2px; min-height: 20px; padding-left: 12px;"';
@@ -611,7 +611,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $name = trim(strip_tags($name));
             $name = block_taskchain_navigation::trim_text($name, $cm_namelength, $cm_headlength, $cm_taillength);
 
-			$cms[$sectionnum][] = '<option value="'.$cm->id.'"'.$selected.$style.'>'.$name.'</option>';
+            $cms[$sectionnum][] = '<option value="'.$cm->id.'"'.$selected.$style.'>'.$name.'</option>';
 
             $select = $select_defaultvalue;
             if ($select && count($sections_array)) {
@@ -2027,6 +2027,15 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     // ============================
     //
     print_sectionheading(get_string('activityfilters', $plugin), 'activityfilters', false);
+
+    echo '<tr>'."\n";
+    echo '<td class="itemname">'.get_string('sectiontags', $plugin).
+                                 $OUTPUT->help_icon('sectiontags', $plugin).'</td>'."\n";
+    echo '<td class="itemvalue">';
+    echo '<input id="id_sectiontags" type="text" name="sectiontags" size="15" value="'.$sectiontags.'" />';
+    echo '</td>'."\n";
+    echo '<td class="itemselect">&nbsp;</td>'."\n";
+    echo '</tr>'."\n";
 
     echo '<tr>'."\n";
     echo '<td class="itemname">'.get_string('sections', $plugin).':';
@@ -4075,7 +4084,7 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
     );
 }
 
-function get_duration_units($unit=null) {   
+function get_duration_units($unit=null) {
     $units = array(WEEKSECS => get_string('weeks'),
                    DAYSECS  => get_string('days'),
                    HOURSECS => get_string('hours'),
