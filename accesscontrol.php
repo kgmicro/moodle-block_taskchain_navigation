@@ -143,6 +143,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
     $hassiteconfig = has_capability('moodle/site:config', $systemcontext);
 
+    // decode block config settings, in case they are needed later
+    $block_instance->config = unserialize(base64_decode($block_instance->configdata));
+
     // we need the DB manager to check which
     // DB tables and fields are available
     $dbman = $DB->get_manager();
@@ -364,7 +367,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
 
     // custom html tags that delimit section title in the section summary
-    $sectiontags = optional_param('sectiontags', '', PARAM_TEXT);
+    $sectiontags = $block_instance->config->sectiontitletags;
+    $sectiontags = optional_param('sectiontags', $sectiontags, PARAM_TEXT);
 
     // set course section type
     if ($course->format=='weeks') {
@@ -2029,10 +2033,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     print_sectionheading(get_string('activityfilters', $plugin), 'activityfilters', false);
 
     echo '<tr>'."\n";
-    echo '<td class="itemname">'.get_string('sectiontags', $plugin).
-                                 $OUTPUT->help_icon('sectiontags', $plugin).'</td>'."\n";
+    echo '<td class="itemname">'.get_string('sectiontags', $plugin).':</td>';
     echo '<td class="itemvalue">';
     echo '<input id="id_sectiontags" type="text" name="sectiontags" size="15" value="'.$sectiontags.'" />';
+    echo ' '.$OUTPUT->help_icon('sectiontitletags', $plugin);
     echo '</td>'."\n";
     echo '<td class="itemselect">&nbsp;</td>'."\n";
     echo '</tr>'."\n";

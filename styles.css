@@ -146,6 +146,11 @@
     text-align: left;
 }
 
+#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue input#id_sectiontags + span.helptooltip img.iconhelp {
+    vertical-align: top;
+    margin-top: 4px;
+}
+
 #page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue select#menu_sections,
 #page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue select#menu_modules,
 #page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue select#menu_cmids {

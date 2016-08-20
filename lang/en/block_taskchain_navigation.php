@@ -437,11 +437,6 @@ $string['sectionshowzeroweighted_help'] = 'A "zero-weighted" section is one that
 : zero-weighted sections will be merged into the list of ungraded sections that appears under the main grade categories';
 $string['sectionsuffixes'] = 'Section title suffixes';
 $string['sectiontags'] = 'Section tags';
-$string['sectiontags_help'] = 'In course sections that have no explicit name, the HTML tags listed here are used to extract a title from the section summary.
-
-If no title is detected using h1-h6 tags or the tags specified here, then the first line of the section summary will be used as the section title.
-
-If the section name and summary are empty, then the topic number or week dates will be used as the section title.';
 $string['sectiontext'] = 'Section text';
 $string['sectiontextlength'] = 'Section text length';
 $string['sectiontextlength_help'] = 'These settings specify how to display section texts that are too long to be displayed in a single line in the block.
@@ -453,6 +448,13 @@ and TAIL is the "Tail" number of characters from the end of the text.
 
 You can specify separate values for each of the languages used in this course.
 Note that a value of zero will effectively disable then setting.';
+$string['sectiontitles'] = 'Section titles';
+$string['sectiontitletags_help'] = 'In course sections that have no explicit name, the HTML tags listed here are used to extract a title from the section summary.
+
+If no title is detected using h1-h6 tags or the tags specified here, then the first line of the section summary will be used as the section title.
+
+If the section name and summary are empty, then the topic number or week dates will be used as the section title.';
+$string['sectiontitletags'] = 'Section title HTML tags';
 $string['selectallnone'] = 'Select';
 $string['selectallnone_help'] = 'The checkboxes in this column allow you to select certain settings in this block and copy them to TaskChain navigation blocks in other Moodle courses on this site.
 
@@ -562,4 +564,3 @@ $string['usedbyall'] = 'used by ALL activities, resources and labels';
 $string['useparentcategory'] = 'Yes - display parent name';
 $string['validimportfile'] = 'Configuration settings were successfully imported';
 $string['visibility'] = 'Visibility filter';
-
