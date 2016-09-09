@@ -86,7 +86,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $this->add_header($mform, $plugin, 'title');
         //-----------------------------------------------------------------------------
 
-        $element = $mform->addElement('static', 'description', get_string('description'), get_string('blockdescription', $plugin));
+        $this->add_field_description($mform, $plugin, 'description');
 
         $name = 'title';
         $config_name = 'config_'.$name;
@@ -686,7 +686,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
                 $mform->setDefault($config_name, $this->defaultvalue($name));
                 $mform->addHelpButton($config_name, $name, $plugin);
 
-                $this->add_importexport($mform, $plugin);
+                $this->add_selectallnone($mform, $plugin);
             }
         }
     }
@@ -752,6 +752,37 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         if (method_exists($mform, 'setExpanded')) {
             $mform->setExpanded($name, $expanded);
         }
+    }
+
+    /**
+     * add_field_description
+     *
+     * @param object  $mform
+     * @param string  $plugin
+     * @param string  $name of field
+     * @return void, but will update $mform
+     */
+    protected function add_field_description($mform, $plugin, $name) {
+        global $OUTPUT;
+
+        $label = get_string($name);
+        $text = get_string('block'.$name, $plugin);
+
+        $params = array('id' => $this->block->instance->id);
+        $params = array('href' => new moodle_url('/blocks/taskchain_navigation/export.php', $params));
+
+        $text .= html_writer::empty_tag('br');
+        $text .= html_writer::tag('a', get_string('exportsettings', $plugin), $params);
+        $text .= ' '.$OUTPUT->help_icon('exportsettings', $plugin);
+
+        $params = array('id' => $this->block->instance->id);
+        $params = array('href' => new moodle_url('/blocks/taskchain_navigation/import.php', $params));
+
+        $text .= html_writer::empty_tag('br');
+        $text .= html_writer::tag('a', get_string('importsettings', $plugin), $params);
+        $text .= ' '.$OUTPUT->help_icon('importsettings', $plugin);
+
+        $mform->addElement('static', $name, $label, $text);
     }
 
     /**
@@ -1099,24 +1130,18 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
     }
 
     /**
-     * add_importexport
+     * add_selectallnone
      *
      * @param object  $mform
      * @param string  $plugin
      * @return void, but will update $mform
      */
-    protected function add_importexport($mform, $plugin) {
-        global $CFG, $OUTPUT;
+    protected function add_selectallnone($mform, $plugin) {
+        global $OUTPUT;
 
         $str = (object)array(
             'all'        => addslashes_js(get_string('all')),
             'apply'      => addslashes_js(get_string('apply', $plugin)),
-            'export'     => addslashes_js(get_string('exportsettings', $plugin)),
-            'exporthelp' => addslashes_js($OUTPUT->help_icon('exportsettings', $plugin)),
-            'exportlink' => addslashes_js($CFG->wwwroot.'/blocks/ungraded_activities/export.php?id='.$this->block->instance->id),
-            'import'     => addslashes_js(get_string('importsettings', $plugin)),
-            'importhelp' => addslashes_js($OUTPUT->help_icon('importsettings', $plugin)),
-            'importlink' => addslashes_js($CFG->wwwroot.'/blocks/ungraded_activities/import.php?id='.$this->block->instance->id),
             'none'       => addslashes_js(get_string('none')),
             'select'     => addslashes_js(get_string('selectallnone', $plugin)),
             'selecthelp' => addslashes_js($OUTPUT->help_icon('selectallnone', $plugin))
@@ -1125,7 +1150,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $js = '';
         $js .= '<script type="text/javascript">'."\n";
         $js .= "//<![CDATA[\n";
-        $js .= "function add_importexport() {\n";
+        $js .= "function add_selectallnone() {\n";
         $js .= "    var obj = document.getElementsByTagName('DIV');\n";
         $js .= "    if (obj) {\n";
         $js .= "        var fbuttons = new RegExp('\\\\bfitem_actionbuttons\\\\b');\n";
@@ -1149,21 +1174,6 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $js .= "                    var elm = document.createElement('SPAN');\n";
         $js .= "                    elm.style.margin = '6px auto';\n";
-
-/**
-        $js .= "                    var lnk = document.createElement('A');\n";
-        $js .= "                    lnk.appendChild(document.createTextNode('$str->import'));\n";
-        $js .= "                    lnk.href = '$str->importlink';\n";
-        $js .= "                    elm.appendChild(lnk);\n";
-        $js .= "                    elm.innerHTML += '$str->importhelp';\n";
-        $js .= "                    elm.appendChild(document.createElement('BR'));\n";
-
-        $js .= "                    var lnk = document.createElement('A');\n";
-        $js .= "                    lnk.appendChild(document.createTextNode('$str->export'));\n";
-        $js .= "                    lnk.href = '$str->exportlink';\n";
-        $js .= "                    elm.appendChild(lnk);\n";
-        $js .= "                    elm.innerHTML += '$str->exporthelp';\n";
-**/
 
         $js .= "                    var elm = document.createElement('SPAN');\n";
         $js .= "                    elm.style.margin = '6px auto';\n";
@@ -1211,11 +1221,11 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $js .= "    }\n";
         $js .= "}\n";
         $js .= "if (window.addEventListener) {\n";
-        $js .= "    window.addEventListener('load', add_importexport, false);\n";
+        $js .= "    window.addEventListener('load', add_selectallnone, false);\n";
         $js .= "} else if (window.attachEvent) {\n";
-        $js .= "    window.attachEvent('onload', add_importexport);\n";
+        $js .= "    window.attachEvent('onload', add_selectallnone);\n";
         $js .= "} else {\n";
-        $js .= "    window.onload = add_importexport;\n";
+        $js .= "    window.onload = add_selectallnone;\n";
         $js .= "}\n";
         $js .= "//]]>\n";
         $js .= "</script>\n";

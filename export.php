@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * blocks/taskchain_navigation/accesscontrol.js
+ * blocks/taskchain_navigation/export.php
  *
  * @package    blocks
  * @subpackage taskchain_navigation
@@ -27,27 +27,31 @@
 require_once('../../config.php');
 require_once($CFG->dirroot.'/lib/filelib.php'); // send_file()
 
-$id = required_param('id', PARAM_INT); // block_instance id
+// cache the plugin name  - because it is quite long ;-)
+$plugin = 'block_taskchain_navigation';
+
+// get the incoming block_instance id
+$id = required_param('id', PARAM_INT);
 
 if (! $block_instance = $DB->get_record('block_instances', array('id' => $id))) {
-    print_error('invalidinstanceid', 'block_taskchain_navigation');
+    print_error('invalidinstanceid', $plugin, '', $id);
 }
 if (! $block = $DB->get_record('block', array('name' => $block_instance->blockname))) {
-    print_error('invalidblockid', 'block_taskchain_navigation', $block_instance->blockid);
+    print_error('invalidblockname', $plugin, '', $block_instance);
 }
 if (! $context = $DB->get_record('context', array('id' => $block_instance->parentcontextid))) {
-    print_error('invalidcontextid', 'block_taskchain_navigation', $block_instance->parentcontextid);
+    print_error('invalidcontextid', $plugin, '', $block_instance);
 }
 if (! $course = $DB->get_record('course', array('id' => $context->instanceid))) {
-    print_error('invalidcourseid', 'block_taskchain_navigation', $context->instanceid);
+    print_error('invalidcourseid', $plugin, '', $context);
 }
 
 require_login($course->id);
 
-if (class_exists('context_course')) {
-    $context = context_course::instance($course->id);
+if (class_exists('context')) {
+    $context = context::instance_by_id($context->id);
 } else {
-    $context = get_context_instance(CONTEXT_COURSE, $course->id);
+    $context = get_context_instance_by_id($context->id);
 }
 require_capability('moodle/site:manageblocks', $context);
 
@@ -59,13 +63,17 @@ if (! isset($block->version)) {
 $content = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 if ($config = unserialize(base64_decode($block_instance->configdata))) {
 
-    $content .= '<TASKCHAINNAVIGATIONBLOCK>'."\n";
+    // set main XML tag name for this block's config settings
+    $BLOCK = strtoupper($block_instance->blockname);
+    $BLOCK = strtr($BLOCK, array('_' => '')).'BLOCK';
+
+    $content .= "<$BLOCK>\n";
     $content .= '  <VERSION>'.$block->version.'</VERSION>'."\n";
     $content .= '  <POSITION>'.$block_instance->defaultregion.'</POSITION>'."\n";
     $content .= '  <WEIGHT>'.$block_instance->defaultweight.'</WEIGHT>'."\n";
     $content .= '  <VISIBLE>1</VISIBLE>'."\n";
-    $content .= '  <CONFIGFIELDS>'."\n";
 
+    $content .= '  <CONFIGFIELDS>'."\n";
     $config = get_object_vars($config);
     foreach ($config as $name => $value) {
         if (empty($name) || is_array($value) || is_object($value)) {
@@ -76,9 +84,9 @@ if ($config = unserialize(base64_decode($block_instance->configdata))) {
         $content .= '      <VALUE>'.xml_tag_safe_content($value).'</VALUE>'."\n";
         $content .= '    </CONFIGFIELD>'."\n";
     }
-
     $content .= '  </CONFIGFIELDS>'."\n";
-    $content .= '</TASKCHAINNAVIGATIONBLOCK>'."\n";
+
+    $content .= "</$BLOCK>\n";
 }
 
 if (empty($config['title'])) {

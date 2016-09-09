@@ -181,7 +181,7 @@ $string['endofsection'] = 'End of section';
 $string['erasecompletion'] = 'Erase data';
 $string['erasecompletion_help'] = 'All completion data on selected activities will be erased';
 $string['exclude'] = 'Exclude';
-$string['exportsettings'] = 'Export';
+$string['exportsettings'] = 'Export settings';
 $string['exportsettings_help'] = 'This link allows you export the configuration settings for this block to a file that you can import into a similar block in another course.';
 $string['externalcss'] = 'Custom stylesheet URL';
 $string['externalcss_help'] = 'This setting, if specified, is the absolute URL of a stylesheet that is to be used when displaying this block';
@@ -247,7 +247,7 @@ $string['ignorecase_help'] = 'When comparing the prefixes and suffixes of sectio
 
 **No**
 : differences between upper and lowercase letters will be detected';
-$string['importsettings'] = 'Import';
+$string['importsettings'] = 'Import settings';
 $string['importsettings_help'] = 'This link takes you to a screen where you can import configuration settings from a TaskChain navigation block configuration settings file.
 
 A settings file is created using the export link on a TaskChain navigation block configuration settings page.';
@@ -255,11 +255,11 @@ $string['include'] = 'Include';
 $string['indent'] = 'Indent';
 $string['internalcss'] = 'Custom internal CSS';
 $string['internalcss_help'] = 'This setting specifies any additional custom CSS definitions that are to be used when displaying this block';
-$string['invalidblockid'] = 'Invalid blockid in block instance: id={$a}';
-$string['invalidcontextid'] = 'Invalid parentcontextid in block instance: id={$a}';
-$string['invalidcourseid'] = 'Invalid pageid in block instance: id={$a}';
+$string['invalidblockname'] = 'Invalid block name in block instance record: id={$a->id}, blockname={$a->blockname}';
+$string['invalidcontextid'] = 'Invalid parentcontextid in block instance record: id = {$a->id}, parentcontextid = {$a->parentcontextid}';
+$string['invalidcourseid'] = 'Invalid instanceid in course context record: id={$a->id}, instanceid={$a->instanceid}';
 $string['invalidimportfile'] = 'Import file was missing, empty or invalid';
-$string['invalidinstanceid'] = 'Invalid block instance id';
+$string['invalidinstanceid'] = 'Invalid block instance id: id = {$a}';
 $string['lastsection'] = 'Last';
 $string['loginasmenu'] = 'Show login-as menu';
 $string['loginasmenu_help'] = '**Yes**
