@@ -359,8 +359,7 @@ class block_taskchain_navigation extends block_base {
         if (isset($data->select_sectiontextlength)) {
             $configs = array('name', 'head', 'tail');
 
-            $strman = get_string_manager();
-            $langs = $langs->get_list_of_translations();
+            $langs = get_string_manager()->get_list_of_translations();
             $langs = array_keys($langs);
             array_unshift($langs, '');
 
