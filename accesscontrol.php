@@ -231,8 +231,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $completionmonth    = optional_param('completionmonth',    0, PARAM_INT);
     $completionyear     = optional_param('completionyear',     0, PARAM_INT);
 
-    // additionally, there may be a number of activity-specific completion fields
+    // there may also be a number of activity-specific completion fields
     // (e.g. the "completionpass" field used by the Quiz and TaskChain modules)
+
+    // there may also be a number of fields to enable/disable filters
+    // (e.g. "filterglossary", "filtermediaplugin")
 
     // Competency settings
     $competencyrule = optional_param('competencyrule', 0, PARAM_INT);
@@ -333,6 +336,15 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                       'gradeitemhidden', 'extracredit',    'regrade',
                       'groupmode',       'groupingid',     'groupmembersonly',
                       'visible',         'indent',         'section',    'uploadlimit');
+
+    // add switches to enable/disable filters
+    $filters = filter_get_available_in_context($course->context);
+    foreach (array_keys($filters) as $filter) {
+        $setting = 'filter'.$filter;
+        echo $setting;
+        $settings[] = $setting;
+        $$setting = optional_param($setting, null, PARAM_INT);
+    }
 
     // add "availability" settings, if enabled
     if (empty($CFG->enableavailability)) {
@@ -1070,10 +1082,16 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         $competencyrulemenu = array();
     }
 
+    $filtermenu = array(TEXTFILTER_INHERIT => '',
+                        TEXTFILTER_OFF     => get_string('off', 'filters'),
+                        TEXTFILTER_ON      => get_string('on', 'filters'));
+    $filterdefaulton  = get_string('defaultx', 'filters', $filtermenu[TEXTFILTER_ON]);
+    $filterdefaultoff = get_string('defaultx', 'filters', $filtermenu[TEXTFILTER_OFF]);
 
     // initialize state flags
     $success               = null;
     $started_list          = false;
+    $reset_filter_caches   = false;
     $rebuild_course_cache  = false;
     $regrade_course_grades = false;
 
@@ -1281,6 +1299,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             // get the $instance of this $cm (include idnumber for grading)
             $instance = $DB->get_record($cm->modname, array('id' => $cm->instance));
             $instance->cmidnumber = $cm->idnumber;
+
+            // get module context
+            $modulecontext = context_module::instance($cm->id);
 
             if ($action=='delete') {
 
@@ -1703,6 +1724,15 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             if (array_key_exists($cm->modname, $field->mods)) {
                                 update_course_module_completion($cm->modname, $cm->instance, $setting, $$setting, $updated, $skipped, $completion_updated);
                             }
+                        } else if (substr($setting, 0, 6)=='filter') {
+                            $filter = substr($setting, 6);
+                            if (in_array($$setting, array(TEXTFILTER_ON, TEXTFILTER_OFF, TEXTFILTER_INHERIT))) {
+                                filter_set_local_state($filter, $modulecontext->id, $$setting);
+                                $reset_filter_caches = true;
+                                $updated = true;
+                            } else {
+                                $skipped = true;
+                            }
                         } else {
                             // unexpected setting - shouldn't happen !!
                             echo('Unknown setting, '.$setting. ', not processed').html_writer::empty_tag('br');;
@@ -1788,7 +1818,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
                         $conditiongroupidmenu, $conditiongroupingidmenu,
                         $conditionactionmenu, $completiontrackingmenu,
-                        $completionfields, $competencyrulemenu
+                        $completionfields, $competencyrulemenu,
+                        $filters, $filtermenu, $filterdefaulton, $filterdefaultoff
                     );
                     echo '<tr><td class="itemname">'.$name.':</td><td class="itemvalue">'.$value.'</td></tr>'. "\n";
                 }
@@ -1816,7 +1847,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         }
     }
 
-    if ($sortgradeitems || $creategradecats || $removegradecats || $rebuild_course_cache || $regrade_course_grades || isset($success)) {
+    if ($sortgradeitems || $creategradecats || $removegradecats || $reset_filter_caches || $rebuild_course_cache || $regrade_course_grades || isset($success)) {
         if ($started_list==false) {
             $started_list = true;
             echo '<table border="0" cellpadding="4" cellspacing="4" class="selectedactivitylist"><tbody>'."\n";
@@ -1838,6 +1869,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $msg = get_string('removedgradecategories', $plugin);
             echo $OUTPUT->notification($msg, 'notifysuccess');
             echo '</td></tr>'."\n";
+        }
+        if ($reset_filter_caches) {
+            echo '<tr><td class="notifymessage" colspan="2">';
+            echo get_string('resettingfiltercache', $plugin).' ... ';
+            filter_manager::reset_caches();
+            //unset($FILTERLIB_PRIVATE->active[$context->id]);
+            echo get_string('ok').'</td></tr>'."\n";
         }
         if ($rebuild_course_cache) {
             echo '<tr><td class="notifymessage" colspan="2">';
@@ -2533,6 +2571,32 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
 
     // ============================
+    // Active filters
+    // ============================
+    //
+    if (count($filters)) {
+        print_sectionheading(get_string('actfilterhdr', 'filters'), 'filters', true);
+        foreach ($filters as $filter => $filterinfo) {
+            if ($filterinfo->inheritedstate==TEXTFILTER_ON) {
+                $filtermenu[TEXTFILTER_INHERIT] = $filterdefaulton;
+            } else {
+                $filtermenu[TEXTFILTER_INHERIT] = $filterdefaultoff;
+            }
+            $setting = 'filter'.$filter;
+            echo '<tr>'."\n";
+            echo '<td class="itemname">'.filter_get_name($filter).':</td>'."\n";
+            echo '<td class="itemvalue">';
+            echo html_writer::select($filtermenu, $setting, $$setting, '');
+            echo '</td>'."\n";
+            echo '<td class="itemselect">';
+            $script = "return set_disabled(this.form, new Array('$setting'), (! this.checked))";
+            echo html_writer::checkbox('select_'.$setting, 1, optional_param('select_'.$setting, 0, PARAM_INT), '', array('onclick' => $script));
+            echo '</td>'."\n";
+            echo '</tr>'."\n";
+        }
+    }
+
+    // ============================
     // Access restrictions (Moodle >= 2.7)
     // Restrict access     (Moodle <= 2.6)
     // ============================
@@ -2941,6 +3005,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '</tr>'."\n";
     }
 
+    // ============================
+    // Actions
+    // ============================
+    //
     print_sectionheading(get_string('actions'), 'actions', false);
 
     echo '<tr>'."\n";
@@ -2972,7 +3040,8 @@ function format_setting($name, $value,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
                         $conditiongroupidmenu, $conditiongroupingidmenu, $conditionactionmenu,
-                        $completiontrackingmenu, $completionfields, $competencyrulemenu) {
+                        $completiontrackingmenu, $completionfields, $competencyrulemenu,
+                        $filters, $filtermenu, $filterdefaulton, $filterdefaultoff) {
 
     $plugin = 'block_taskchain_navigation';
     switch ($name) {
@@ -3240,6 +3309,22 @@ function format_setting($name, $value,
                         $value = number_format($value);
                         break;
                 }
+            } else if (substr($name, 0, 6)=='filter') {
+                $name = substr($name, 6);
+                switch ($value) {
+                    case TEXTFILTER_ON:
+                    case TEXTFILTER_OFF:
+                        $value = $filtermenu[$value];
+                        break;
+                    case TEXTFILTER_INHERIT:
+                        if ($filters[$name]->inheritedstate==TEXTFILTER_ON) {
+                            $value = $filterdefaulton;
+                        } else {
+                            $value = $filterdefaultoff;
+                        }
+                        break;
+                }
+                $name = filter_get_name($name);
             }
     }
     return array($name, $value);

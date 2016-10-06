@@ -352,6 +352,7 @@ $string['removeconditions_help'] = 'Previous access restrictions on selected act
 $string['removedgradecategories'] = 'Empty grade categories have been removed from the gradebook';
 $string['removegradecategories'] = 'Remove empty grade categories';
 $string['removegradecategories_help'] = 'Clicking the "Remove empty grade categories" link will initiate the removal of empty grade categories from the gradebook.';
+$string['resettingfiltercache'] = 'Resetting filter cache';
 $string['sameas'] = 'same as {$a}';
 $string['save'] = 'Save';
 $string['sectionignorechars'] = 'Ignore these characters';
