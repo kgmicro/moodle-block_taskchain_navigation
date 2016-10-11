@@ -30,10 +30,11 @@ require_once($CFG->dirroot.'/blocks/taskchain_navigation/block_taskchain_navigat
 require_once($CFG->dirroot.'/rating/lib.php');
 
 // ==================================
+// advanced grading (Moodle >= 2.2)
 // disabled until fully functional
 // ==================================
 //if (file_exists($CFG->dirroot.'/grade/grading/lib.php')) {
-//    require_once($CFG->dirroot.'/grade/grading/lib.php'); // Moodle >= 2.2
+//    require_once($CFG->dirroot.'/grade/grading/lib.php');
 //}
 
 $id = required_param('id', PARAM_INT); // block_instance id
@@ -189,6 +190,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $extracredit      = optional_param('extracredit',      0, PARAM_INT);
     $regrade          = optional_param('regrade',          0, PARAM_INT);
 
+    $modgradetype     = optional_param('modgradetype',    '', PARAM_ALPHA);
+    $modgradescale    = optional_param('modgradescale',    0, PARAM_INT);
+    $modgradepoint    = optional_param('modgradepoint',  100, PARAM_INT);
+
     $groupmode        = optional_param('groupmode',        0, PARAM_INT);
     $groupingid       = optional_param('groupingid',       0, PARAM_INT);
     $groupmembersonly = optional_param('groupmembersonly', 0, PARAM_INT);
@@ -236,6 +241,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
     // there may also be a number of fields to enable/disable filters
     // (e.g. "filterglossary", "filtermediaplugin")
+
+    // modgrade
+    $modgrade = 0;
+    switch ($modgradetype) {
+        case 'point': $modgrade += $modgradepoint; break;
+        case 'scale': $modgrade -= $modgradescale; break;
+    }
 
     // Competency settings
     $competencyrule = optional_param('competencyrule', 0, PARAM_INT);
@@ -332,7 +344,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
     // add standard settings
     $settings = array('availablefrom',   'availableuntil', 'availablecutoff',
-                      'rating',          'maxgrade',       'gradepass',  'gradecat',
+                      'rating',          'modgrade',
+                      'maxgrade',        'gradepass',      'gradecat',
                       'gradeitemhidden', 'extracredit',    'regrade',
                       'groupmode',       'groupingid',     'groupmembersonly',
                       'visible',         'indent',         'section',    'uploadlimit');
@@ -341,7 +354,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $filters = filter_get_available_in_context($course->context);
     foreach (array_keys($filters) as $filter) {
         $setting = 'filter'.$filter;
-        echo $setting;
         $settings[] = $setting;
         $$setting = optional_param($setting, null, PARAM_INT);
     }
@@ -466,16 +478,17 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         unset($items, $sections, $modinfo, $sequence, $name, $cmid, $id);
     }
 
-    $cms = array();
-    $modules = array();
+    $cms      = array();
+    $modules  = array();
     $sections = array();
 
-    $filemods = array();
-    $labelmods = array();
-    $ratingmods = array();
-    $resourcemods = array();
-    $gradingmods = array();
     $cutoffdatemods = array();
+    $filemods       = array();
+    $gradingareas   = array();
+    $gradingmods    = array();
+    $labelmods      = array();
+    $ratingmods     = array();
+    $resourcemods   = array();
 
     $completionfields = array();
     $durationfields = array('completiontimespent');
@@ -513,16 +526,40 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             if (empty($modules[$cm->modname])) {
                 $modules[$cm->modname] = get_string('modulename', $cm->modname);
 
-                if ($modhaslibfile = file_exists("$CFG->dirroot/mod/$cm->modname/lib.php")) {
-                    $modcompletion = plugin_supports('mod', $cm->modname, FEATURE_COMPLETION_HAS_RULES, false);
+                // check use of standard grading and cut-off date
+                $filepath = "$CFG->dirroot/mod/$cm->modname/mod_form.php";
+                if (file_exists($filepath)) {
+                    $filecontents = file_get_contents($filepath);
+                    $has_cutoffdate = preg_match('/cutoffdate/', $filecontents);
+                    $has_standardgrading = preg_match('/standard_grading_coursemodule_elements/', $filecontents);
                 } else {
-                    $modcompletion = false;
+                    $has_cutoffdate = in_array($cm->modname, array('assign'));
+                    $has_standardgrading = in_array($cm->modname, array('assign', 'data', 'forum', 'glossary', 'lesson', 'lti', 'quiz'));
                 }
 
+                // the quiz module calls "standard_grading_coursemodule_elements()"
+                // but then immediately removes the "grade" field - not sure why ?!
+                if ($cm->modname=='quiz') {
+                    $has_standardgrading = false;
+                }
+
+                if ($has_standardgrading) {
+                    $gradingmods[$cm->modname] = $modules[$cm->modname];
+                }
+                if ($has_cutoffdate) {
+                    $cutoffdatemods[$cm->modname] = $modules[$cm->modname];
+                }
+
+                $filepath = "$CFG->dirroot/mod/$cm->modname/lib.php";
+                if ($has_libfile = file_exists($filepath)) {
+                    $has_completion = plugin_supports('mod', $cm->modname, FEATURE_COMPLETION_HAS_RULES, false);
+                } else {
+                    $has_completion = false;
+                }
 
                 // get completion fields
                 if ($enablecompletion) {
-                    if ($modcompletion) {
+                    if ($has_completion) {
                         $fields = $DB->get_columns($cm->modname);
                         $names = array_keys($fields);
                         $names = preg_grep('/^completion.+$/', $names);
@@ -531,7 +568,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $names = array(); // no module-specific fields
                         $fields = array();
                     }
-                    if ($modhaslibfile) {
+                    if ($has_libfile) {
                         // fields that are common to all modules - see "lib/moodleform_mod.php"
                         if (plugin_supports('mod', $cm->modname, FEATURE_GRADE_HAS_GRADE, false)) {
                             array_unshift($names, 'completiongrade');
@@ -567,7 +604,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     case 'workshop'   : $filemods[$cm->modname] = get_config('workshop', 'maxbytes'); break;
                 }
 
-                if ($modhaslibfile) {
+                if ($has_libfile) {
                     $is_label    = (plugin_supports('mod', $cm->modname, FEATURE_NO_VIEW_LINK, false)==true);
                     $is_resource = (plugin_supports('mod', $cm->modname, FEATURE_MOD_ARCHETYPE, MOD_ARCHETYPE_OTHER)==MOD_ARCHETYPE_RESOURCE);
                     $has_rating  = (plugin_supports('mod', $cm->modname, FEATURE_RATE, false)==true);
@@ -578,16 +615,16 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 }
                 if ($has_grading = defined('FEATURE_ADVANCED_GRADING')) {
                     // Moodle >= 2.2
-                    if ($modhaslibfile) {
+                    if ($has_libfile) {
                         $has_grading = (plugin_supports('mod', $cm->modname, FEATURE_ADVANCED_GRADING, false)==true);
                     } else {
                         $has_grading = in_array($cm->modname, array('assign'));
                     }
                 }
                 if ($is_label) {
-                    $labelmods[] = $cm->modname;;
+                    $labelmods[] = $cm->modname;
                 } else if ($is_resource) {
-                    $resourcemods[] = $cm->modname;;
+                    $resourcemods[] = $cm->modname;
                 }
                 if ($has_rating) {
                     $ratingmods[$cm->modname] = $modules[$cm->modname];
@@ -595,18 +632,14 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 // ==================================
                 // disabled until fully functional
                 // ==================================
-                // if ($has_grading) {
-                //     $gradingareas[$cm->modname] = grading_manager::available_areas('mod_'.$cm->modname);
-                //     if (empty($gradingareas[$cm->modname])) {
-                //         unset($gradingareas[$cm->modname]);
-                //     } else {
-                //         $gradingmods[$cm->modname] = $modules[$cm->modname];
-                //     }
-                // }
-                if (in_array($cm->modname, array('assign'))) {
-                    $cutoffdatemods[$cm->modname] = $modules[$cm->modname];
-                }
-                unset($is_label, $is_resource, $has_rating, $has_grading, $modhaslibfile, $modcompletion);
+                //if ($has_grading && class_exists('grading_manager')) {
+                //    $gradingareas[$cm->modname] = grading_manager::available_areas('mod_'.$cm->modname);
+                //    if (empty($gradingareas[$cm->modname])) {
+                //        unset($gradingareas[$cm->modname]);
+                //    }
+                //}
+                unset($filepath, $filecontents, $has_completion, $has_cutoffdate, $has_grading,
+                      $has_libfile, $has_rating, $has_standardgrading, $is_label, $is_resource);
             }
 
             if (empty($cms[$sectionnum])) {
@@ -827,7 +860,19 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $ratings = new rating_manager();
     $ratings = $ratings->get_aggregate_types();
 
-    $gradings = array();
+    if ($strman->string_exists('modgradetypenone', 'grades')) {
+        // Moodle >= 2.7
+        $modgradetypes = array('none'  => get_string('modgradetypenone',  'grades'),
+                               'scale' => get_string('modgradetypescale', 'grades'),
+                               'point' => get_string('modgradetypepoint', 'grades'));
+    } else {
+        // Moodle <= 2.6
+        $modgradetypes = array('none'  => get_string('typenone',  'grades'),
+                               'scale' => get_string('typescale', 'grades'),
+                               'point' => get_string('points',    'grades'));
+    }
+    $modgradescales = get_scales_menu($course->id);
+
 
     $maxgrades = array();
     $gradepassmenu = array();
@@ -1053,6 +1098,20 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 CONDITION_STUDENTVIEW_HIDE => get_string('showavailability_hide', 'condition'),
                 CONDITION_STUDENTVIEW_SHOW => get_string('showavailability_show', 'condition')
             );
+        }
+
+        if ($strman->string_exists('modgradetype', 'grades')) {
+            // Moodle >= 2.7
+            $str->modgradetype  = get_string('modgradetype',      'grades');
+            $str->modgradenone  = get_string('modgradetypenone',  'grades');
+            $str->modgradescale = get_string('modgradetypescale', 'grades');
+            $str->modgradepoint = get_string('modgrademaxgrade',  'grades');
+        } else {
+            // Moodle <= 2.6
+            $str->modgradetype  = get_string('gradetype',    'grades');
+            $str->modgradescale = get_string('typenone',     'grades');
+            $str->modgradescale = get_string('typescale',    'grades');
+            $str->modgradepoint = get_string('aggregatemax', 'rating');
         }
 
         $icon = new pix_icon('i/hide', '');
@@ -1294,11 +1353,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $updated = false;
             $skipped = false;
             $regrade_item_id = 0;
-            $modhaslibfile = file_exists("$CFG->dirroot/mod/$cm->modname/lib.php");
 
             // get the $instance of this $cm (include idnumber for grading)
             $instance = $DB->get_record($cm->modname, array('id' => $cm->instance));
             $instance->cmidnumber = $cm->idnumber;
+            $update_instance = false;
 
             // get module context
             $modulecontext = context_module::instance($cm->id);
@@ -1718,13 +1777,37 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $updated = true;
                         break;
 
+                    case 'modgrade':
+                        if (array_key_exists($cm->modname, $ratingmods) || array_key_exists($cm->modname, $gradingmods)) {
+                            $assessed = ($modgrade==0 ? 0 : 1);
+                            if (property_exists($instance, 'assessed') && $instance->assessed != $assessed) {
+                                $instance->assessed = $assessed;
+                                $update_instance = true;
+                            }
+                            if (property_exists($instance, 'scale') && $instance->scale != $modgrade) {
+                                $instance->scale = $modgrade; // data, forum, glossary
+                                $update_instance = true;
+                            }
+                            if (property_exists($instance, 'grade') && $instance->grade != $modgrade) {
+                                $instance->grade = $modgrade; // assignment, lesson
+                                $update_instance = true;
+                            }
+                            if ($update_instance && $regrade_item_id==0) {
+                                $select = 'courseid = ? AND itemtype = ? AND itemmodule = ? AND iteminstance = ?';
+                                $params = array($course->id, 'mod', $cm->modname, $cm->instance);
+                                $regrade_item_id = $DB->get_field_select('grade_items', 'id', $select, $params);
+                            }
+                        }
+                        break;
                     default:
                         if (array_key_exists($setting, $completionfields)) {
+                            // completion fields
                             $field = $completionfields[$setting];
                             if (array_key_exists($cm->modname, $field->mods)) {
                                 update_course_module_completion($cm->modname, $cm->instance, $setting, $$setting, $updated, $skipped, $completion_updated);
                             }
                         } else if (substr($setting, 0, 6)=='filter') {
+                            // filter fields
                             $filter = substr($setting, 6);
                             if (in_array($$setting, array(TEXTFILTER_ON, TEXTFILTER_OFF, TEXTFILTER_INHERIT))) {
                                 filter_set_local_state($filter, $modulecontext->id, $$setting);
@@ -1735,11 +1818,16 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             }
                         } else {
                             // unexpected setting - shouldn't happen !!
-                            echo('Unknown setting, '.$setting. ', not processed').html_writer::empty_tag('br');;
+                            echo('Unknown setting, '.$setting. ', not processed').html_writer::empty_tag('br');
                         }
 
                 } // end switch
             } // end foreach $selected_settings
+
+            if ($update_instance) {
+                $DB->update_record($cm->modname, $instance);
+                $updated = true;
+            }
 
             if ($completion_updated) {
                 $completion = $completiontracking;
@@ -1809,9 +1897,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
                 foreach ($selected_settings as $setting) {
                     list($name, $value) = format_setting(
-                        $setting, $$setting,
-                        $ratings, $gradecategories,
-                        $groupmodes, $groupings,
+                        $setting, $$setting, $str,
+                        $ratings, $modgradetypes, $modgradescales,
+                        $gradecategories, $groupmodes, $groupings,
                         $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
                         $conditiongradeitemidmenu,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
@@ -1950,19 +2038,27 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo "        var i_max = names.length;\n";
     echo "        for (var i=0; i<i_max; i++) {\n";
     echo "            if (frm.elements[names[i]]) {\n";
-    echo "                frm.elements[names[i]].disabled = value;\n";
+    echo "                var element = frm.elements[names[i]];\n";
+    echo "                if (value) {\n";
+    echo "                    element.disabledvalue = element.disabled;\n";
+    echo "                    element.disabled = true;\n";
+    echo "                } else {\n";
+    echo "                    element.disabled = element.disabledvalue;\n";
+    echo "                }\n";
     echo "                if (sync_checkbox) {\n";
-    echo "                    if (frm.elements[names[i]].type=='checkbox') {\n";
-    echo "                        frm.elements[names[i]].checked = (! value);\n";
+    echo "                    if (element.type=='checkbox') {\n";
+    echo "                        element.checked = (! value);\n";
     echo "                    }\n";
     echo "                }\n";
     echo "                if (fixed_color==false) {\n";
     echo "                    fixed_color = true;\n";
-    echo "                    var obj = frm.elements[names[i]].parentNode;\n";
+    echo "                    var obj = element.parentNode;\n";
     echo "                    if (obj) {\n";
     echo "                        obj.style.color = (value ? '#999999' : 'inherit');\n";
     echo "                    }\n";
+    echo "                    obj = null;\n";
     echo "                }\n";
+    echo "                element = null;\n";
     echo "            }\n";
     echo "        }\n";
     echo "    }\n";
@@ -2202,7 +2298,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         $names = "'menucutoffday', 'menucutoffmonth', 'menucutoffyear', 'menucutoffhours', 'menucutoffminutes'";
         $script = "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
         echo html_writer::checkbox('cutoffdisable', '1', $cutoffdisable, get_string('disable'), array('onclick' => $script));
-        echo html_writer::empty_tag('br').'('.get_string('completionfieldactivities', $plugin, $modnames).')';
+        echo html_writer::empty_tag('br').'('.get_string('usedby', $plugin, $modnames).')';
         echo '</td>'."\n";
 
         echo '<td class="itemselect">';
@@ -2255,11 +2351,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '</tr>'."\n";
 
     if ($modnames = implode(', ', $ratingmods)) {
+        // 'data', 'forum', 'glossary'
         echo '<tr>'."\n";
-        echo '<td class="itemname">'.get_string('rating', 'rating').':</td>'."\n";
+        echo '<td class="itemname">'.get_string('aggregatetype', 'rating').':</td>'."\n";
         echo '<td class="itemvalue">';
         echo html_writer::select($ratings, 'rating', $rating, '').' ';
-        echo '('.get_string('completionfieldactivities', $plugin, $modnames).')';
+        echo '('.get_string('usedby', $plugin, $modnames).')';
         echo '</td>'."\n";
         echo '<td class="itemselect">';
         $script = "return set_disabled(this.form, new Array('rating'), (! this.checked))";
@@ -2269,13 +2366,51 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
 
     if ($modnames = implode(', ', $gradingmods)) {
+        // 'assign', 'data', 'forum', 'glossary', 'lesson', 'lti'
+        // see "lib/form/modgrade.php"
         echo '<tr>'."\n";
-        echo '<td class="itemname">'.get_string('grade').':</td>'."\n";
+        echo '<td class="itemname">'.get_string('grade', 'grades').' / '.get_string('typescale', 'grades').':</td>'."\n";
         echo '<td class="itemvalue">';
-        foreach ($gradingmods as $modname => $modtext) {
-            echo "<p>$modname - $modtext<br />";
-            foreach ($gradingareas[$modname] as $areaname => $areatext) {
-                echo " == $areaname - $areatext<br />";
+        echo '('.get_string('usedby', $plugin, $modnames).')<br />';
+
+        $script = 'var x=this.options[this.selectedIndex].value;';
+        $script .= 'this.form.elements["modgradescale"].disabled=(x!="scale");';
+        $script .= 'this.form.elements["modgradepoint"].disabled=(x!="point");';
+        $script .= 'return true;';
+        $params = array('onchange' => $script);
+        echo $str->modgradetype.': '.html_writer::select($modgradetypes, 'modgradetype',  $modgradetype, '', $params).'<br />';
+
+        $params = array();
+        if ($modgradetype != 'scale') {
+            $params['disabled'] = 'disabled';
+        }
+        echo $str->modgradescale.': '.html_writer::select($modgradescales, 'modgradescale', $modgradescale, '', $params).'<br />';
+
+        $params = array('type' => 'text',
+                        'size' => '15',
+                        'name' => 'modgradepoint',
+                        'value' => $modgradepoint);
+        if ($modgradetype != 'point') {
+            $params['disabled'] = 'disabled';
+        }
+        echo $str->modgradepoint.': '.html_writer::empty_tag('input', $params);
+        echo '</td>'."\n";
+        echo '<td class="itemselect">';
+        $names = "'modgradetype', 'modgradescale', 'modgradepoint'";
+        $script = "return set_disabled(this.form, new Array($names), (! this.checked))";
+        echo html_writer::checkbox('select_modgrade', 1, optional_param('select_modgrade', 0, PARAM_INT), '', array('onclick' => $script));
+        echo '</td>'."\n";
+        echo '</tr>'."\n";
+    }
+
+    if (count($gradingareas)) {
+        echo '<tr>'."\n";
+        echo '<td class="itemname">'.get_string('gradingmanagement', 'grading').':</td>'."\n";
+        echo '<td class="itemvalue">';
+        foreach ($gradingareas as $modname => $areas) {
+            echo "<p>";
+            foreach ($areas as $areaname => $areatext) {
+                echo $gradingmods[$modname]." ($areatext)<br />";
             }
             echo "</p>\n";
         }
@@ -2943,8 +3078,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $fieldname = $field->params['name'];
             }
             if ($modnames = implode(', ', $field->mods)) {
-                $modnames = get_string('completionfieldactivities', $plugin, $modnames);
-                $modnames = html_writer::tag('span', "($modnames)", array('class' => 'completionfieldmodnames'));
+                $modnames = get_string('usedby', $plugin, $modnames);
+                $modnames = html_writer::tag('span', "($modnames)", array('class' => 'modnames'));
                 if ($desc) {
                     $modnames = html_writer::empty_tag('br').$modnames;
                 }
@@ -3032,9 +3167,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '</form>'."\n";
 }
 
-function format_setting($name, $value,
-                        $ratings, $gradecategories,
-                        $groupmodes, $groupings,
+function format_setting($name, $value, $str,
+                        $ratings, $modgradetypes, $modgradescales,
+                        $gradecategories, $groupmodes, $groupings,
                         $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
                         $conditiongradeitemidmenu,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
@@ -3065,6 +3200,15 @@ function format_setting($name, $value,
         case 'rating':
             $name = get_string('rating', 'rating');
             $value = $ratings[$value];
+            break;
+
+        case 'modgrade':
+            $name = get_string('grade', 'grades').' / '.get_string('typescale', 'grades');
+            switch (true) {
+                case ($value < 0): $value = $str->modgradescale.' - '.$modgradescales[abs($value)]; break;
+                case ($value > 0): $value = $str->modgradepoint.' = '.$value; break;
+                default:           $value = $str->modgradenone;
+            }
             break;
 
         case 'maxgrade':
@@ -3139,9 +3283,9 @@ function format_setting($name, $value,
 
         case 'conditiondate':
             $strman = get_string_manager();
-            $plugin = 'availability_date';
             if ($strman->string_exists('pluginname', $plugin)) {
                 // Moodle >= 2.7
+                $plugin = 'availability_date';
                 $name = get_string('pluginname', $plugin);
                 $from = 'short_from';
                 $until = 'short_until';
@@ -3180,23 +3324,12 @@ function format_setting($name, $value,
             break;
 
         case 'conditiongrade':
-            $strman = get_string_manager();
-            if ($strman->string_exists('title', 'availability_grade')) {
-                // Moodle >= 2.7
-                $name     = get_string('title', 'availability_grade');
-                $grademin = get_string('option_min', 'availability_grade');
-                $grademax = get_string('option_max', 'availability_grade');
-            } else {
-                // Moodle <= 2.6
-                $name     = get_string('gradecondition', 'condition');
-                $grademin = get_string('grade_atleast',  'condition');
-                $grademax = get_string('grade_upto',     'condition');
-            }
+            $name = $str->gradetitle;
             foreach ($value as $i => $v) {
                 $value[$i] = html_writer::start_tag('p').
                             ltrim($conditiongradeitemidmenu[$v->id], '│└ ').' '.
-                            $grademin.' '.$v->min.'% '.
-                            $grademax.' '.$v->max.'%'.
+                            $str->grademin.' '.$v->min.'% '.
+                            $str->grademax.' '.$v->max.'%'.
                             html_writer::end_tag('p');
             }
             $value = implode('', $value);
@@ -3225,29 +3358,22 @@ function format_setting($name, $value,
             break;
 
         case 'conditioncm':
-            $strman = get_string_manager();
-            if ($strman->string_exists('activitycompletion', 'completion')) {
-                // Moodle >= 2.7
-                $name = get_string('activitycompletion', 'completion');
-            } else {
-                // Moodle <= 2.6
-                $name = get_string('completioncondition', 'condition');
-            }
+            $name = $str->activitycompletion;
             foreach ($value as $i => $v) {
-                $str = array();
+                $txt = array();
                 if ($v->ungraded) {
-                    $str[] = get_string('conditioncmungraded', $plugin);
+                    $txt[] = get_string('conditioncmungraded', $plugin);
                 }
                 if ($v->resources) {
-                    $str[] = get_string('conditioncmresources', $plugin);
+                    $txt[] = get_string('conditioncmresources', $plugin);
                 }
                 if ($v->labels) {
-                    $str[] = get_string('conditioncmlabels', $plugin);
+                    $txt[] = get_string('conditioncmlabels', $plugin);
                 }
-                if ($str = implode(', ', $str)) {
-                    $str = block_taskchain_navigation::textlib('strtolower', " ($str)");
+                if ($txt = implode(', ', $txt)) {
+                    $txt = block_taskchain_navigation::textlib('strtolower', " ($txt)");
                 }
-                $value[$i] = html_writer::tag('p', $conditioncmidmenu[$v->cm]."$str ".$conditioncmcompletionmenu[$v->e]);
+                $value[$i] = html_writer::tag('p', $conditioncmidmenu[$v->cm]."$txt ".$conditioncmcompletionmenu[$v->e]);
             }
             $value = implode('', $value);
             break;

@@ -119,7 +119,6 @@ $string['checkboxes'] = 'Checkboxes';
 $string['completionattemptsexhausted_desc'] = 'Student must use all available quiz attempts';
 $string['completionattemptsexhausted'] = 'Require all attempts';
 $string['completioncompleted_desc'] = 'Student must have at least one completed attempt';
-$string['completionfieldactivities'] = 'used by {$a}';
 $string['completionpass_desc'] = 'Student must get a passing grade, as defined in the gradebook';
 $string['completionscorerequired_desc'] = 'Student must get at least this minimum score:';
 $string['completionstatusrequired_desc'] = 'Student must get at least one of each selected status:';
@@ -530,6 +529,7 @@ $string['sortgradeitems'] = 'Sort grade items';
 $string['sortgradeitems_help'] = 'Clicking the "Sort grade items" link will initiate sorting of the grade book items so that activities appear in the same order as they are on the course page.
 
 Note that the sorting does not change the order of grade categories, nor does it move activities from one grade category to another.';
+$string['standardgrading'] = 'Standard grading';
 $string['startofsection'] = 'Start of section';
 $string['styles'] = 'CSS and styles';
 $string['suffixchars'] = 'Suffix delimiters';
@@ -563,6 +563,7 @@ $string['ungradedshow2'] = 'Show if activities or resources exist';
 $string['ungradedshow3'] = 'Show if activities or resources or labels exist';
 $string['ungradedshow4'] = 'Show even if no activities, resources or labels exist';
 $string['usechildcategory'] = 'Yes - display child name';
+$string['usedby'] = 'used by {$a}';
 $string['usedbyall'] = 'used by ALL activities, resources and labels';
 $string['useparentcategory'] = 'Yes - display parent name';
 $string['validimportfile'] = 'Configuration settings were successfully imported';

@@ -543,7 +543,7 @@ table.blockconfigtable td.itemvalue select.completionfield {
     margin: 0px auto;
 }
 
-table.blockconfigtable td.itemvalue label span.completionfieldmodnames {
+table.blockconfigtable td.itemvalue label span.modnames {
     display: inline-block;
     margin-bottom: 0px;
     margin-left: 1.0em;
