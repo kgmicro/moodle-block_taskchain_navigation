@@ -145,7 +145,7 @@ class block_taskchain_navigation extends block_base {
 
             'sectionjumpmenu' => 1, // 0=hide, 1=show
             'sectionnumbers'  => 1, // 0=hide, 1=show
-            'singlesection'   => 1, // 0=no, 1=yes
+            'singlesection'   => 0, // 0=no, 1=yes
             'defaultsection'  => 1,
             'arrowup'         => '', // previous section
             'arrowdown'       => '', // next section
@@ -2952,29 +2952,6 @@ class block_taskchain_navigation extends block_base {
     }
 
     /**
-     * context
-     *
-     * a wrapper method to offer consistent API to get contexts
-     * in Moodle 2.0 and 2.1, we use get_context_instance() function
-     * in Moodle >= 2.2, we use static context_xxx::instance() method
-     *
-     * @param integer $contextlevel
-     * @param integer $instanceid (optional, default=0)
-     * @param int $strictness (optional, default=0 i.e. IGNORE_MISSING)
-     * @return required context
-     * @todo Finish documenting this function
-     */
-    static public function context($contextlevel, $instanceid=0, $strictness=0) {
-        if (class_exists('context_helper')) {
-            // use call_user_func() to prevent syntax error in PHP 5.2.x
-            $class = context_helper::get_class_for_level($contextlevel);
-            return call_user_func(array($class, 'instance'), $instanceid, $strictness);
-        } else {
-            return get_context_instance($contextlevel, $instanceid);
-        }
-    }
-
-    /**
      * trim_text
      *
      * @param   string   $text
@@ -2983,7 +2960,7 @@ class block_taskchain_navigation extends block_base {
      * @param   integer  $taillength (optional, default=10)
      * @return  string
      */
-    static function trim_text($text, $textlength=28, $headlength=10, $taillength=10) {
+    static public function trim_text($text, $textlength=28, $headlength=10, $taillength=10) {
         $strlen = self::textlib('strlen', $text);
         if ($strlen > $textlength) {
             $head = self::textlib('substr', $text, 0, $headlength);
@@ -2991,6 +2968,71 @@ class block_taskchain_navigation extends block_base {
             $text = $head.' ... '.$tail;
         }
         return $text;
+    }
+
+    /**
+     * get_userfields
+     *
+     * @param string $tableprefix name of database table prefix in query
+     * @param array  $extrafields extra fields to be included in result (do not include TEXT columns because it would break SELECT DISTINCT in MSSQL and ORACLE)
+     * @param string $idalias     alias of id field
+     * @param string $fieldprefix prefix to add to all columns in their aliases, does not apply to 'id'
+     * @return string
+     */
+     static public function get_userfields($tableprefix='', array $extrafields=null, $idalias='id', $fieldprefix='') {
+        if (class_exists('user_picture')) {
+            // Moodle >= 2.6
+            return user_picture::fields($tableprefix, $extrafields, $idalias, $fieldprefix);
+        } else {
+            // Moodle <= 2.5
+            $fields = array('id', 'firstname', 'lastname', 'picture', 'imagealt', 'email');
+            if ($tableprefix || $extrafields || $idalias) {
+                if ($tableprefix) {
+                    $tableprefix .= '.';
+                }
+                if ($extrafields) {
+                    $fields = array_unique(array_merge($fields, $extrafields));
+                }
+                if ($idalias) {
+                    $idalias = " AS $idalias";
+                }
+                if ($fieldprefix) {
+                    $fieldprefix = " AS $fieldprefix";
+                }
+                foreach ($fields as $i => $field) {
+                    $fields[$i] = "$tableprefix$field".($field=='id' ? $idalias : ($fieldprefix=='' ? '' : "$fieldprefix$field"));
+                }
+            }
+            return implode(',', $fields); // 'u.id AS userid, u.username, u.firstname, u.lastname, u.picture, u.imagealt, u.email';
+        }
+    }
+
+    /**
+     * get_numsections
+     *
+     * a wrapper method to offer consistent API for $course->numsections
+     * in Moodle 2.0 - 2.3, "numsections" is a field in the "course" table
+     * in Moodle >= 2.4, "numsections" is in the "course_format_options" table
+     *
+     * @uses   $DB
+     * @param  mixed   $course, either object (DB record) or integer (id)
+     * @return integer $numsections
+     */
+    static public function get_numsections($course) {
+        global $DB;
+        if (is_numeric($course)) {
+            $course = $DB->get_record('course', array('id' => $course));
+        }
+        if (isset($course->numsections)) {
+            // Moodle <= 2.3
+            return $course->numsections;
+        }
+        if (isset($course->format)) {
+            // Moodle >= 2.4
+            $params = array('courseid' => $course->id, 'format' => $course->format, 'name' => 'numsections');
+            return $DB->get_field('course_format_options', 'value', $params);
+        }
+        return 0; // shouldn't happen !!
     }
 
     /**
@@ -3047,6 +3089,25 @@ class block_taskchain_navigation extends block_base {
     }
 
     /**
+     * filter_text
+     *
+     * @param string $text
+     * @return string
+     */
+    static public function filter_text($text) {
+        global $PAGE;
+
+        $filter = filter_manager::instance();
+
+        if (method_exists($filter, 'setup_page_for_filters')) {
+            // Moodle >= 2.3
+            $filter->setup_page_for_filters($PAGE, $PAGE->context);
+        }
+
+        return $filter->filter_text($text, $PAGE->context);
+    }
+
+    /**
      * textlib
      *
      * a wrapper method to offer consistent API for textlib class
@@ -3077,87 +3138,26 @@ class block_taskchain_navigation extends block_base {
     }
 
     /**
-     * get_numsections
+     * context
      *
-     * a wrapper method to offer consistent API for $course->numsections
-     * in Moodle 2.0 - 2.3, "numsections" is a field in the "course" table
-     * in Moodle >= 2.4, "numsections" is in the "course_format_options" table
+     * a wrapper method to offer consistent API to get contexts
+     * in Moodle 2.0 and 2.1, we use get_context_instance() function
+     * in Moodle >= 2.2, we use static context_xxx::instance() method
      *
-     * @uses   $DB
-     * @param  mixed   $course, either object (DB record) or integer (id)
-     * @return integer $numsections
+     * @param integer $contextlevel
+     * @param integer $instanceid (optional, default=0)
+     * @param int $strictness (optional, default=0 i.e. IGNORE_MISSING)
+     * @return required context
+     * @todo Finish documenting this function
      */
-    static public function get_numsections($course) {
-        global $DB;
-        if (is_numeric($course)) {
-            $course = $DB->get_record('course', array('id' => $course));
-        }
-        if (isset($course->numsections)) {
-            // Moodle <= 2.3
-            return $course->numsections;
-        }
-        if (isset($course->format)) {
-            // Moodle >= 2.4
-            $params = array('courseid' => $course->id, 'format' => $course->format, 'name' => 'numsections');
-            return $DB->get_field('course_format_options', 'value', $params);
-        }
-        return 0; // shouldn't happen !!
-    }
-
-    /**
-     * get_userfields
-     *
-     * @param string $tableprefix name of database table prefix in query
-     * @param array  $extrafields extra fields to be included in result (do not include TEXT columns because it would break SELECT DISTINCT in MSSQL and ORACLE)
-     * @param string $idalias     alias of id field
-     * @param string $fieldprefix prefix to add to all columns in their aliases, does not apply to 'id'
-     * @return string
-     */
-     static public function get_userfields($tableprefix='', array $extrafields=null, $idalias='id', $fieldprefix='') {
-        if (class_exists('user_picture')) {
-            // Moodle >= 2.6
-            return user_picture::fields($tableprefix, $extrafields, $idalias, $fieldprefix);
+    static public function context($contextlevel, $instanceid=0, $strictness=0) {
+        if (class_exists('context_helper')) {
+            // use call_user_func() to prevent syntax error in PHP 5.2.x
+            $class = context_helper::get_class_for_level($contextlevel);
+            return call_user_func(array($class, 'instance'), $instanceid, $strictness);
         } else {
-            // Moodle <= 2.5
-            $fields = array('id', 'firstname', 'lastname', 'picture', 'imagealt', 'email');
-            if ($tableprefix || $extrafields || $idalias) {
-                if ($tableprefix) {
-                    $tableprefix .= '.';
-                }
-                if ($extrafields) {
-                    $fields = array_unique(array_merge($fields, $extrafields));
-                }
-                if ($idalias) {
-                    $idalias = " AS $idalias";
-                }
-                if ($fieldprefix) {
-                    $fieldprefix = " AS $fieldprefix";
-                }
-                foreach ($fields as $i => $field) {
-                    $fields[$i] = "$tableprefix$field".($field=='id' ? $idalias : ($fieldprefix=='' ? '' : "$fieldprefix$field"));
-                }
-            }
-            return implode(',', $fields); // 'u.id AS userid, u.username, u.firstname, u.lastname, u.picture, u.imagealt, u.email';
+            return get_context_instance($contextlevel, $instanceid);
         }
-    }
-
-    /**
-     * filter_text
-     *
-     * @param string $text
-     * @return string
-     */
-    static public function filter_text($text) {
-        global $COURSE, $PAGE;
-
-        $filter = filter_manager::instance();
-
-        if (method_exists($filter, 'setup_page_for_filters')) {
-            // Moodle >= 2.3
-            $filter->setup_page_for_filters($PAGE, $PAGE->context);
-        }
-
-        return $filter->filter_text($text, $PAGE->context);
     }
 }
 
