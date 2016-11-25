@@ -434,7 +434,7 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function get_content() {
-        global $CFG, $COURSE, $DB, $USER;
+        global $COURSE, $DB, $USER;
 
         if ($this->content !== null) {
             return $this->content;
@@ -1027,11 +1027,10 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function get_js_addstyles() {
-        global $CFG;
         $js = '';
 
         if ($this->config->moodlecss==1) { // 1=simple view, 2=user report
-            //$href = $CFG->wwwroot.'/grade/edit/tree/tree.css';
+            //$href = new moodle_url('/grade/edit/tree/tree.css');
             //$js .= ''
             //    ."    var obj = document.createElement('link');\n"
             //    ."    obj.setAttribute('rel', 'stylesheet');\n"
@@ -1083,7 +1082,6 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function get_js_addarrows() {
-        global $CFG;
 
         $js = '';
         $arrowup = '';
@@ -1104,10 +1102,9 @@ class block_taskchain_navigation extends block_base {
         }
 
         if ($arrowup) {
-            $href = ''
-                .$CFG->wwwroot.'/course/view.php?id='.$this->page->course->id
-                .'&section='.($this->config->displaysection - 1)
-            ;
+            $courseid = $this->page->course->id;
+            $section = ($this->config->displaysection - 1);
+            $href = new moodle_url('/course/view.php', array('id' => $courseid, 'section' => $section));
             $js .= ''
                 ."        var lnk = document.createElement('a');\n"
                 ."        lnk.setAttribute('href', '$href');\n"
@@ -1121,10 +1118,9 @@ class block_taskchain_navigation extends block_base {
             ;
         }
         if ($arrowdown) {
-            $href = ''
-                .$CFG->wwwroot.'/course/view.php?id='.$this->page->course->id
-                .'&section='.($this->config->displaysection + 1)
-            ;
+            $courseid = $this->page->course->id;
+            $section = ($this->config->displaysection + 1);
+            $href = new moodle_url('/course/view.php', array('id' => $courseid, 'section' => $section));
             $js .= ''
                 ."        var lnk = document.createElement('a');\n"
                 ."        lnk.setAttribute('href', '$href');\n"
@@ -1206,7 +1202,7 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function format_shortcuts($sectioninfo, $modinfo, $depths) {
-        global $CFG, $COURSE, $USER;
+        global $COURSE, $USER;
 
         $sections = $this->get_section_info_all($modinfo);
 
@@ -1220,13 +1216,13 @@ class block_taskchain_navigation extends block_base {
                 $viewgrades = ($COURSE->showgrades && $this->can_grade_view());
             }
             if ($viewgrades) {
-                $href = $CFG->wwwroot.'/grade/report/index.php?id='.$COURSE->id;
+                $href = new moodle_url('/grade/report/index.php', array('id' => $COURSE->id));
                 $rows[] = '<a href="'.$href.'">'.get_string('showgradedetails', 'block_taskchain_navigation').'</a>';
             }
         }
         if (has_capability('moodle/course:manageactivities', $COURSE->context)) {
             if ($this->config->accesscontrol) {
-                $href = $CFG->wwwroot.'/blocks/taskchain_navigation/accesscontrol.php?id='.$this->instance->id;
+                $href = new moodle_url('/blocks/taskchain_navigation/accesscontrol.php', array('id' => $this->instance->id));
                 $rows[] = '<a href="'.$href.'">'.get_string('accesscontrolpage', 'block_taskchain_navigation').'</a>';
             }
             if ($this->config->hiddensections) {
@@ -1340,7 +1336,7 @@ class block_taskchain_navigation extends block_base {
                     ;
                 }
                 if ($content) {
-                    $href = $CFG->wwwroot.'/course/view.php?id='.$COURSE->id;
+                    $href = new moodle_url('/course/view.php', array('id' => $COURSE->id));
                     $rows[] = ''
                         .'<form class="hiddensectionsform" method="post" action="'.$href.'"><div>'
                         .'<input type="hidden" name="sesskey" value="'.sesskey().'" />'
@@ -1374,7 +1370,7 @@ class block_taskchain_navigation extends block_base {
                     $content .= '<option value="'.$sectionnum.'"'.$selected.$class.'>'.$sectionnum.'</option>';
                 }
                 if ($content) {
-                    $href = $CFG->wwwroot.'/course/view.php?id='.$COURSE->id;
+                    $href = new moodle_url('/course/view.php', array('id' => $COURSE->id));
                     $rows[] = ''
                         .'<form class="currentsectionform" method="post" action="'.$href.'"><div>'
                         .'<input type="hidden" name="sesskey" value="'.sesskey().'" />'
@@ -2060,7 +2056,7 @@ class block_taskchain_navigation extends block_base {
             }
 
             if ($showlink) {
-                $href = 'view.php?id='.$courseid.'&amp;section='.$sectionnum;
+                $href = new moodle_url('/course/view.php', array('id'=>$courseid, 'section'=>$sectionnum));
             } else {
                 $href = '';
             }
@@ -2711,9 +2707,9 @@ class block_taskchain_navigation extends block_base {
         // get active groupid for this course during this $SESSION
         $groupid = $this->get_groupid();
 
-        $href = $CFG->wwwroot.'/course/view.php?id='.$COURSE->id;
+        $href = new moodle_url('/course/view.php', array('id' => $COURSE->id));
         if ($section = optional_param('section', 0, PARAM_INT)) {
-            $href .= "&section=$section";
+            $href->param('section', $section);
         }
         $menu = '<form class="group_form" method="post" action="'.$href.'"><div>';
 
