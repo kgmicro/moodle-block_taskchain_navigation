@@ -2056,7 +2056,12 @@ class block_taskchain_navigation extends block_base {
             }
 
             if ($showlink) {
-                $href = new moodle_url('/course/view.php', array('id'=>$courseid, 'section'=>$sectionnum));
+                $href = new moodle_url('/course/view.php', array('id'=>$courseid));
+                if ($this->config->singlesection) {
+                    $href->param('section', $sectionnum);
+                } else {
+                    $href->set_anchor("section-$sectionnum");
+                }
             } else {
                 $href = '';
             }
