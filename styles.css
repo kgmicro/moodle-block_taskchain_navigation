@@ -375,6 +375,25 @@ ul.ungraded a {
      font-size: 1.1em;
 }
 
+/**
+ * override standard theme settings affecting group menu
+ */
+div.block_taskchain_navigation table caption {
+    font-size: initial;
+    line-height: initial;
+    text-align: center;
+}
+div.block_taskchain_navigation form.group_form {
+    margin: 0px auto;
+}
+div.block_taskchain_navigation select {
+    margin-top: 0px;
+    margin-bottom: 3px;
+}
+
+/**
+ * grade colors in taskchain_navigation block
+ */
 div.block_taskchain_navigation tr td.last div.highgrade {
     background-color: #ccff99; /* gentle green */
 	color: #000000;

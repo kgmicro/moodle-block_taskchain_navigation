@@ -776,13 +776,11 @@ class block_taskchain_navigation extends block_base {
      * @return xxx true if $record is zero-weighted, false otherwise
      */
     function is_zeroweighted($record) {
-        if (isset($record->grademax)) {
-            if ($record->grademax==0.0) {
-                return true;
-            }
-            if ($record->aggregation==GRADE_AGGREGATE_WEIGHTED_MEAN && $record->aggregationcoef==0.0) {
-                return true;
-            }
+        if ($record->grademax==0.0) {
+            return true;
+        }
+        if ($this->is_extracredit($record)) {
+            return true;
         }
         return false;
     }
@@ -871,6 +869,7 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function get_siblingcount(&$records, $id) {
+
         // get target itemtype and parentgradecategoryid
         $itemtype = $records[$id]->itemtype;
         $parentgradecategoryid = $records[$id]->parentgradecategoryid;
@@ -878,12 +877,71 @@ class block_taskchain_navigation extends block_base {
         // count all records with the required itemtype and parentgradecategoryid
         $count = 0;
         foreach ($records as $record) {
-            if ($record->itemtype==$itemtype && $record->parentgradecategoryid==$parentgradecategoryid) {
+            if ($this->is_sibling_gradeitem($record, $itemtype, $parentgradecategoryid)) {
                 $count++;
             }
         }
 
         return $count;
+    }
+
+    /**
+     * get_siblingsumgrade
+     *
+     * @param xxx $records (passed by reference)
+     * @param xxx $id
+     * @return xxx
+     */
+    function get_siblingsumgrade(&$records, $id) {
+
+        // get target itemtype and parentgradecategoryid
+        $itemtype = $records[$id]->itemtype;
+        $parentgradecategoryid = $records[$id]->parentgradecategoryid;
+
+        // sum grade range for all records with the required itemtype and parentgradecategoryid
+        $sumgrade = 0;
+        foreach ($records as $record) {
+            if ($this->is_sibling_gradeitem($record, $itemtype, $parentgradecategoryid)) {
+                $sumgrade += ($record->grademax - $record->grademin);
+            }
+        }
+
+        return $sumgrade;
+    }
+
+    /**
+     * is_sibling_gradeitem
+     *
+     * @param xxx $itemtype
+     * @param xxx $parentgradecategoryid
+     * @param xxx $record
+     * @return boolean
+     */
+    function is_sibling_gradeitem($record, $itemtype, $parentgradecategoryid) {
+        if ($record->itemtype==$itemtype && $record->parentgradecategoryid==$parentgradecategoryid) {
+            if ($this->is_extracredit($record)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * is_extracredit
+     *
+     * @param xxx $record
+     * @return boolean
+     */
+    function is_extracredit($record) {
+        switch ($record->aggregation) {
+            case GRADE_AGGREGATE_WEIGHTED_MEAN2:   // = 11
+            case GRADE_AGGREGATE_EXTRACREDIT_MEAN: // = 12
+            case GRADE_AGGREGATE_SUM:              // = 13
+                return ($record->aggregationcoef > 0.0);
+            default:
+                return false;
+        }
     }
 
     /**
@@ -953,11 +1011,22 @@ class block_taskchain_navigation extends block_base {
         if ($parentid = $this->locate_grade_category($records, $id)) {
             if (isset($records[$parentid]->aggregation)) {
                 switch ($records[$parentid]->aggregation) {
-                    case GRADE_AGGREGATE_WEIGHTED_MEAN: // 10 = weighted mean
+                    case GRADE_AGGREGATE_WEIGHTED_MEAN:
+                        // 10 = Weighted mean
                         $weighting = $records[$id]->aggregationcoef;
                         break;
-                    case GRADE_AGGREGATE_WEIGHTED_MEAN2: // 11 = simple weighted mean
+                    case GRADE_AGGREGATE_WEIGHTED_MEAN2:
+                        // 11 = Simple weighted mean
                         $weighting = (1 / $this->get_siblingcount($records, $id));
+                        break;
+                    case GRADE_AGGREGATE_EXTRACREDIT_MEAN:
+                        // 12 = Weighted mean (with extra credit)
+                        $weighting = $records[$id]->aggregationcoef;
+                        break;
+                    case GRADE_AGGREGATE_SUM:
+                        // 13 = Natural (used to be "Sum of grades")
+                        $weighting = ($records[$id]->grademax - $records[$id]->grademin);
+                        $weighting = ($weighting / $this->get_siblingsumgrade($records, $id));
                         break;
                 }
             }
@@ -985,10 +1054,18 @@ class block_taskchain_navigation extends block_base {
                 if ($records[$id]->usercount) {
                     $text .= ' ('.$records[$id]->usercount.')';
                 }
+                // scale the numeric value to the min - max range
+                if ($scaled_num = ($records[$id]->grademax - $records[$id]->grademin)) {
+                    $scaled_num = (($num - $records[$id]->grademin) / $scaled_num);
+                    $scaled_num = $this->fix_precision(100 * $scaled_num);
+                } else {
+                    $scaled_num = 0;
+                }
+                // determine the CSS class from the scaled numeric value
                 switch (true) {
-                    case ($num >= $this->config->highgrade):   $class = 'highgrade';   break;
-                    case ($num >= $this->config->mediumgrade): $class = 'mediumgrade'; break;
-                    case ($num >= $this->config->lowgrade):    $class = 'lowgrade';    break;
+                    case ($scaled_num >= $this->config->highgrade):   $class = 'highgrade';   break;
+                    case ($scaled_num >= $this->config->mediumgrade): $class = 'mediumgrade'; break;
+                    case ($scaled_num >= $this->config->lowgrade):    $class = 'lowgrade';    break;
                     default: $class = 'nograde';
                 }
             }
@@ -2154,13 +2231,28 @@ class block_taskchain_navigation extends block_base {
 
         $categories = array();
 
-        $select = 'id, categoryid, itemtype, itemmodule, iteminstance, sortorder';
-        if ($this->config->categoryskipzeroweighted || $this->config->categoryshowweighting || $this->config->gradedisplay==2) {
-            $select .= ', aggregationcoef, gradetype, grademax, grademin';
-        }
+        $select = 'id, categoryid, itemtype, itemmodule, iteminstance, sortorder, '.
+                  'grademax, grademin, aggregationcoef, gradetype, scaleid';
+        // "aggregationcoef" is the "Extra credit" setting.
+        // It is not available for ALL grade types of "aggregation".
+        // Its precise meaning depends on the "aggregation" of the parent category.
+        //     Simple Weighted Mean of Grades
+        //     Natural (=Sum of Grades)
+        //         =0 : no effect
+        //         >0 : grade is added to mean
+        //     Mean of Grades (with Extra Credit)
+        //         =0 : no effect
+        //         >0 : grade is multiplied by this number and added to mean
+
+        // possible values for "gradetype":
+        //     GRADE_TYPE_NONE  (0 : None  - no grading possible)
+        //     GRADE_TYPE_VALUE (1 : Value - numeric within grade max and min)
+        //     GRADE_TYPE_SCALE (2 : Scale - a item in from a scale list)
+        //     GRADE_TYPE_TEXT  (3 : Text  - feedback only)
+
         $from = '{grade_items}';
-        $where = 'courseid = ?';
-        $params = array($COURSE->id);
+        $where = 'courseid = ? AND gradetype <> ?';
+        $params = array($COURSE->id, GRADE_TYPE_NONE);
         if ($this->config->categoryskiphidden) {
             $where .= ' AND hidden = ?';
             $params[] = 0;
@@ -2188,10 +2280,7 @@ class block_taskchain_navigation extends block_base {
         }
 
         if (count($categories)) {
-            $select = 'id, parent, fullname, path, depth';
-            if ($this->config->categoryskipzeroweighted || $this->config->categoryshowweighting || $this->config->gradedisplay==2) {
-                $select .= ', aggregation';
-            }
+            $select = 'id, parent, fullname, path, depth, aggregation';
             $from   = '{grade_categories}';
             list($where, $params) = $DB->get_in_or_equal(array_keys($categories));
             $categories = $DB->get_records_sql("SELECT $select FROM $from WHERE id $where", $params);
@@ -2886,7 +2975,7 @@ class block_taskchain_navigation extends block_base {
 
         // if groups are not used in this course,
         // set to groupid to zero and stop here
-        if ($COURSE->groupmode==NOGROUPS) {
+        if (empty($COURSE->groupmode) || $COURSE->groupmode==NOGROUPS) {
             return $this->groupid;
         }
 

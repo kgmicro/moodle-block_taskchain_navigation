@@ -435,6 +435,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $modinfo = get_fast_modinfo($course);
             $rebuild_course_cache = false;
 
+            // create a copy of the cms array in order to prevent
+            // the following PHP Notice when trying unset($modinfo->cms[$cmid])
+            // "Indirect modification of overloaded property course_modinfo::$cms has no effect"
+            $cms = $modinfo->cms;
+
             foreach (array_keys($sections) as $id) {
                 $sequence = explode(',', $sections[$id]->sequence);
                 $sequence = array_flip($sequence);
@@ -442,13 +447,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     if (array_key_exists($cmid, $items)) {
                         // assign new sortorder to activity
                         $sequence[$cmid] = $items[$cmid]->sortorder;
-                    } else if (isset($modinfo->cms[$cmid])) {
-                        // no grade book item (e.g. label)
-                        $name = urldecode($modinfo->cms[$cmid]->name);
+                    } else if (isset($cms[$cmid])) {
+                        // not a grade book item (e.g. label)
+                        $name = urldecode($cms[$cmid]->name);
                         $name = block_taskchain_navigation::filter_text($name);
                         $name = trim(strip_tags($name));
                         $sequence[$cmid] = $name;
-                        unset($modinfo->cms[$cmid]);
+                        unset($cms[$cmid]);
                     } else {
                         unset($sequence[$cmid]); // shouldn't happen !!
                     }
@@ -475,7 +480,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $course = $DB->get_record('course', array('id' => $course->id));
             }
         }
-        unset($items, $sections, $modinfo, $sequence, $name, $cmid, $id);
+        unset($items, $sections, $modinfo, $sequence, $name, $cms, $cmid, $id);
     }
 
     $cms      = array();
