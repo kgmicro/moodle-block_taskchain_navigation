@@ -511,6 +511,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $section_visible = array_map('intval', $section_visible);
     $section_visible[0] = 1; // intro is always visible
 
+    // determine to use when generating image URLs
+    if (method_exists($PAGE->theme, 'image_url')) {
+        $image_url = 'image_url'; // Moodle >= 3.3
+    } else {
+        $image_url = 'pix_url'; // Moodle <= 3.2
+    }
+
     $modinfo = get_fast_modinfo($course);
     foreach ($modinfo->sections as $sectionnum => $cmids) {
 
@@ -657,9 +664,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $selected = '';
             }
 
-            $url = $PAGE->theme->pix_url('icon', $cm->modname)->out();
-            $style = ' style="background-image: url('.$url.'); background-repeat: no-repeat; background-position: 1px 2px; min-height: 20px; padding-left: 12px;"';
-
+            $url = $PAGE->theme->$image_url('icon', $cm->modname)->out();
+            $style = ' style="background-image: url('.$url.'); '.
+                             'background-repeat: no-repeat; '.
+                             'background-position: 1px 2px; '.
+                             'min-height: 20px; '.
+                             'padding-left: 12px;"';
             $name = urldecode($cm->name);
             $name = block_taskchain_navigation::filter_text($name);
             $name = trim(strip_tags($name));
