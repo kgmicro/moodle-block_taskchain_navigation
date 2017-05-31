@@ -298,8 +298,14 @@ $string['moodlecss_help'] = 'This setting specifies which of the standard Moodle
 **None**
 : no standard Moodle stylesheet will be used
 
-**Simple view**
-: the stylesheet for the "Simple view" in the Moodle grade book will be used
+**Gradebook setup (Moodle 3.0 and later)**
+: the stylesheet for the "Gradebook setup" page in the gradebook for Moodle 3.0 and later will be used
+
+**Categories and items (Moodle 2.8 and 2.9)**
+: the stylesheet for the "Categories and items" page in the gradebook for Moodle 2.8 and 2.9 will be used
+
+**Simple view (Moodle 2.7 and earlier)**
+: the stylesheet for the "Simple view" in the gradebook for Moodle 2.7 and earlier will be used
 
 **User report**
 : the stylesheet for the "User report" in the Moodle grade book will be used';

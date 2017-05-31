@@ -724,17 +724,27 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
      * @return string name: 'simpleview' on Moodle <= 2.7, otherwise 'categoriesanditems'
      */
     protected function get_stringname_simpleview() {
-        if (function_exists('get_string_manager')) {
-            $manager = get_string_manager();
-            if (method_exists($manager, 'string_deprecated')) {
-                if ($manager->string_deprecated('simpleview', 'grades')) {
-                    // Moodle >= 2.8
-                    return 'categoriesanditems';
-                }
-            }
+        $manager = get_string_manager();
+
+        $plugin = 'grades';
+        $oldstring = 'simpleview';
+
+        $method = 'string_exists';
+        $newstring = 'gradebooksetup';
+        if ($manager->$method($newstring, $plugin)) {
+            // Moodle >= 3.0
+            return $newstring;
         }
+
+        $method = 'string_deprecated';
+        $newstring = 'categoriesanditems';
+        if (method_exists($manager, $method) && $manager->$method($oldstring, 'grades')) {
+            // Moodle >= 2.8
+            return $newstring;
+        }
+
         // Moodle <= 2.7
-        return 'simpleview';
+        return $oldstring;
     }
 
     /**
