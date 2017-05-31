@@ -1936,8 +1936,8 @@ class block_taskchain_navigation extends block_base {
             $replace = new stdClass();
         }
 
-        $prefixkeep   = $type.'prefixkeep';
-        $suffixkeep   = $type.'suffixkeep';
+        $prefixkeep = $type.'prefixkeep';
+        $suffixkeep = $type.'suffixkeep';
 
         // set up $search->$type and $replace->$type (first time only)
         if (! isset($search->$type)) {
@@ -1945,11 +1945,11 @@ class block_taskchain_navigation extends block_base {
             $search->$type = array();
             $replace->$type = array();
 
-            $prefixchars  = $type.'prefixchars';
-            $prefixlong   = $type.'prefixlong';
+            $prefixchars = $type.'prefixchars';
+            $prefixlong  = $type.'prefixlong';
 
             if ($chars = $this->config->$prefixchars) {
-                $chars = implode('|', array_map('preg_quote', $this->str_split($chars), array('/')));
+                $chars = implode('|', array_map('preg_quote', self::str_split($chars), array('/')));
                 if ($this->config->$prefixlong) {
                     array_push($search->$type, "/^(.*)($chars)(.*?)$/u");
                 } else {
@@ -1962,11 +1962,11 @@ class block_taskchain_navigation extends block_base {
                 }
             }
 
-            $suffixchars  = $type.'suffixchars';
-            $suffixlong   = $type.'suffixlong';
+            $suffixchars = $type.'suffixchars';
+            $suffixlong  = $type.'suffixlong';
 
             if ($chars = $this->config->$suffixchars) {
-                $chars = implode('|', array_map('preg_quote', $this->str_split($chars), array('/')));
+                $chars = implode('|', array_map('preg_quote', self::str_split($chars), array('/')));
                 if ($this->config->$suffixlong) {
                     array_push($search->$type, "/^(.*?)($chars)(.*)$/u");
                 } else {
@@ -1981,7 +1981,7 @@ class block_taskchain_navigation extends block_base {
 
             $ignorechars = $type.'ignorechars';
             if ($chars = $this->config->$ignorechars) {
-                $chars = implode('|', array_map('preg_quote', $this->str_split($chars), array('/')));
+                $chars = implode('|', array_map('preg_quote', self::str_split($chars), array('/')));
                 array_push($search->$type, "/$chars/u");
                 array_push($replace->$type, '');
             }
@@ -2025,22 +2025,6 @@ class block_taskchain_navigation extends block_base {
         }
 
         return $text;
-    }
-
-    /**
-     * str_split
-     *
-     * @param xxx $str
-     * @param xxx $split_length (optional, default=1)
-     * @return xxx
-     */
-    function str_split($str, $split_length=1){
-        $array = array();
-        $i_max = self::textlib('strlen', $str);
-        for($i=0; $i<$i_max; $i+=$split_length){
-            $array[] = self::textlib('substr', $str, $i, $split_length);
-        }
-        return $array;
     }
 
     /**
@@ -3176,6 +3160,22 @@ class block_taskchain_navigation extends block_base {
             }
         }
         return $info;
+    }
+
+    /**
+     * str_split
+     *
+     * @param xxx $str
+     * @param xxx $split_length (optional, default=1)
+     * @return xxx
+     */
+    static public function str_split($str, $split_length=1){
+        $array = array();
+        $i_max = self::textlib('strlen', $str);
+        for($i=0; $i<$i_max; $i+=$split_length){
+            $array[] = self::textlib('substr', $str, $i, $split_length);
+        }
+        return $array;
     }
 
     /**

@@ -3355,9 +3355,9 @@ function format_setting($name, $value, $str,
         case 'conditiontype':
             $name = $str->$name;
             $value = $str->conditiontype1.' '.
-                     $conditiontypemustmenu[$value->must].' '.
+                     call_textlib('strtoupper', $conditiontypemustmenu[$value->must]).' '.
                      $str->conditiontype2.' '.
-                     $conditiontypejoinmenu[$value->join].' '.
+                     call_textlib('strtoupper', $conditiontypejoinmenu[$value->join]).' '.
                      $str->conditiontype3;
             break;
 
@@ -3727,20 +3727,7 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
 
         foreach (array_keys($new_conditions) as $i) {
             $new = clone($new_conditions[$i]);
-            switch ($new->type) {
-                case 'completion': $includeungraded  = $new->ungraded;
-                                   $includeresources = $new->resources;
-                                   $includelabels    = $new->labels;
-                                   unset($new->ungraded, $new->resources, $new->labels);
-                                   $ok = ($new->cm = fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $new->cm, $includeungraded, $includeresources, $includelabels, true));  break;
-                case 'date'      : $ok = ($new->d && $new->t); break;
-                case 'grade'     : $ok = ($new->id = fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $new->id)); break;
-                case 'group'     : $ok = ($new->id); break;
-                case 'grouping'  : $ok = ($new->id); break;
-                case 'profile'   : $ok = ($new->sf && $new->op); break;
-                default          : $ok = true;
-            }
-            if (! $ok) {
+            if (! is_valid_restriction($new)) {
                 continue;
             }
             if (isset($new_actions[$i])) {
@@ -3826,23 +3813,9 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
         $update = false;
         foreach (array_keys($new_conditions) as $i) {
             $new = clone($new_conditions[$i]);
-            switch ($new->type) {
-                case 'completion': $includeungraded  = $new->ungraded;
-                                   $includeresources = $new->resources;
-                                   $includelabels    = $new->labels;
-                                   unset($new->ungraded, $new->resources, $new->labels);
-                                   $ok = ($new->cm = fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $new->cm, $includeungraded, $includeresources, $includelabels, true));  break;
-                case 'date'      : $ok = ($new->d && $new->t); break;
-                case 'grade'     : $ok = ($new->id = fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $new->id)); break;
-                case 'group'     : $ok = ($new->id); break;
-                case 'grouping'  : $ok = ($new->id); break;
-                case 'profile'   : $ok = ($new->sf && $new->op); break;
-                default          : $ok = true;
-            }
-            if (! $ok) {
+            if (! is_valid_restriction($new)) {
                 continue;
             }
-
             switch ($new->type) {
                 case 'completion':
                     $table = 'course_modules_availability';
@@ -3898,7 +3871,44 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
     }
 
 }
+function is_valid_restriction($condition) {
 
+    switch ($condition->type) {
+
+        case 'completion':
+            $condition->cm = fix_condition_targetid($labelmods,
+                                                    $resourcemods,
+                                                    $course, $cm,
+                                                    $condition->cm,
+                                                    $condition->ungraded,
+                                                    $condition->resources,
+                                                    $condition->labels, true);
+            unset($condition->ungraded, $condition->resources, $condition->labels);
+            return ($condition->cm ? true : false);
+
+        case 'date':
+            return ($condition->d && $condition->t);
+
+        case 'grade':
+            $condition->id = fix_condition_targetid($labelmods,
+                                                    $resourcemods,
+                                                    $course, $cm,
+                                                    $condition->id);
+            return ($condition->id ? true : false);
+
+        case 'group':
+            return ($condition->id ? true : false);
+
+        case 'grouping':
+            return ($condition->id ? true : false);
+
+        case 'profile':
+            return ($condition->sf && $condition->op);
+
+        default:
+            return true; // shouldn't happen !!
+    }
+}
 function update_availability_table($table, $fields, $params, &$update, $add_if_missing=true) {
     global $DB;
     if ($DB->record_exists($table, $params)) {
@@ -4434,4 +4444,34 @@ function convert_seconds_to_duration($seconds) {
         }
     }
     return array($seconds, 1); // shouldn't happen !!
+}
+
+/**
+ * textlib
+ *
+ * a wrapper method to offer consistent API for textlib class
+ * in Moodle 2.0 and 2.1, $textlib is first initiated, then called
+ * in Moodle 2.2 - 2.5, we use only static methods of the "textlib" class
+ * in Moodle >= 2.6, we use only static methods of the "core_text" class
+ *
+ * @param string $method
+ * @param mixed any extra params that are required by the textlib $method
+ * @return result from the textlib $method
+ * @todo Finish documenting this function
+ */
+function call_textlib() {
+    if (class_exists('core_text')) {
+        // Moodle >= 2.6
+        $textlib = 'core_text';
+    } else if (method_exists('textlib', 'textlib')) {
+        // Moodle 2.0 - 2.2
+        $textlib = textlib_get_instance();
+    } else {
+        // Moodle 2.3 - 2.5
+        $textlib = 'textlib';
+    }
+    $args = func_get_args();
+    $method = array_shift($args);
+    $callback = array($textlib, $method);
+    return call_user_func_array($callback, $args);
 }
