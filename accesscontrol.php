@@ -214,6 +214,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $erasecompletion  = optional_param('erasecompletion',  0, PARAM_INT);
 
     // course_modules_availability OR course_modules.availability
+    $conditiontypemust      = optional_param('conditiontypemust', '', PARAM_TEXT); // ''=must, '!'=must not
+    $conditiontypejoin      = optional_param('conditiontypejoin', '&',  PARAM_TEXT); // '&'=AND, '|'=OR
     $conditiondatedirection = optional_param_array('conditiondatedirection', array(0),   PARAM_INT);
     $conditiongradeitemid   = optional_param_array('conditiongradeitemid',   array(0),   PARAM_INT);
     $conditiongrademin      = optional_param_array('conditiongrademin',      array(60),  PARAM_INT);
@@ -252,9 +254,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     // Competency settings
     $competencyrule = optional_param('competencyrule', 0, PARAM_INT);
 
+    $conditiontype = (object)array(
+        'must' => $conditiontypemust,
+        'join' => $conditiontypejoin
+    );
+
     $conditiondate = array();
     $conditiondatetime = array();
-
     foreach ($conditiondatedirection as $i => $d) {
         switch ($d) {
             case 1: $d = '>='; break;
@@ -365,8 +371,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         $enableavailability = true;
     }
     if ($enableavailability) {
-        array_push($settings, 'removeconditions',  'conditiondate',      'conditiongrade', 'conditionfield',
-                              'conditiongroup',    'conditiongrouping',  'conditioncm',    'conditionaction');
+        array_push($settings, 'removeconditions',  'conditiontype',  'conditiondate',
+                              'conditiongrade',    'conditionfield', 'conditiongroup',
+                              'conditiongrouping', 'conditioncm',    'conditionaction');
     }
 
     // add "completion" settings, if enabled
@@ -942,6 +949,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         );
     }
 
+    $conditiontypemustmenu      = array();
+    $conditiontypejoinmenu      = array();
     $conditiongradeitemidmenu   = array();
     $conditioncmidmenu          = array();
     $conditionfieldnamemenu     = array();
@@ -1089,6 +1098,18 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $conditionactionmenu = array(
                 $hide => get_string('hidden_all', 'availability'),
                 $show => get_string('shown_all',  'availability')
+            );
+            $str->conditiontype  = get_string('label_sign',              'availability'); // Restriction type
+            $str->conditiontype1 = get_string('listheader_sign_before',  'availability'); // Student [MUST (NOT)]
+            $str->conditiontype2 = get_string('listheader_multi_before', 'availability'); // match [ANY | ALL]
+            $str->conditiontype3 = get_string('listheader_multi_after',  'availability'); // of the following
+            $conditiontypemustmenu = array(
+                ''  => get_string('listheader_sign_pos',  'availability'), // must
+                '!' => get_string('listheader_sign_neg',  'availability'), // must not
+            );
+            $conditiontypejoinmenu = array(
+                '&' => get_string('listheader_multi_and', 'availability'), // all
+                '|' => get_string('listheader_multi_or',  'availability'), // any
             );
         } else {
             // Moodle <= 2.6
@@ -1693,6 +1714,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         }
                         break;
 
+                    case 'conditiontype':
                     case 'conditiondate':
                     case 'conditiongrade':
                     case 'conditionfield':
@@ -1703,7 +1725,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         if ($conditions_checked==false) {
                             $conditions_checked = true;
                             $conditions = array_merge($conditiondate, $conditiongrade, $conditionfield, $conditiongroup, $conditiongrouping, $conditioncm);
-                            update_course_module_availability($labelmods, $resourcemods, $course, $cm, $conditions, $conditionaction, $updated, $skipped);
+                            update_course_module_availability($labelmods, $resourcemods, $course, $cm, $conditiontype, $conditions, $conditionaction, $updated, $skipped);
                             if ($updated) {
                                 $rebuild_course_cache = true;
                             }
@@ -1916,6 +1938,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         $ratings, $modgradetypes, $modgradescales,
                         $gradecategories, $groupmodes, $groupings,
                         $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
+                        $conditiontypemustmenu, $conditiontypejoinmenu,
                         $conditiongradeitemidmenu,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
@@ -2779,6 +2802,29 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '</tr>'."\n";
 
         // =====================
+        // condition type
+        // =====================
+
+        if (count($conditiontypemustmenu)) {
+            echo '<tr>'."\n";
+            echo '<td class="itemname conditiontype">'.$str->conditiontype.':</td>'."\n";
+            echo '<td class="itemvalue">';
+            echo html_writer::start_tag('p');
+            echo $str->conditiontype1.' '; // Student [MUST / MUST NOT]
+            echo html_writer::select($conditiontypemustmenu, 'conditiontypemust', $conditiontypemust, '').' ';
+            echo $str->conditiontype2.' '; // match [ANY / ALL]
+            echo html_writer::select($conditiontypejoinmenu, 'conditiontypejoin', $conditiontypejoin, '').' ';
+            echo $str->conditiontype3;     // of the following
+            echo html_writer::end_tag('p');
+            echo '</td>'."\n";
+            echo '<td class="itemselect">';
+            $script = "return set_disabled(this.form, new Array('conditiontypemust', 'conditiontypejoin'), (! this.checked))";
+            echo html_writer::checkbox('select_conditiontype', 1, optional_param('select_conditiontype', 0, PARAM_INT), '', array('onclick' => $script));
+            echo '</td>'."\n";
+            echo '</tr>'."\n";
+        }
+
+        // =====================
         // condition dates
         // =====================
         //
@@ -3195,6 +3241,7 @@ function format_setting($name, $value, $str,
                         $ratings, $modgradetypes, $modgradescales,
                         $gradecategories, $groupmodes, $groupings,
                         $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
+                        $conditiontypemustmenu, $conditiontypejoinmenu,
                         $conditiongradeitemidmenu,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
@@ -3303,6 +3350,15 @@ function format_setting($name, $value, $str,
         case 'removeconditions':
             $name = get_string('removeconditions', $plugin);
             $value = format_yesno($value);
+            break;
+
+        case 'conditiontype':
+            $name = $str->$name;
+            $value = $str->conditiontype1.' '.
+                     $conditiontypemustmenu[$value->must].' '.
+                     $str->conditiontype2.' '.
+                     $conditiontypejoinmenu[$value->join].' '.
+                     $str->conditiontype3;
             break;
 
         case 'conditiondate':
@@ -3627,7 +3683,7 @@ function update_course_module_completion($table, $id, $fieldname, $fieldvalue, &
     return false; // field could not be updated
 }
 
-function update_course_module_availability($labelmods, $resourcemods, $course, $cm, $new_conditions, $new_actions, &$updated, &$skipped) {
+function update_course_module_availability($labelmods, $resourcemods, $course, $cm, $conditiontype, $new_conditions, $new_actions, &$updated, &$skipped) {
     global $DB;
 
     if (property_exists($cm, 'availability')) {
@@ -3638,6 +3694,7 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
         } else {
             $availability = new stdClass();
         }
+
         if (! isset($availability->op)) {
             $availability->op = '&';
         }
@@ -3647,8 +3704,27 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
         if (! isset($availability->showc)) {
             $availability->showc = array();
         }
+        if (! isset($availability->show)) {
+            $availability->show = false;
+        }
 
         $update = false;
+
+        $op = ($conditiontype->must==''  ? ''  : '!').
+              ($conditiontype->join=='&' ? '&' : '|');
+
+        $show = (($op=='&' || $op=='!|') ? false  : true);
+
+        if ($availability->op != $op) {
+            $availability->op = $op;
+            $update = true;
+        }
+
+        if ($availability->show != $show) {
+            $availability->show = $show;
+            $update = true;
+        }
+
         foreach (array_keys($new_conditions) as $i) {
             $new = clone($new_conditions[$i]);
             switch ($new->type) {
@@ -3708,6 +3784,15 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
             }
         }
         if ($update) {
+            if ($show) {
+                $availability->showc = array();
+            } else {
+                unset($availability->show);
+                if (empty($availability->showc)) {
+                    $showc = (empty($new_actions[0]) ? 0 : 1);
+                    $availability->showc = array_fill(0, count($availability->c), $showc);
+                }
+            }
             $availability = json_encode($availability);
             if (preg_match_all('/(?<="showc":\[).*?(?=\])/', $availability, $matches, PREG_OFFSET_CAPTURE)) {
                 $i_max = count($matches[0]) - 1;
