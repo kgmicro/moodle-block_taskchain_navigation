@@ -27,8 +27,8 @@
 $plugin->component = 'block_taskchain_navigation';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires  = 2010112400; // Moodle 2.0
-$plugin->version   = 2017060192;
-$plugin->release   = '2017-06-01 (92)';
+$plugin->version   = 2017060193;
+$plugin->release   = '2017-06-01 (93)';
 
 if (defined('ANY_VERSION')) { // Moodle >= 2.2
     $plugin->dependencies = array('mod_taskchain' => ANY_VERSION);
