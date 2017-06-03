@@ -1961,7 +1961,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 echo '<span class="failure">'.get_string('fail', 'install').' '.$cm->modname.'</span>';
             }
             echo '</td><td class="itemvalue">';
-            $url = $PAGE->theme->pix_url('icon', $cm->modname)->out();
+            $url = $PAGE->theme->$image_url('icon', $cm->modname)->out();
             echo '<img src="'.$url.'" class="icon" title="'.s(get_string('modulename', $cm->modname)).'"></img> ';
 
             $name = urldecode($cm->name);
@@ -2649,7 +2649,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         print_sectionheading(get_string('fileuploads', 'install'), 'files', true);
 
         $href = 'http://php.net/manual/'.substr(current_language(), 0, 2).'/ini.core.php';
-        $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/info', ''), 'title' => get_string('info')));
+        $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->$image_url('i/info', ''), 'title' => get_string('info')));
         $params = array('onclick' => 'this.target="_blank"');
 
         echo '<tr>'."\n";
@@ -2684,7 +2684,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
         if (has_capability('moodle/course:update', $sitecontext)) {
             $href = new moodle_url('/admin/settings.php', array('section' => 'sitepolicies'));
-            $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
+            $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->$image_url('i/settings', ''), 'title' => get_string('update')));
             echo html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
         }
         echo '</td>'."\n";
@@ -2704,7 +2704,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
         if (has_capability('moodle/course:update', $course->context)) {
             $href = new moodle_url('/course/edit.php', array('id' => $course->id));
-            $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
+            $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->$image_url('i/settings', ''), 'title' => get_string('update')));
             echo html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
         }
         echo '</td>'."\n";
@@ -2731,7 +2731,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $href = 'modsetting'.$name;
                 }
                 $href = new moodle_url('/admin/settings.php', array('section' => $href));
-                $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->pix_url('i/settings', ''), 'title' => get_string('update')));
+                $icon = html_writer::empty_tag('img', array('src' => $PAGE->theme->$image_url('i/settings', ''), 'title' => get_string('update')));
                 echo html_writer::link($href, $icon, array('onclick' => 'this.target="_blank"'));
             }
             echo html_writer::empty_tag('br');
@@ -2875,7 +2875,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 echo html_writer::empty_tag('br');
                 echo $str->grademin.' ';
                 echo ' <input id="id_conditiongrademin['.$i.']" type="text" name="conditiongrademin['.$i.']" size="3" value="'.$conditiongrademin[$i].'" />% ';
-                echo html_writer::empty_tag('img', array('src' => $OUTPUT->pix_url('spacer'), 'class' => 'spacer', 'width' => '30px'));
+                echo html_writer::empty_tag('img', array('src' => $OUTPUT->$image_url('spacer'), 'class' => 'spacer', 'width' => '30px'));
                 echo $str->grademax.' ';
                 echo ' <input id="id_conditiongrademax['.$i.']" type="text" name="conditiongrademax['.$i.']" size="3" value="'.$conditiongrademax[$i].'" />% ';
                 echo html_writer::end_tag('p');
@@ -4288,7 +4288,7 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
             break;
 
         case ($modname=='scorm'):
-            // fields: statusrequired, scorerequired
+            // fields: statusrequired, scorerequired, statusallscos
             $text = get_string($name, $modname);
             $desc = get_string($name.'_desc', $plugin);
             switch ($name) {

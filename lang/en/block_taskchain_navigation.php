@@ -121,6 +121,7 @@ $string['completionattemptsexhausted'] = 'Require all attempts';
 $string['completioncompleted_desc'] = 'Student must have at least one completed attempt';
 $string['completionpass_desc'] = 'Student must get a passing grade, as defined in the gradebook';
 $string['completionscorerequired_desc'] = 'Student must get at least this minimum score:';
+$string['completionstatusallscos_desc'] = 'Require all SCOs to return the required status.';
 $string['completionstatusrequired_desc'] = 'Student must get at least one of each selected status:';
 $string['completionsubmit'] = 'Require submission';
 $string['conditioncmlabels'] = 'Include labels';
