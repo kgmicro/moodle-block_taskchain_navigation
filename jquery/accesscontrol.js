@@ -31,7 +31,7 @@ $(document).ready(function(){
 
     // set URL of the first available help icon
     // this will be used to generate URLs for other images
-    var helpiconurl = $("img.iconhelp").first().attr("src");
+    var helpiconurl = $("img.iconhelp").first().prop("src");
     if (helpiconurl=='') {
         helpiconurl = wwwroot + "/pix/help.gif";
     }
@@ -78,12 +78,12 @@ $(document).ready(function(){
 
             // add IMG click event handler
             $(img).click(function(evt){
-                var src = $(this).attr("src");
+                var src = $(this).prop("src");
                 if (src.indexOf("minus") >= 0) {
-                    $(this).attr("src", src.replace("minus", "plus"));
+                    $(this).prop("src", src.replace("minus", "plus"));
                     $(this).closest("tr").nextUntil("tr.sectionheading").hide();
                 } else {
-                    $(this).attr("src", src.replace("plus", "minus"));
+                    $(this).prop("src", src.replace("plus", "minus"));
                     $(this).closest("tr").nextUntil("tr.sectionheading").show();
                 }
             });
@@ -112,19 +112,19 @@ $(document).ready(function(){
     // add "All / None" toggles to multi-select elements
     $("tr#id_section_activityfilters").nextUntil("tr.sectionheading").find("select[multiple]").each(function(){
 
-        var selector = "#" + $(this).attr("id") + " option";
+        var selector = "#" + $(this).prop("id") + " option";
         $(this).parent("td.itemvalue").prev("td.itemname").each(function(){
 
             // setup the "All" SPAN
             var txt = document.createTextNode(TCN.msg.all);
             var span1 = $("<span>").append(txt).click(function(evt){
-                $(selector).attr("selected", true);
+                $(selector).prop("selected", true);
             });
 
             // setup the "None" SPAN
             var txt = document.createTextNode(TCN.msg.none);
             var span2 = $("<span>").append(txt).click(function(evt){
-                $(selector).attr("selected", false);
+                $(selector).prop("selected", false);
             });
 
             // setup the containing DIV ("class" must be a string for IE compatability)
@@ -135,21 +135,25 @@ $(document).ready(function(){
         });
     });
 
-    // add "All / None" toggle for itemselect checkboxes
+    // add "All / None" toggle for itemselect column
     $("table.blockconfigtable td.itemselect").first().each(function(){
 
-        var selector = "table.blockconfigtable td.itemselect input[type=checkbox]";
+        var selector = "table.blockconfigtable input[type=checkbox][name^=select_]";
 
         // setup the "All" SPAN
         var txt = document.createTextNode(TCN.msg.all);
         var span1 = $("<span>").append(txt).click(function(evt){
-            $(selector).attr("checked", true);
+            $(selector).each(function(){
+                $(this).prop("checked", true).triggerHandler("click");
+            });
         });
 
         // setup the "None" SPAN
         var txt = document.createTextNode(TCN.msg.none);
         var span2 = $("<span>").append(txt).click(function(evt){
-            $(selector).attr("checked", false);
+            $(selector).each(function(){
+                $(this).prop("checked", false).triggerHandler("click");
+            });
         });
 
         // setup the containing DIV ("class" must be a string for IE compatability)
@@ -161,8 +165,7 @@ $(document).ready(function(){
 
     // setup click handlers on "itemselect" checkboxes
     $("table.blockconfigtable td.itemselect input[type=checkbox][name^=select_]").each(function(){
-        $(this).attr("id", "id_" + $(this).attr("name"));
-        var id = $(this).attr("id");
+        $(this).prop("id", "id_" + $(this).prop("name"));
         $(this).click(function(evt){
             var textcolor = '';
             var checked = $(this).prop("checked");
@@ -188,7 +191,7 @@ $(document).ready(function(){
 
     // setup click handlers to confirm action buttons
     $("table.blockconfigtable td.itemvalue input[type=submit]").each(function(){
-        var name = $(this).attr("name");
+        var name = $(this).prop("name");
         if (name=="cancel") {
             return true; // skip this button
         }

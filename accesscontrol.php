@@ -1001,7 +1001,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $depth = 1;
                     $spacer = '';
                     $spacers = array('');
-                } else if ($item->is_category_item()) { 
+                } else if ($item->is_category_item()) {
                     if (array_key_exists($item->iteminstance, $categories)) {
                         $depth = $categories[$item->iteminstance]->depth;
                     } else {
@@ -4213,8 +4213,12 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
             break;
 
         case ($name=='completionpass'):
-            // modules: quiz, taskchain
-            $text = get_string($name, 'quiz');
+            // modules: quiz, taskchain, reader
+            if ($strman->string_exists($name, 'quiz')) {
+                $text = get_string($name, 'quiz');
+            } else {
+                $text = get_string($name, $modname);
+            }
             $desc = get_string($name.'_desc', $plugin);
             $type = 'checkbox';
             break;
