@@ -77,7 +77,7 @@ $(document).ready(function(){
             img.src = helpiconurl.replace('help', src);
 
             // add IMG click event handler
-            $(img).click(function(){
+            $(img).click(function(evt){
                 var src = $(this).attr("src");
                 if (src.indexOf("minus") >= 0) {
                     $(this).attr("src", src.replace("minus", "plus"));
@@ -107,5 +107,124 @@ $(document).ready(function(){
     });
     $("tr.sectionheading th.toggle").each(function(){
         $(this).width(w);
+    });
+
+    // add "All / None" toggles to multi-select elements
+    $("tr#id_section_activityfilters").nextUntil("tr.sectionheading").find("select[multiple]").each(function(){
+
+        var selector = "#" + $(this).attr("id") + " option";
+        $(this).parent("td.itemvalue").prev("td.itemname").each(function(){
+
+            // setup the "All" SPAN
+            var txt = document.createTextNode(TCN.msg.all);
+            var span1 = $("<span>").append(txt).click(function(evt){
+                $(selector).attr("selected", true);
+            });
+
+            // setup the "None" SPAN
+            var txt = document.createTextNode(TCN.msg.none);
+            var span2 = $("<span>").append(txt).click(function(evt){
+                $(selector).attr("selected", false);
+            });
+
+            // setup the containing DIV ("class" must be a string for IE compatability)
+            var txt = document.createTextNode(' / ');
+            var div = $("<div>", {"class": "allornone"}).append(span1, txt, span2);
+
+            $(this).append(div);
+        });
+    });
+
+    // add "All / None" toggle for itemselect checkboxes
+    $("table.blockconfigtable td.itemselect").first().each(function(){
+
+        var selector = "table.blockconfigtable td.itemselect input[type=checkbox]";
+
+        // setup the "All" SPAN
+        var txt = document.createTextNode(TCN.msg.all);
+        var span1 = $("<span>").append(txt).click(function(evt){
+            $(selector).attr("checked", true);
+        });
+
+        // setup the "None" SPAN
+        var txt = document.createTextNode(TCN.msg.none);
+        var span2 = $("<span>").append(txt).click(function(evt){
+            $(selector).attr("checked", false);
+        });
+
+        // setup the containing DIV ("class" must be a string for IE compatability)
+        var txt = document.createTextNode(' / ');
+        var div = $("<div>", {"class": "allornone"}).append(span1, txt, span2);
+
+        $(this).append(div);
+    });
+
+    // setup click handlers on "itemselect" checkboxes
+    $("table.blockconfigtable td.itemselect input[type=checkbox][name^=select_]").each(function(){
+        $(this).attr("id", "id_" + $(this).attr("name"));
+        var id = $(this).attr("id");
+        $(this).click(function(evt){
+            var textcolor = '';
+            var checked = $(this).prop("checked");
+            var itemvalues = $(this).parent("td.itemselect").prev("td.itemvalue").find("input,select");
+            itemvalues.each(function(){
+                if (checked) {
+                    this.disabled = (this.disabledvalue ? true : false);
+                } else {
+                    this.disabledvalue = (this.disabled ? true : false);
+                    this.disabled = true;
+                }
+                if (itemvalues.length==1 && this.type=="checkbox") {
+                    this.checked = checked;
+                }
+                if (textcolor=='') {
+                    textcolor = (checked ? 'inherit' : '#999999');
+                    $(this).parent("td").css("color", textcolor);
+                }
+            });
+        });
+        $(this).triggerHandler("click");
+    });
+
+    // setup click handlers to confirm action buttons
+    $("table.blockconfigtable td.itemvalue input[type=submit]").each(function(){
+        var name = $(this).attr("name");
+        if (name=="cancel") {
+            return true; // skip this button
+        }
+        $(this).click(function(evt){
+            var ok = false;
+            var rows = $("tr#id_section_activityfilters").nextUntil("tr.sectionheading");
+            rows.find("td.itemvalue select").each(function(){
+                if ($(this).find("option:selected").text()) {
+                    ok = true;
+                }
+            });
+            rows.find("input[type=text]").each(function(){
+                if (this.name=="sectiontags") {
+                    return true; // skip this element
+                }
+                if ($(this).val()) {
+                    ok = true;
+                }
+            });
+            if (ok==false) {
+                alert(TCN.msg["noactivities"]);
+                return false;
+            }
+            if (name=="apply") {
+                ok = false;
+                $("table.blockconfigtable input[type=checkbox][name^=select_]").each(function(){
+                    if ($(this).prop("checked")) {
+                        ok = true;
+                    }
+                });
+            }
+            if (ok==false) {
+                alert(TCN.msg["nosettings"]);
+                return false;
+            }
+            return confirm(TCN.msg["confirm" + name]);
+        });
     });
 });

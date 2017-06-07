@@ -985,7 +985,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $item = $items[$id];
                 if ($item->is_course_item()) {
                     $depth = 0;
-                    $index = '';
                 } else if ($item->is_category_item()) {
                     if ($depth = $DB->get_field('grade_categories', 'depth', array('id' => $item->iteminstance))) {
                         if ($depth > 1) {
@@ -994,6 +993,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     }
                     $spaces = str_repeat($space, $depth - 1);
                 } else {
+                    // e.g. a mod item
                     $spaces = str_repeat($space, $depth);
                 }
                 $name = $spaces.get_tree_char($depth, $i, $ids, $items, $categories).$item->get_name(true);
@@ -1912,7 +1912,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                                 'itemtype'     => 'mod',
                                 'itemmodule'   => $cm->modname,
                                 'iteminstance' => $cm->instance);
-                if (! grade_item::fetch($params)) {
+                if (! grade_item::fetch_all($params)) {
                     $cm->completiongradeitemnumber = null; // disable grade completion
                 }
 
@@ -1930,24 +1930,25 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             if ($started_list==false) {
                 $started_list = true;
                 echo '<table border="0" cellpadding="4" cellspacing="4" class="selectedactivitylist"><tbody>'."\n";
-                echo '<tr><th colspan="2">'.get_string('settingsselected', $plugin).'</th></tr>'."\n";
-
-                foreach ($selected_settings as $setting) {
-                    list($name, $value) = format_setting(
-                        $setting, $$setting, $str,
-                        $ratings, $modgradetypes, $modgradescales,
-                        $gradecategories, $groupmodes, $groupings,
-                        $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
-                        $conditiontypemustmenu, $conditiontypejoinmenu,
-                        $conditiongradeitemidmenu,
-                        $conditioncmidmenu, $conditioncmcompletionmenu,
-                        $conditionfieldnamemenu, $conditionfieldoperatormenu,
-                        $conditiongroupidmenu, $conditiongroupingidmenu,
-                        $conditionactionmenu, $completiontrackingmenu,
-                        $completionfields, $competencyrulemenu,
-                        $filters, $filtermenu, $filterdefaulton, $filterdefaultoff
-                    );
-                    echo '<tr><td class="itemname">'.$name.':</td><td class="itemvalue">'.$value.'</td></tr>'. "\n";
+                if (count($selected_settings)) {
+                    echo '<tr><th colspan="2">'.get_string('settingsselected', $plugin).'</th></tr>'."\n";
+                    foreach ($selected_settings as $setting) {
+                        list($name, $value) = format_setting(
+                            $setting, $$setting, $str,
+                            $ratings, $modgradetypes, $modgradescales,
+                            $gradecategories, $groupmodes, $groupings,
+                            $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
+                            $conditiontypemustmenu, $conditiontypejoinmenu,
+                            $conditiongradeitemidmenu,
+                            $conditioncmidmenu, $conditioncmcompletionmenu,
+                            $conditionfieldnamemenu, $conditionfieldoperatormenu,
+                            $conditiongroupidmenu, $conditiongroupingidmenu,
+                            $conditionactionmenu, $completiontrackingmenu,
+                            $completionfields, $competencyrulemenu,
+                            $filters, $filtermenu, $filterdefaulton, $filterdefaultoff
+                        );
+                        echo '<tr><td class="itemname">'.$name.':</td><td class="itemvalue">'.$value.'</td></tr>'. "\n";
+                    }
                 }
                 echo '<tr><th colspan="2">'.get_string('activitiesselected', $plugin).'</th></tr>'."\n";
              }
@@ -2036,158 +2037,15 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '<script type="text/javascript">'."\n";
     echo "//<![CDATA[\n";
 
-    echo "function reset_all_in(elTagName, elNamePrefix, parentTagName, parentClass, parentId, resetValues) {\n";
-    echo "    var obj = document.getElementsByTagName(elTagName);\n";
-    echo "    obj = filterByParent(obj, function(el) {return findParentNode(el, parentTagName, parentClass, parentId);});\n";
-    echo "    for (var i=0; i<obj.length; i++) {\n";
-    echo "        var elName = obj[i].name;\n";
-    echo "        if (elName && (elNamePrefix=='' || elName.substr(0, elNamePrefix.length)==elNamePrefix)) {\n";
-    echo "            switch (obj[i].type) {\n";
-    echo "                case 'checkbox':\n";
-    echo "                case 'radio':\n";
-    echo "                    if (typeof(resetValues)=='string') {\n";
-    echo "                        var checked = (resetValues=='all' ? true : false);\n";
-    echo "                    } else {\n";
-    echo "                        var checked = (resetValues[elName] ? true : false);\n";
-    echo "                    }\n";
-    echo "                    if (obj[i].checked != checked) {\n";
-    echo "                        obj[i].checked = checked;\n";
-    echo "                        if (obj[i].onclick) {\n";
-    echo "                            obj[i].onclick();\n";
-    echo "                        }\n";
-    echo "                    }\n";
-    echo "                    break;\n";
-    echo "                case 'select':\n";
-    echo "                case 'select-multiple':\n";
-    echo "                    for (var ii=0; ii<obj[i].options.length; ii++) {\n";
-    echo "                        if (typeof(resetValues)=='string') {\n";
-    echo "                            var selected = (resetValues=='all' ? true : false);\n";
-    echo "                        } else {\n";
-    echo "                            var elValue = obj[i].options[ii].value;\n";
-    echo "                            var selected = (resetValues[elValue] ? true : false);\n";
-    echo "                        }\n";
-    echo "                        if (obj[i].options[ii].selected != selected) {\n";
-    echo "                            obj[i].options[ii].selected = selected;\n";
-    echo "                            if (obj[i].onchange) {\n";
-    echo "                                obj[i].onchange();\n";
-    echo "                            }\n";
-    echo "                        }\n";
-    echo "                    }\n";
-    echo "                    break;\n";
-    echo "            }\n";
-    echo "        }\n";
-    echo "    }\n";
+    echo "if (window.TCN==null) {\n";
+    echo "    window.TCN = {};\n";
     echo "}\n";
-
-    echo "function set_disabled(frm, names, value, sync_checkbox) {\n";
-    echo "    var fixed_color = false;\n";
-    echo "    if (frm) {\n";
-    echo "        var i_max = names.length;\n";
-    echo "        for (var i=0; i<i_max; i++) {\n";
-    echo "            if (frm.elements[names[i]]) {\n";
-    echo "                var element = frm.elements[names[i]];\n";
-    echo "                if (value) {\n";
-    echo "                    element.disabledvalue = element.disabled;\n";
-    echo "                    element.disabled = true;\n";
-    echo "                } else {\n";
-    echo "                    element.disabled = element.disabledvalue;\n";
-    echo "                }\n";
-    echo "                if (sync_checkbox) {\n";
-    echo "                    if (element.type=='checkbox') {\n";
-    echo "                        element.checked = (! value);\n";
-    echo "                    }\n";
-    echo "                }\n";
-    echo "                if (fixed_color==false) {\n";
-    echo "                    fixed_color = true;\n";
-    echo "                    var obj = element.parentNode;\n";
-    echo "                    if (obj) {\n";
-    echo "                        obj.style.color = (value ? '#999999' : 'inherit');\n";
-    echo "                    }\n";
-    echo "                    obj = null;\n";
-    echo "                }\n";
-    echo "                element = null;\n";
-    echo "            }\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    return true;\n";
-    echo "}\n";
-
-    echo "function init_disabled(frm, names, value) {\n";
-    echo "    var obj = document.getElementsByTagName('input');\n";
-    echo "    if (obj) {\n";
-    echo "        var i_max = obj.length;\n";
-    echo "        for (var i=0; i<i_max; i++) {\n";
-    echo "            if (obj[i].name && obj[i].name.substr(0, 7)=='select_' && obj[i].onclick) {\n";
-    echo "                obj[i].id = 'id_' + obj[i].name;\n";
-    echo "                obj[i].onclick();\n";
-    echo "            }\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    return true;\n";
-    echo "}\n";
-
-    echo "function confirm_action(msg, checksettings) {\n";
-    echo "    var ok = false;\n";
-    echo "    var obj = null;\n";
-    echo "    if (obj = document.getElementById('id_sections')) {\n";
-    echo "        if (obj.selectedIndex >= 0) {\n";
-    echo "            ok = true;\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    if (obj = document.getElementById('id_modules')) {\n";
-    echo "        if (obj.selectedIndex >= 0) {\n";
-    echo "            ok = true;\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    if (obj = document.getElementById('id_include')) {\n";
-    echo "        if (obj.value) {\n";
-    echo "            ok = true;\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    if (obj = document.getElementById('id_exclude')) {\n";
-    echo "        if (obj.value) {\n";
-    echo "            ok = true;\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    if (obj = document.getElementById('menuvisibility')) {\n";
-    echo "        if (obj.selectedIndex >= 1) {\n";
-    echo "            ok = true;\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    if (obj = document.getElementById('id_cmids')) {\n";
-    echo "        if (obj.selectedIndex >= 0) {\n";
-    echo "            ok = true;\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    if (ok==false) {\n";
-    echo "        alert('".js(get_string('noactivitiesselected', $plugin))."');\n";
-    echo "        return ok;\n";
-    echo "    }\n";
-    echo "    if (checksettings) {\n";
-    echo "        ok = false;\n";
-    echo "        var settings = new Array('id_select_".implode("', 'id_select_", $settings)."');\n";
-    echo "        for (var i=0; i<settings.length; i++) {\n";
-    echo "            if (obj = document.getElementById(settings[i])) {\n";
-    echo "                if (obj.checked) {\n";
-    echo "                    ok = true;\n";
-    echo "                }\n";
-    echo "            }\n";
-    echo "        }\n";
-    echo "    }\n";
-    echo "    if (ok==false) {\n";
-    echo "        alert('".js(get_string('nosettingsselected', $plugin))."');\n";
-    echo "        return ok;\n";
-    echo "    }\n";
-    echo "    return confirm(msg);\n";
-    echo "}\n";
-
-    echo "if (window.addEventListener) {\n";
-    echo "    window.addEventListener('load', init_disabled, false);\n";
-    echo "} else if (window.attachEvent) {\n";
-    echo "    window.attachEvent('onload', init_disabled)\n";
-    echo "} else {\n";
-    echo "    window.onload = init_disabled;\n";
-    echo "}\n";
+    echo "TCN.msg = {all:'".js(get_string('all'))."',\n".
+         "           none:'".js(get_string('none'))."',\n".
+         "           nosettings:'".js(get_string('nosettingsselected', $plugin))."',\n".
+         "           noactivities:'".js(get_string('noactivitiesselected', $plugin))."',\n".
+         "           confirmapply:'".js(get_string('confirmapply', $plugin))."',\n".
+         "           confirmdelete:'".js(get_string('confirmdelete', $plugin))."'};\n";
 
     echo "//]]>\n";
     echo '</script>'."\n";
@@ -2197,14 +2055,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
     echo '<tr>'."\n";
     echo '<td colspan="2" class="blockdescription">'.nl2br(get_string('accesspagedescription', $plugin)).'</td>'."\n";
-    echo '<td class="itemselect">';
-        echo get_string('select').' ';
-        echo $OUTPUT->help_icon('selectsettings', $plugin);
-        echo '<br />';
-        echo '<a href="'."javascript:reset_all_in('INPUT','select_','TD','itemselect',null,'all');".'">'.get_string('all').'</a>';
-        echo ' / ';
-        echo '<a href="'."javascript:reset_all_in('INPUT','select_','TD','itemselect',null,'none');".'">'.get_string('none').'</a>';
-    echo '</td>'."\n";
+    echo '<td class="itemselect">'.get_string('select').' '.$OUTPUT->help_icon('selectsettings', $plugin).'</td>'."\n";
     echo '</tr>'."\n";
 
     // ============================
@@ -2223,25 +2074,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '</tr>'."\n";
 
     echo '<tr>'."\n";
-    echo '<td class="itemname">'.get_string('sections', $plugin).':';
-    echo '<div class="smalltext">';
-    echo '<a href="'."javascript:reset_all_in('SELECT','sections','','',null,'all');".'">'.get_string('all').'</a>';
-    echo ' / ';
-    echo '<a href="'."javascript:reset_all_in('SELECT','sections','','',null,'none');".'">'.get_string('none').'</a>';
-    echo '</div>';
-    echo '</td>'."\n";
+    echo '<td class="itemname">'.get_string('sections', $plugin).':</td>'."\n";
     echo '<td class="itemvalue">'.$sections.'</td>'."\n";
     echo '<td class="itemselect">&nbsp;</td>'."\n";
     echo '</tr>'."\n";
 
     echo '<tr>'."\n";
-    echo '<td class="itemname">'.get_string('activitytypes', $plugin).':';
-    echo '<div class="smalltext">';
-    echo '<a href="'."javascript:reset_all_in('SELECT','modules','','',null,'all');".'">'.get_string('all').'</a>';
-    echo ' / ';
-    echo '<a href="'."javascript:reset_all_in('SELECT','modules','','',null,'none');".'">'.get_string('none').'</a>';
-    echo '</div>';
-    echo '</td>'."\n";
+    echo '<td class="itemname">'.get_string('activitytypes', $plugin).':</td>'."\n";
     echo '<td class="itemvalue">'.$modules.'</td>'."\n";
     echo '<td class="itemselect">&nbsp;</td>'."\n";
     echo '</tr>'."\n";
@@ -2270,13 +2109,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '</tr>'."\n";
 
     echo '<tr>'."\n";
-    echo '<td class="itemname">'.get_string('activityids', $plugin).':';
-    echo '<div class="smalltext">';
-    echo '<a href="'."javascript:reset_all_in('SELECT','cmids','','',null,'all');".'">'.get_string('all').'</a>';
-    echo ' / ';
-    echo '<a href="'."javascript:reset_all_in('SELECT','cmids','','',null,'none');".'">'.get_string('none').'</a>';
-    echo '</div>';
-    echo '</td>'."\n";
+    echo '<td class="itemname">'.get_string('activityids', $plugin).':</td>'."\n";
     echo '<td class="itemvalue">'.$cms.'</td>'."\n";
     echo '<td class="itemselect">&nbsp;</td>'."\n";
     echo '</tr>'."\n";
@@ -2298,12 +2131,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($hours,   'fromhours',   intval($fromdate['hours']),   '').' ';
     echo html_writer::select($minutes, 'fromminutes', intval($fromdate['minutes']), '').' ';
     $names = "'menufromday', 'menufrommonth', 'menufromyear', 'menufromhours', 'menufromminutes'";
-    $script = "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
     echo html_writer::checkbox('fromdisable', '1', $fromdisable, get_string('disable'), array('onclick' => $script));
     echo '</td>'."\n";
 
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('fromdisable'), (! this.checked)) && this.form.fromdisable.onclick()";
+    $script = ''; // "return set_disabled(this.form, new Array('fromdisable'), (! this.checked)) && this.form.fromdisable.onclick()";
     $checked = optional_param('select_availablefrom', 0, PARAM_INT);
     echo html_writer::checkbox('select_availablefrom', 1, $checked, '', array('onclick' => $script));
     echo '</td>'."\n";
@@ -2320,12 +2153,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($hours,   'untilhours',   intval($untildate['hours']),   '').' ';
     echo html_writer::select($minutes, 'untilminutes', intval($untildate['minutes']), '').' ';
     $names = "'menuuntilday', 'menuuntilmonth', 'menuuntilyear', 'menuuntilhours', 'menuuntilminutes'";
-    $script = "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
     echo html_writer::checkbox('untildisable', '1', $untildisable, get_string('disable'), array('onclick' => $script));
     echo '</td>'."\n";
 
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('untildisable'), (! this.checked)) && this.form.untildisable.onclick()";
+    $script = ''; // "return set_disabled(this.form, new Array('untildisable'), (! this.checked)) && this.form.untildisable.onclick()";
     $checked = optional_param('select_availableuntil', 0, PARAM_INT);
     echo html_writer::checkbox('select_availableuntil', 1, $checked, '', array('onclick' => $script));
     echo '</td>'."\n";
@@ -2343,13 +2176,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::select($hours,   'cutoffhours',   intval($cutoffdate['hours']),   '').' ';
         echo html_writer::select($minutes, 'cutoffminutes', intval($cutoffdate['minutes']), '').' ';
         $names = "'menucutoffday', 'menucutoffmonth', 'menucutoffyear', 'menucutoffhours', 'menucutoffminutes'";
-        $script = "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
         echo html_writer::checkbox('cutoffdisable', '1', $cutoffdisable, get_string('disable'), array('onclick' => $script));
         echo html_writer::empty_tag('br').'('.get_string('usedby', $plugin, $modnames).')';
         echo '</td>'."\n";
 
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('cutoffdisable'), (! this.checked)) && this.form.cutoffdisable.onclick()";
+        $script = ''; // "return set_disabled(this.form, new Array('cutoffdisable'), (! this.checked)) && this.form.cutoffdisable.onclick()";
         $checked = optional_param('select_availablecutoff', 0, PARAM_INT);
         echo html_writer::checkbox('select_availablecutoff', 1, $checked, '', array('onclick' => $script));
         echo '</td>'."\n";
@@ -2360,7 +2193,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     // Grades
     // ============================
     //
-    echo '<tr class="sectionheading" id="id_section_dates">'."\n";
+    echo '<tr class="sectionheading" id="id_section_grades">'."\n";
     echo '<th colspan="2">';
     echo get_string('grades');
     echo ' &nbsp; <span class="sortgradeitems">';
@@ -2406,7 +2239,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '('.get_string('usedby', $plugin, $modnames).')';
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('rating'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('rating'), (! this.checked))";
         echo html_writer::checkbox('select_rating', 1, optional_param('select_rating', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -2444,7 +2277,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '</td>'."\n";
         echo '<td class="itemselect">';
         $names = "'modgradetype', 'modgradescale', 'modgradepoint'";
-        $script = "return set_disabled(this.form, new Array($names), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array($names), (! this.checked))";
         echo html_writer::checkbox('select_modgrade', 1, optional_param('select_modgrade', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -2463,7 +2296,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         }
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('grading'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('grading'), (! this.checked))";
         echo html_writer::checkbox('select_grading', 1, optional_param('select_grading', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -2475,7 +2308,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($maxgrades, 'maxgrade', $maxgrade, '');
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('maxgrade'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('maxgrade'), (! this.checked))";
     echo html_writer::checkbox('select_maxgrade', 1, optional_param('select_maxgrade', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2486,7 +2319,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($gradepassmenu, 'gradepass', $gradepass, '');
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('gradepass'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('gradepass'), (! this.checked))";
     echo html_writer::checkbox('select_gradepass', 1, optional_param('select_gradepass', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2497,7 +2330,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($gradecategories, 'gradecat', $gradecat, '');
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('gradecat'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('gradecat'), (! this.checked))";
     echo html_writer::checkbox('select_gradecat', 1, optional_param('select_gradecat', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2508,7 +2341,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select_yes_no('gradeitemhidden', $gradeitemhidden);
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('gradeitemhidden'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('gradeitemhidden'), (! this.checked))";
     echo html_writer::checkbox('select_gradeitemhidden', 1, optional_param('select_gradeitemhidden', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2519,7 +2352,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select_yes_no('extracredit', $extracredit);
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('extracredit'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('extracredit'), (! this.checked))";
     echo html_writer::checkbox('select_extracredit', 1, optional_param('select_extracredit', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2530,7 +2363,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select_yes_no('regrade', $regrade);
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('regrade'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('regrade'), (! this.checked))";
     echo html_writer::checkbox('select_regrade', 1, optional_param('select_regrade', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2547,7 +2380,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($groupmodes, 'groupmode', $groupmode, '');
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('groupmode'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('groupmode'), (! this.checked))";
     echo html_writer::checkbox('select_groupmode', 1, optional_param('select_groupmode', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2559,7 +2392,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::select($groupings, 'groupingid', $groupingid, '');
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('groupingid'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('groupingid'), (! this.checked))";
         echo html_writer::checkbox('select_groupingid', 1, optional_param('select_groupingid', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -2571,7 +2404,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             echo html_writer::checkbox('groupmembersonly', 1, $groupmembersonly);
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('groupmembersonly'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('groupmembersonly'), (! this.checked))";
             echo html_writer::checkbox('select_groupmembersonly', 1, optional_param('select_groupmembersonly', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -2605,7 +2438,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($visiblemenu, 'visible', $visible, '');
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('visible'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('visible'), (! this.checked))";
     echo html_writer::checkbox('select_visible', 1, optional_param('select_visible', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2616,7 +2449,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($indentmenu, 'indent', $indent, '');
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('indent'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('indent'), (! this.checked))";
     echo html_writer::checkbox('select_indent', 1, optional_param('select_indent', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2636,7 +2469,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::select($positionmenu, 'position', $position, '');
     echo '</td>'."\n";
     echo '<td class="itemselect">';
-    $script = "return set_disabled(this.form, new Array('section', 'position'), (! this.checked))";
+    $script = ''; // "return set_disabled(this.form, new Array('section', 'position'), (! this.checked))";
     echo html_writer::checkbox('select_section', 1, optional_param('select_section', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
@@ -2746,7 +2579,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::select($uploadlimitmenu, 'uploadlimit', $uploadlimit, '');
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('uploadlimit'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('uploadlimit'), (! this.checked))";
         echo html_writer::checkbox('select_uploadlimit', 1, optional_param('select_uploadlimit', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -2771,7 +2604,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             echo html_writer::select($filtermenu, $setting, $$setting, '');
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('$setting'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('$setting'), (! this.checked))";
             echo html_writer::checkbox('select_'.$setting, 1, optional_param('select_'.$setting, 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -2796,7 +2629,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::checkbox('removeconditions', 1, $removeconditions, get_string('removeconditions_help', $plugin));
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('removeconditions'), (! this.checked), true)";
+        $script = ''; // "return set_disabled(this.form, new Array('removeconditions'), (! this.checked), true)";
         echo html_writer::checkbox('select_removeconditions', 1, optional_param('select_removeconditions', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -2818,7 +2651,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             echo html_writer::end_tag('p');
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('conditiontypemust', 'conditiontypejoin'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('conditiontypemust', 'conditiontypejoin'), (! this.checked))";
             echo html_writer::checkbox('select_conditiontype', 1, optional_param('select_conditiontype', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -2854,7 +2687,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         $names = implode("', '", $names);
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('$names'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('$names'), (! this.checked))";
         echo html_writer::checkbox('select_conditiondate', 1, optional_param('select_conditiondate', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -2886,7 +2719,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $names = implode("', '", $names);
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('$names'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('$names'), (! this.checked))";
             echo html_writer::checkbox('select_conditiongrade', 1, optional_param('select_conditiongrade', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -2915,7 +2748,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $names = implode("', '", $names);
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('$names'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('$names'), (! this.checked))";
             echo html_writer::checkbox('select_conditionfield', 1, optional_param('select_conditionfield', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -2940,7 +2773,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $names = implode("', '", $names);
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('$names'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('$names'), (! this.checked))";
             echo html_writer::checkbox('select_conditiongroup', 1, optional_param('select_conditiongroup', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -2965,7 +2798,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $names = implode("', '", $names);
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('$names'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('$names'), (! this.checked))";
             echo html_writer::checkbox('select_conditiongrouping', 1, optional_param('select_conditiongrouping', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -3003,7 +2836,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $names = implode("', '", $names);
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('$names'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('$names'), (! this.checked))";
             echo html_writer::checkbox('select_conditioncm', 1, optional_param('select_conditioncm', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -3028,7 +2861,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $names = implode("', '", $names);
             echo '</td>'."\n";
             echo '<td class="itemselect">';
-            $script = "return set_disabled(this.form, new Array('$names'), (! this.checked))";
+            $script = ''; // "return set_disabled(this.form, new Array('$names'), (! this.checked))";
             echo html_writer::checkbox('select_conditionaction', 1, optional_param('select_conditionaction', 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -3049,7 +2882,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::checkbox('removecompletion', 1, $removecompletion, get_string('removecompletion_help', $plugin));
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('removecompletion'), (! this.checked), true)";
+        $script = ''; // "return set_disabled(this.form, new Array('removecompletion'), (! this.checked), true)";
         echo html_writer::checkbox('select_removecompletion', 1, optional_param('select_removecompletion', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -3060,7 +2893,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::checkbox('erasecompletion', 1, $erasecompletion, get_string('erasecompletion_help', $plugin));
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('erasecompletion'), (! this.checked), true)";
+        $script = ''; // "return set_disabled(this.form, new Array('erasecompletion'), (! this.checked), true)";
         echo html_writer::checkbox('select_erasecompletion', 1, optional_param('select_erasecompletion', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -3077,7 +2910,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::empty_tag('br').'('.get_string('usedbyall', $plugin).')';
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('completiontracking'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('completiontracking'), (! this.checked))";
         echo html_writer::checkbox('select_completiontracking', 1, optional_param('select_completiontracking', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -3092,7 +2925,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         //echo html_writer::checkbox('completionview', 1, $completionview, get_string('completionview_desc', 'completion'));
         //echo '</td>'."\n";
         //echo '<td class="itemselect">';
-        //$script = "return set_disabled(this.form, new Array('completionview'), (! this.checked), true)";
+        //$script = ''; // "return set_disabled(this.form, new Array('completionview'), (! this.checked), true)";
         //echo html_writer::checkbox('select_completionview', 1, optional_param('select_completionview', 0, PARAM_INT), '', array('onclick' => $script));
         //echo '</td>'."\n";
         //echo '</tr>'."\n";
@@ -3107,7 +2940,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         //echo html_writer::checkbox('completiongrade', 1, $completiongrade, get_string('completionusegrade_desc', 'completion'));
         //echo '</td>'."\n";
         //echo '<td class="itemselect">';
-        //$script = "return set_disabled(this.form, new Array('completiongrade'), (! this.checked), true)";
+        //$script = ''; // "return set_disabled(this.form, new Array('completiongrade'), (! this.checked), true)";
         //echo html_writer::checkbox('select_completiongrade', 1, optional_param('select_completiongrade', 0, PARAM_INT), '', array('onclick' => $script));
         //echo '</td>'."\n";
         //echo '</tr>'."\n";
@@ -3125,7 +2958,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::empty_tag('br').'('.get_string('usedbyall', $plugin).')';
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('completionday', 'completionmonth', 'completionyear'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('completionday', 'completionmonth', 'completionyear'), (! this.checked))";
         echo html_writer::checkbox('select_completiondate', 1, optional_param('select_completiondate', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -3182,7 +3015,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $fieldnames .= ",'".$fieldname."_unit'";
             }
             $script = ($type=='checkbox' ? 'true' : 'false'); // sync_checkbox
-            $script = "return set_disabled(this.form, new Array($fieldnames), (! this.checked), $script)";
+            $script = ''; // "return set_disabled(this.form, new Array($fieldnames), (! this.checked), $script)";
             echo html_writer::checkbox('select_'.$name, 1, optional_param('select_'.$name, 0, PARAM_INT), '', array('onclick' => $script));
             echo '</td>'."\n";
             echo '</tr>'."\n";
@@ -3204,7 +3037,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo html_writer::empty_tag('br').'('.get_string('usedbyall', $plugin).')';
         echo '</td>'."\n";
         echo '<td class="itemselect">';
-        $script = "return set_disabled(this.form, new Array('competencyrule'), (! this.checked))";
+        $script = ''; // "return set_disabled(this.form, new Array('competencyrule'), (! this.checked))";
         echo html_writer::checkbox('select_competencyrule', 1, optional_param('select_competencyrule', 0, PARAM_INT), '', array('onclick' => $script));
         echo '</td>'."\n";
         echo '</tr>'."\n";
@@ -3219,15 +3052,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '<tr>'."\n";
     echo '<td class="itemname">&nbsp;</td>'."\n";
     echo '<td class="itemvalue">'."\n";
-    $btn = get_string('applysettings', $plugin);
-    $msg = js(get_string('confirmapply', $plugin));
-    echo '<input type="submit" name="apply" value="'.$btn.'" onclick="return confirm_action('."'$msg'".', true)" />'."\n";
+    echo '<input type="submit" name="apply" value="'.get_string('applysettings', $plugin).'" />'."\n";
     echo ' &nbsp; &nbsp; '."\n";
     echo '<input type="submit" name="cancel" value="'.get_string('cancel').'" />'."\n";
     echo ' &nbsp; &nbsp; '."\n";
-    $btn = get_string('delete');
-    $msg = js(get_string('confirmdelete', $plugin));
-    echo '<input type="submit" name="delete" value="'.$btn.'" onclick="return confirm_action('."'$msg'".')" />'."\n";
+    echo '<input type="submit" name="delete" value="'.get_string('delete').'" />'."\n";
     echo '<input type="hidden" name="id" value="'.$block_instance->id.'" />'."\n";
     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />'."\n";
     echo '</td><td></td>'."\n";
@@ -4020,14 +3849,18 @@ function get_tree_char($depth, $i, $ids, $items, $categories) {
     $tree_end = block_taskchain_navigation::textlib('entities_to_utf8', '&#x2514;').' '; // └
     $tree_branch = block_taskchain_navigation::textlib('entities_to_utf8', '&#x251C;').' '; // ├
 
+    // the very last item of all
     if (($i + 1) >= count($ids)) {
         return $tree_end;
     }
 
     if ($items[$ids[$i]]->is_external_item() && $items[$ids[$i+1]]->is_category_item()) {
-        $categoryid = $items[$ids[$i+1]]->iteminstance;
-        if (($depth + 1) <= $categories[$categoryid]->depth) {
-            return $tree_end;
+        $nextcategoryid = $items[$ids[$i+1]]->iteminstance;
+        if (! array_key_exists($nextcategoryid, $categories)) {
+            return $tree_end; // shouldn't happen !!
+        }
+        if (($depth + 1) <= $categories[$nextcategoryid]->depth) {
+            return $tree_end; // last item of this category
         }
     }
 

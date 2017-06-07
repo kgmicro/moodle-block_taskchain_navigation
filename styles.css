@@ -569,3 +569,12 @@ table.blockconfigtable td.itemvalue label span.modnames {
     margin-right:  0px;
     margin-top:    0px;
 }
+
+table.blockconfigtable td.itemname .allornone {
+    font-size:    0.75em;
+    margin-right: 0.75em;
+}
+
+table.blockconfigtable td .allornone span {
+    color: #0070a8;
+}
