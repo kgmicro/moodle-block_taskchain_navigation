@@ -975,35 +975,63 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             NEXT_SAME_SECTION     => get_string('nextsamesection',     $plugin),
             '0000' => '====='
         );
+
+        $items = grade_item::fetch_all(array('courseid' => $course->id));
         $categories = grade_category::fetch_all(array('courseid' => $course->id));
-        if ($items = grade_item::fetch_all(array('courseid' => $course->id))) {
+
+        if ($items) {
             uasort($items, 'grade_items_uasort');
-            $spaces = '';
-            $space = '│ ';
+
+            // http://en.wikipedia.org/wiki/Box-drawing_character
+            $str = (object)array(
+                'branch' => block_taskchain_navigation::textlib('entities_to_utf8', '&#x251C;').' ', // ├
+                'trunk'  => block_taskchain_navigation::textlib('entities_to_utf8', '&#x2502;').' ', // │
+                'end'    => block_taskchain_navigation::textlib('entities_to_utf8', '&#x2514;').' ', // └
+                'space'  => '&nbsp; &nbsp; ',
+                'error'  => 'x ' // shouldn't be required !!
+            );
+
+            $depth = 0;
             $ids = array_keys($items);
             foreach($ids as $i => $id) {
                 $item = $items[$id];
-                if ($item->is_course_item()) {
-                    $depth = 0;
+
+                if ($depth==0 || $item->is_course_item()) {
+                    $depth = 1;
+                    $spacer = '';
+                    $spacers = array('');
                 } else if ($item->is_category_item()) {
-                    if ($depth = $DB->get_field('grade_categories', 'depth', array('id' => $item->iteminstance))) {
-                        if ($depth > 1) {
-                            $depth --;
-                        }
+                    if (array_key_exists($item->iteminstance, $categories)) {
+                        $depth = $categories[$item->iteminstance]->depth;
+                    } else {
+                        $depth = 2; // shouldn't happen !!
                     }
-                    $spaces = str_repeat($space, $depth - 1);
-                } else {
-                    // e.g. a mod item
-                    $spaces = str_repeat($space, $depth);
+                    $spacers = array_slice($spacers, 0, $depth - 1);
+                    $spacer = implode('', $spacers);
                 }
-                $name = $spaces.get_tree_char($depth, $i, $ids, $items, $categories).$item->get_name(true);
-                $name = block_taskchain_navigation::trim_text($name, $cm_namelength, $cm_headlength + strlen($spaces), $cm_taillength);
+
+                $char = get_grade_tree_char($depth, $i, $ids, $items, $categories, $str);
+                $name = $spacer.$char.$item->get_name(true);
+                $name = block_taskchain_navigation::trim_text($name,
+                                                              $cm_namelength,
+                                                              $cm_headlength + ($depth * 2),
+                                                              $cm_taillength);
                 $items[$id] = $name;
+
+                if ($item->is_category_item()) {
+                    if ($char==$str->end) {
+                        $spacers[] = $str->space;
+                    } else {
+                        $spacers[] = $str->trunk;
+                    }
+                    $spacer = implode('', $spacers);
+                }
             }
             if (count($items)) {
                 $conditiongradeitemidmenu = $basemenuitems + $items;
             }
         }
+
         if ($enablecompletion) {
             $items = array();
             $modinfo = get_fast_modinfo($course);
@@ -3838,33 +3866,67 @@ function create_grade_category($course, $fullname='', $parentid=null, $aggregati
     return $grade_category->id;
 }
 
-function get_tree_char($depth, $i, $ids, $items, $categories) {
+function get_grade_tree_char($depth, $i, $ids, $items, $categories, $str) {
     global $DB;
 
-    if ($items[$ids[$i]]->is_course_item()) {
-        return '';
+    $id = $ids[$i];
+    $item = $items[$id];
+
+    if ($depth <= 1 || $item->is_course_item()) {
+        return ''; // no spacer needed
     }
 
-    // http://en.wikipedia.org/wiki/Box-drawing_character
-    $tree_end = block_taskchain_navigation::textlib('entities_to_utf8', '&#x2514;').' '; // └
-    $tree_branch = block_taskchain_navigation::textlib('entities_to_utf8', '&#x251C;').' '; // ├
+    $is_manual = $item->is_manual_item();
+    $is_external = $item->is_external_item();
+    $is_category = $item->is_category_item();
 
-    // the very last item of all
-    if (($i + 1) >= count($ids)) {
-        return $tree_end;
-    }
+    $i_min = ($i + 1);
+    $i_max = count($ids);
+    for ($i = $i_min; $i < $i_max; $i++) {
 
-    if ($items[$ids[$i]]->is_external_item() && $items[$ids[$i+1]]->is_category_item()) {
-        $nextcategoryid = $items[$ids[$i+1]]->iteminstance;
-        if (! array_key_exists($nextcategoryid, $categories)) {
-            return $tree_end; // shouldn't happen !!
+        $id = $ids[$i];
+        $item = $items[$id];
+
+        if ($item->is_category_item()) {
+            $categoryid = $item->iteminstance;
+        } else {
+            $categoryid = $item->categoryid;
         }
-        if (($depth + 1) <= $categories[$nextcategoryid]->depth) {
-            return $tree_end; // last item of this category
+
+        if (! array_key_exists($categoryid, $categories)) {
+            return $str->error; // shouldn't happen !!
+        }
+
+        switch (true) {
+
+            case $is_category:
+                if ($item->is_category_item()) {
+                    if ($categories[$categoryid]->depth == $depth) {
+                        return $str->branch;
+                    }
+                    if ($categories[$categoryid]->depth < $depth) {
+                        return $str->end;
+                    }
+                }
+                break;
+
+            case $is_manual:
+            case $is_external:
+                if ($item->is_external_item() || $item->is_manual_item()) {
+                    return $str->branch;
+                }
+                if ($item->is_category_item()) {
+                    if ($categories[$categoryid]->depth > $depth) {
+                        return $str->branch;
+                    }
+                    return $str->end;
+                }
+                break;
         }
     }
 
-    return $tree_branch;
+    // this is the last item at this $depth
+    return $str->end;
 }
 
 function fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $targetid,
