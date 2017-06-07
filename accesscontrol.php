@@ -987,7 +987,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 'branch' => block_taskchain_navigation::textlib('entities_to_utf8', '&#x251C;').' ', // ├
                 'trunk'  => block_taskchain_navigation::textlib('entities_to_utf8', '&#x2502;').' ', // │
                 'end'    => block_taskchain_navigation::textlib('entities_to_utf8', '&#x2514;').' ', // └
-                'space'  => '&nbsp; &nbsp; ',
+                'space'  => block_taskchain_navigation::textlib('entities_to_utf8', '&#xA0;').' '.
+                            block_taskchain_navigation::textlib('entities_to_utf8', '&#xA0;').' ',
                 'error'  => 'x ' // shouldn't be required !!
             );
 
@@ -1000,7 +1001,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $depth = 1;
                     $spacer = '';
                     $spacers = array('');
-                } else if ($item->is_category_item()) {
+                } else if ($item->is_category_item()) { 
                     if (array_key_exists($item->iteminstance, $categories)) {
                         $depth = $categories[$item->iteminstance]->depth;
                     } else {
@@ -1010,9 +1011,14 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $spacer = implode('', $spacers);
                 }
 
+                if ($item->is_category_item() && array_key_exists($item->iteminstance, $categories)) {
+                    $name = $categories[$item->iteminstance]->get_name();
+                } else {
+                    $name = $item->get_name(true);
+                }
+
                 $char = get_grade_tree_char($depth, $i, $ids, $items, $categories, $str);
-                $name = $spacer.$char.$item->get_name(true);
-                $name = block_taskchain_navigation::trim_text($name,
+                $name = block_taskchain_navigation::trim_text($spacer.$char.$name,
                                                               $cm_namelength,
                                                               $cm_headlength + ($depth * 2),
                                                               $cm_taillength);
