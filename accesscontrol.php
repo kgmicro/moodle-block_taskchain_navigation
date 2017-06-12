@@ -1506,6 +1506,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             foreach (array_keys($table_columns[$table]) as $field) {
                                 $table_columns[$table][$field] = true;
                             }
+                            if ($table=='reader' && array_key_exists('availablefrom', $table_columns[$table])) {
+                                // until 2017.06.12, these fields were called timeopen/close
+                                $fields['reader']['availablefrom'] = 'availablefrom';
+                                $fields['reader']['availableuntil'] = 'availableuntil';
+                            }
                         }
 
                         // convert setting name to database field name
