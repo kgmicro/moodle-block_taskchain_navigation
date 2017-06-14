@@ -698,8 +698,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $select = (! preg_match('/'.$exclude.'/', $cm->name));
             }
             if ($select && $visibility>=0) {
-                if ($section_
-                [$cm->sectionnum]) {
+                if ($section_visible[$cm->sectionnum]) {
                     $select = ($visibility==$cm->visible);
                 } else {
                     // in a hidden section, we need to check the activity module's "visibleold" setting
