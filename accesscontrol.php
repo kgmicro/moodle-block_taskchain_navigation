@@ -698,7 +698,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $select = (! preg_match('/'.$exclude.'/', $cm->name));
             }
             if ($select && $visibility>=0) {
-                if ($section_visible[$cm->sectionnum]) {
+                if ($section_
+                [$cm->sectionnum]) {
                     $select = ($visibility==$cm->visible);
                 } else {
                     // in a hidden section, we need to check the activity module's "visibleold" setting
@@ -874,10 +875,24 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         0  => get_string('hidden', 'grades'),
         1  => get_string('visible'),
     );
-    $visiblemenu = array(
-        0 => get_string('hide'),
-        1 => get_string('show'),
-    );
+
+    if ($strman->string_exists('showoncoursepage', 'moodle')) {
+        // Moodle >= 3.3
+        $visiblemenu = array(
+            0 => get_string('hidefromstudents'),
+            1 => get_string('showoncoursepage'),
+        );
+        if ($allowstealth = $CFG->allowstealth) {
+            $visiblemenu[-1] = get_string('hideoncoursepage');
+        }
+    } else {
+        // Moodle >= 3.2
+        $visiblemenu = array(
+            0 => get_string('hide'),
+            1 => get_string('show'),
+        );
+        $allowstealth = null;
+    }
 
     $ratings = new rating_manager();
     $ratings = $ratings->get_aggregate_types();
@@ -1542,8 +1557,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             // Note: there is no need to rebuild cache
                             $field = 'visibleold';
                         }
-                        if ($DB->set_field('course_modules', $field, $$setting, array('id' => $cm->id))) {
+                        if ($DB->set_field('course_modules', $field, ($$setting==0 ? 0 : 1), array('id' => $cm->id))) {
                             $updated = true;
+                            if (isset($allowstealth)) { // Moodle >= 3.3
+                                $DB->set_field('course_modules', 'visibleoncoursepage', ($$setting < 0 ? 0 : 1), array('id' => $cm->id));
+                            }
                         } else {
                             $success = false;
                         }
@@ -1976,9 +1994,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             $setting, $$setting, $str,
                             $ratings, $modgradetypes, $modgradescales,
                             $gradecategories, $groupmodes, $groupings,
-                            $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
-                            $conditiontypemustmenu, $conditiontypejoinmenu,
-                            $conditiongradeitemidmenu,
+                            $visiblemenu, $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
+                            $conditiontypemustmenu, $conditiontypejoinmenu, $conditiongradeitemidmenu,
                             $conditioncmidmenu, $conditioncmcompletionmenu,
                             $conditionfieldnamemenu, $conditionfieldoperatormenu,
                             $conditiongroupidmenu, $conditiongroupingidmenu,
@@ -3108,9 +3125,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 function format_setting($name, $value, $str,
                         $ratings, $modgradetypes, $modgradescales,
                         $gradecategories, $groupmodes, $groupings,
-                        $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
-                        $conditiontypemustmenu, $conditiontypejoinmenu,
-                        $conditiongradeitemidmenu,
+                        $visiblemenu, $indentmenu, $sectionmenu, $positionmenu, $uploadlimitmenu,
+                        $conditiontypemustmenu, $conditiontypejoinmenu, $conditiongradeitemidmenu,
                         $conditioncmidmenu, $conditioncmcompletionmenu,
                         $conditionfieldnamemenu, $conditionfieldoperatormenu,
                         $conditiongroupidmenu, $conditiongroupingidmenu, $conditionactionmenu,
@@ -3133,7 +3149,7 @@ function format_setting($name, $value, $str,
 
         case 'visible':
             $name = get_string('visible');
-            $value = format_yesno($value, 'show', 'hide');
+            $value = $visiblemenu[$value];
             break;
 
         case 'rating':
