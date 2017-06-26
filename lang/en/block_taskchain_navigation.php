@@ -452,11 +452,11 @@ $string['sectiontextlength_help'] = 'These settings specify how to display secti
 
 If the length of the section text exceeds the "Total" number of characters specified here,
 then the text will be reformatted as HEAD ... TAIL,
-where HEAD is the "Head" number of characters from the beginning of the text,
-and TAIL is the "Tail" number of characters from the end of the text.
+where HEAD is the number of characters from the beginning of the text,
+and TAIL is the number of characters from the end of the text.
 
 You can specify separate values for each of the languages used in this course.
-Note that a value of zero will effectively disable then setting.';
+Note that any setting having a value of zero will effectively be disabled.';
 $string['sectiontitles'] = 'Section titles';
 $string['sectiontitletags_help'] = 'In course sections that have no explicit name, the HTML tags listed here are used to extract a title from the section summary.
 

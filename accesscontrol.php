@@ -997,7 +997,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             uasort($items, 'grade_items_uasort');
 
             // http://en.wikipedia.org/wiki/Box-drawing_character
-            $str = (object)array(
+            $chars = (object)array(
                 'branch' => block_taskchain_navigation::textlib('entities_to_utf8', '&#x251C;').' ', // ├
                 'trunk'  => block_taskchain_navigation::textlib('entities_to_utf8', '&#x2502;').' ', // │
                 'end'    => block_taskchain_navigation::textlib('entities_to_utf8', '&#x2514;').' ', // └
@@ -1031,7 +1031,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $name = $item->get_name(true);
                 }
 
-                $char = get_grade_tree_char($depth, $i, $ids, $items, $categories, $str);
+                $char = get_grade_tree_char($depth, $i, $ids, $items, $categories, $chars);
                 $name = block_taskchain_navigation::trim_text($spacer.$char.$name,
                                                               $cm_namelength,
                                                               $cm_headlength + ($depth * 2),
@@ -1039,10 +1039,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $items[$id] = $name;
 
                 if ($item->is_category_item()) {
-                    if ($char==$str->end) {
-                        $spacers[] = $str->space;
+                    if ($char==$chars->end) {
+                        $spacers[] = $chars->space;
                     } else {
-                        $spacers[] = $str->trunk;
+                        $spacers[] = $chars->trunk;
                     }
                     $spacer = implode('', $spacers);
                 }
@@ -1687,6 +1687,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         }
                         if ($DB->set_field_select('grade_items', $field, $$setting, $select, $params)) {
                             $updated = true;
+                            $select .= ' AND itemnumber = ?'; // e.g. workshop has TWO items
+                            $params[] = 0;
                             $regrade_item_id = $DB->get_field_select('grade_items', 'id', $select, $params);
                         } else {
                             $success = false;
@@ -1697,8 +1699,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     case 'extracredit':
                         $skipped = true;
 
-                        $select = 'courseid = ? AND itemtype = ? AND itemmodule = ? AND iteminstance = ?';
-                        $params = array($course->id, 'mod', $cm->modname, $cm->instance);
+                        $select = 'courseid = ? AND itemtype = ? AND itemmodule = ? AND iteminstance = ? AND itemnumber = ?';
+                        $params = array($course->id, 'mod', $cm->modname, $cm->instance, 0);
                         if ($grade_item = $DB->get_record_select('grade_items', $select, $params)) {
 
                             $select = 'id = ? AND aggregation IN (?, ?, ?)';
@@ -1886,8 +1888,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                                 $update_instance = true;
                             }
                             if ($update_instance && $regrade_item_id==0) {
-                                $select = 'courseid = ? AND itemtype = ? AND itemmodule = ? AND iteminstance = ?';
-                                $params = array($course->id, 'mod', $cm->modname, $cm->instance);
+                                $select = 'courseid = ? AND itemtype = ? AND itemmodule = ? AND iteminstance = ? AND itemnumber = ?';
+                                $params = array($course->id, 'mod', $cm->modname, $cm->instance, 0);
                                 $regrade_item_id = $DB->get_field_select('grade_items', 'id', $select, $params);
                             }
                         }
@@ -3892,7 +3894,7 @@ function create_grade_category($course, $fullname='', $parentid=null, $aggregati
     return $grade_category->id;
 }
 
-function get_grade_tree_char($depth, $i, $ids, $items, $categories, $str) {
+function get_grade_tree_char($depth, $i, $ids, $items, $categories, $chars) {
     global $DB;
 
     $id = $ids[$i];
@@ -3920,7 +3922,7 @@ function get_grade_tree_char($depth, $i, $ids, $items, $categories, $str) {
         }
 
         if (! array_key_exists($categoryid, $categories)) {
-            return $str->error; // shouldn't happen !!
+            return $chars->error; // shouldn't happen !!
         }
 
         switch (true) {
@@ -3928,10 +3930,10 @@ function get_grade_tree_char($depth, $i, $ids, $items, $categories, $str) {
             case $is_category:
                 if ($item->is_category_item()) {
                     if ($categories[$categoryid]->depth == $depth) {
-                        return $str->branch;
+                        return $chars->branch;
                     }
                     if ($categories[$categoryid]->depth < $depth) {
-                        return $str->end;
+                        return $chars->end;
                     }
                 }
                 break;
@@ -3939,20 +3941,20 @@ function get_grade_tree_char($depth, $i, $ids, $items, $categories, $str) {
             case $is_manual:
             case $is_external:
                 if ($item->is_external_item() || $item->is_manual_item()) {
-                    return $str->branch;
+                    return $chars->branch;
                 }
                 if ($item->is_category_item()) {
                     if ($categories[$categoryid]->depth > $depth) {
-                        return $str->branch;
+                        return $chars->branch;
                     }
-                    return $str->end;
+                    return $chars->end;
                 }
                 break;
         }
     }
 
     // this is the last item at this $depth
-    return $str->end;
+    return $chars->end;
 }
 
 function fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $targetid,
