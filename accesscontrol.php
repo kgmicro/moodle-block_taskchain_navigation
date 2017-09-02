@@ -3612,7 +3612,7 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
 
         foreach (array_keys($new_conditions) as $i) {
             $new = clone($new_conditions[$i]);
-            if (! is_valid_restriction($new)) {
+            if (! is_valid_restriction($new, $labelmods, $resourcemods, $course, $cm)) {
                 continue;
             }
             if (isset($new_actions[$i])) {
@@ -3698,7 +3698,7 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
         $update = false;
         foreach (array_keys($new_conditions) as $i) {
             $new = clone($new_conditions[$i]);
-            if (! is_valid_restriction($new)) {
+            if (! is_valid_restriction($new, $labelmods, $resourcemods, $course, $cm)) {
                 continue;
             }
             switch ($new->type) {
@@ -3756,7 +3756,7 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
     }
 
 }
-function is_valid_restriction($condition) {
+function is_valid_restriction($condition, $labelmods, $resourcemods, $course, $cm) {
 
     switch ($condition->type) {
 
