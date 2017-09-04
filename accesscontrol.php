@@ -3637,7 +3637,7 @@ function update_course_module_availability($labelmods, $resourcemods, $course, $
                 }
                 if ($params) {
                     $found = true;
-                    foreach ($params as $i => $param) {
+                    foreach ($params as $param) {
                         if (isset($old->$param) && $old->$param==$new->$param) {
                             // do nothing
                         } else {
