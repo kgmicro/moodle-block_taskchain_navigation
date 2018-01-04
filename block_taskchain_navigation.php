@@ -2772,7 +2772,7 @@ class block_taskchain_navigation extends block_base {
         } else {
             $groupids = "SELECT id FROM {$CFG->prefix}groups WHERE courseid=$COURSE->id";
             $groupids = "SELECT groupid FROM {$CFG->prefix}groups_members WHERE userid=$USER->id AND groupid IN ($groupids)";
-            $where = " AND groupid IN ($groupids)";
+            $where = "groupid IN ($groupids)";
         }
 
         // get list of groups
