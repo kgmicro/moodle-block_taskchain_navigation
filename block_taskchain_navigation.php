@@ -562,12 +562,12 @@ class block_taskchain_navigation extends block_base {
                                 case 'shortname':
                                     $name = $COURSE->$name;
                                     break;
-                                case 'yourgrade':
                                 case 'grade':
+                                case 'yourgrade':
                                     $name = get_string($name, 'grades');
                                     break;
+                                case 'coursegrade':
                                 case 'currentgrade':
-                                case 'finalgrade':
                                     $name = get_string($name, 'block_taskchain_navigation');
                                     break;
                                 case 'specifictext':
