@@ -394,47 +394,50 @@ div.block_taskchain_navigation select {
 /**
  * grade colors in taskchain_navigation block
  */
-div.block_taskchain_navigation tr td.last div.highgrade {
-    background-color: #ccff99; /* gentle green */
-	color: #000000;
-}
 div.block_taskchain_navigation tr td.last div {
-    padding: 1px 2px;
     -webkit-border-radius: 4px; /* for Safari and Chrome */
     -moz-border-radius: 4px; /* for Firefox */
     -o-border-radius: 4px; /* when Opera Presto 2.3 or later is released */
     border-radius: 4px; /* future proofing for when border-radius is supported */
+	color: #000000;
+    padding: 1px 2px;
+}
+
+div.block_taskchain_navigation tr td.last div:hover {
+	color: #333333;
+}
+
+div.block_taskchain_navigation tr td.last div a,
+div.block_taskchain_navigation tr td.last div a:hover {
+	color: inherit;
+}
+
+div.block_taskchain_navigation tr td.last div.highgrade {
+    background-color: #ccff99; /* gentle green */
 }
 div.block_taskchain_navigation tr td.last div.highgrade:hover {
 	background-color: #96ff2D; /* darker green */
-	color: #222222;
 }
 
 div.block_taskchain_navigation tr td.last div.mediumgrade {
     background-color: #ffcc66; /* gentle orange */
-	color: #000000;
 }
 div.block_taskchain_navigation tr td.last div.mediumgrade:hover {
 	background-color: #ffad02; /* darker orange */
-	color: #222222;
 }
 
 div.block_taskchain_navigation tr td.last div.lowgrade {
 	background-color: #ff7373; /* gentle red */
-	color: #000000;
 }
 div.block_taskchain_navigation tr td.last div.lowgrade:hover {
 	background-color: #ff4040; /* darker red */
-	color: #222222;
 }
 
 div.block_taskchain_navigation tr td.last div.nograde {
 	background-color: #dddddd; /* grey */
-	color: #000000;
 }
 div.block_taskchain_navigation tr td.last div.nograde:hover {
 	background-color: #cccccc; /* darker grey */
-	color: #000000;
 }
 
 div.block_taskchain_navigation form input.submitbutton {
