@@ -327,7 +327,7 @@ class block_taskchain_navigation extends block_base {
         $modinfo = get_fast_modinfo($COURSE, $USER->id);
         $section = $this->get_section_info($modinfo, 0);
 
-        $search = '/<script[^>]+>.*?<\/script>[\n\r]*/s';
+        $search = '/<script[^>]+>.*?courselinks\.js\.php.*?<\/script>[\r\n]*/s';
         $summary = preg_replace($search, '', $section->summary);
         $summary .= $js;
         if ($summary != $section->summary) {
