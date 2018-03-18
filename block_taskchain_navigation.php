@@ -326,10 +326,23 @@ class block_taskchain_navigation extends block_base {
 
         $modinfo = get_fast_modinfo($COURSE, $USER->id);
         $section = $this->get_section_info($modinfo, 0);
+        $summary = $section->summary;
 
-        $search = '/<script[^>]+>.*?courselinks\.js\.php.*?<\/script>[\r\n]*/s';
-        $summary = preg_replace($search, '', $section->summary);
+        // remove previous javascript, if any, $summary
+        $search = '/<script[^>]*>.*?<\/script>[ \t]*[\r\n]*/s';
+        if (preg_match_all($search, $summary, $matches, PREG_OFFSET_CAPTURE)) {
+            foreach (array_reverse($matches[0]) as $match) {
+                // $match: [0] = matched string, [1] = offset to start of string
+                if (strpos($match[0], 'courselinks.js.php')) {
+                    $summary = substr_replace($summary, '', $match[1], strlen($match[0]));
+                }
+            }
+        }
+
+        // append new javascript to $summary
         $summary .= $js;
+
+        // update $section summary if necessary
         if ($summary != $section->summary) {
             $DB->set_field('course_sections', 'summary', $summary, array('id' => $section->id));
             rebuild_course_cache($COURSE->id, true);
@@ -1907,7 +1920,7 @@ class block_taskchain_navigation extends block_base {
             if ($class = $sectioninfo[$sectionnum]->class) {
                 $text = '<span'.$class.'>'.$text.'</span>';
             }
-            if ($title = $sectioninfo[$sectionnum]->text) {
+            if ($title = strip_tags($sectioninfo[$sectionnum]->text)) {
                 $title = ' title="'.$title.'"';
             }
             if ($href = $sectioninfo[$sectionnum]->href) {
