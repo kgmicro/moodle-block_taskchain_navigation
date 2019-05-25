@@ -2119,8 +2119,17 @@ class block_taskchain_navigation extends block_base {
 
             $class = array();
 
+            // check section visibility
+            if ($canviewhiddensections) {
+                $uservisible = true;
+            } else if (get_class($section)=='section_info') {
+                $uservisible = $section->uservisible;
+            } else {
+                $uservisible = $section->visible;
+            }
+
             // sectionshowhidden: 0=hide, 1=show linked text, 2=show unlinked text
-            if ($section->visible || $canviewhiddensections) {
+            if ($uservisible) {
                 $showlink = true;
                 $showtext = true;
             } else {
