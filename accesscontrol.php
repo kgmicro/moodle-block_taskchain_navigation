@@ -265,7 +265,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         switch ($d) {
             case 1: $d = '>='; break;
             case 2: $d = '<='; break;
-            default: continue;
+            default: $d = '';
+        }
+        if ($d=='') {
+            continue;
         }
         list($t, $date) = get_timestamp_and_date('conditiondatetime', $i, $time);
         $conditiondate[$i] = (object)array(
