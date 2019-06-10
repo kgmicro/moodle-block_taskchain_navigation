@@ -714,13 +714,13 @@ class block_taskchain_navigation extends block_base {
 
                         $sectionnum = $items[$id]->sectionnum;
 
-                        // make sure we have a required section
+                        // make sure we have a required section and  parent grade cateogry
                         if (empty($sectioninfo[$sectionnum])) {
-                            continue;
+                            $parentid = 0;
+                        } else {
+                            $parentid = $this->locate_grade_category($items, $id);
                         }
-
-                        // make sure we have the parent grade cateogry
-                        if ($parentid = $this->locate_grade_category($items, $id)) {
+                        if ($parentid) {
 
                             $graded = true;
                             $visible = true;

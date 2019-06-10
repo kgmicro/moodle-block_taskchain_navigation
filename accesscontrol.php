@@ -128,8 +128,10 @@ echo $OUTPUT->footer($course);
 /**
  * taskchain_navigation_accesscontrol_form
  *
- * @param xxx $course
- * @param xxx $block_instance
+ * @param object $course
+ * @param object $block_instance
+ * @param string $action
+ * @return void, but send HTML form to browser
  */
 function taskchain_navigation_accesscontrol_form($course, $block_instance, $action) {
     global $CFG, $DB, $OUTPUT, $PAGE;
@@ -267,9 +269,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             case 2: $d = '<='; break;
             default: $d = '';
         }
-        if ($d=='') {
-            continue;
-        }
         list($t, $date) = get_timestamp_and_date('conditiondatetime', $i, $time);
         $conditiondate[$i] = (object)array(
             'type' => 'date',
@@ -401,7 +400,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
 
     // custom html tags that delimit section title in the section summary
-    $sectiontags = $block_instance->config->sectiontitletags;
+    if (empty($block_instance->config->sectiontitletags)) {
+        $sectiontags = '';
+    } else {
+        $sectiontags = $block_instance->config->sectiontitletags;
+    }
     $sectiontags = optional_param('sectiontags', $sectiontags, PARAM_TEXT);
 
     // set course section type
@@ -2723,7 +2726,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         //
         echo '<tr>'."\n";
         echo '<td class="itemname">'.$str->datetitle.':</td>'."\n";
-
         echo '<td class="itemvalue">';
         $names = array();
         $i_max = count($conditiondatedirection);
