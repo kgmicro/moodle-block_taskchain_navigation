@@ -176,6 +176,15 @@ class block_taskchain_navigation extends block_base {
         if (! isset($this->config)) {
             $this->config = new stdClass();
         }
+
+        // Fix problems with incomplete object, caused by class not existing before unserialize.
+        // "The script tried to execute a method or access a property of an incomplete object."
+        if (get_class($this->config)=='__PHP_Incomplete_Class') {
+            $this->config = get_object_vars($this->config);
+            $this->config = (object)$this->config;
+            unset($this->config->__PHP_Incomplete_Class_Name);
+        }
+
         foreach ($defaults as $name => $value) {
             if (! isset($this->config->$name)) {
                 $this->config->$name = $value;
