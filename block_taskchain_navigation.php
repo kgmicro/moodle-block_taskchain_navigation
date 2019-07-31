@@ -334,7 +334,7 @@ class block_taskchain_navigation extends block_base {
         }
 
         $modinfo = get_fast_modinfo($COURSE, $USER->id);
-        $section = $this->get_section_info($modinfo, 0);
+        $section = self::get_section_info($modinfo, 0);
         $summary = $section->summary;
 
         // remove previous javascript, if any, $summary
@@ -1303,7 +1303,7 @@ class block_taskchain_navigation extends block_base {
     function format_shortcuts($sectioninfo, $modinfo, $depths) {
         global $COURSE, $USER;
 
-        $sections = $this->get_section_info_all($modinfo);
+        $sections = self::get_section_info_all($modinfo);
 
         $rows = array();
         if ($this->config->gradebooklink) {
@@ -1329,31 +1329,29 @@ class block_taskchain_navigation extends block_base {
                     .'<script type="text/javascript">'."\n"
                     ."//<![CDATA[\n"
                     ."function set_hidden_sections(tagname, hiddensections) {\n"
-                    ."    var obj = document.getElementsByTagName(tagname);\n"
-                    ."    obj = filterByParent(obj, function(el) {return findParentNode(el, 'FORM', 'hiddensectionsform', null);});\n"
+                    ."    var s = 'form.hiddensectionsform ' + tagname + '[name^=hiddensection]';\n"
+                    ."    var obj = document.querySelectorAll(s);\n"
                     ."    for (var i=0; i<obj.length; i++) {\n"
-                    ."        if (obj[i].name && obj[i].name.substr(0, 13)=='hiddensection') {\n"
-                    ."            switch (obj[i].type) {\n"
-                    ."                case 'checkbox':\n"
-                    ."                case 'radio':\n"
-                    ."                    var ii = parseInt(obj[i].name.substr(14));\n"
+                    ."        switch (obj[i].type) {\n"
+                    ."            case 'checkbox':\n"
+                    ."            case 'radio':\n"
+                    ."                var ii = parseInt(obj[i].name.substr(14));\n"
+                    ."                if (typeof(hiddensections)=='string') {\n"
+                    ."                    obj[i].checked = (hiddensections=='all' ? true : false);\n"
+                    ."                } else {\n"
+                    ."                    obj[i].checked = (hiddensections[ii] ? true : false);\n"
+                    ."                }\n"
+                    ."                break;\n"
+                    ."            case 'select':\n"
+                    ."            case 'select-multiple':\n"
+                    ."                for (var ii=0; ii<obj[i].options.length; ii++) {\n"
                     ."                    if (typeof(hiddensections)=='string') {\n"
-                    ."                        obj[i].checked = (hiddensections=='all' ? true : false);\n"
+                    ."                        obj[i].options[ii].selected = (hiddensections=='all' ? true : false);\n"
                     ."                    } else {\n"
-                    ."                        obj[i].checked = (hiddensections[ii] ? true : false);\n"
+                    ."                        obj[i].options[ii].selected = (hiddensections[ii+1] ? true : false);\n"
                     ."                    }\n"
-                    ."                    break;\n"
-                    ."                case 'select':\n"
-                    ."                case 'select-multiple':\n"
-                    ."                    for (var ii=0; ii<obj[i].options.length; ii++) {\n"
-                    ."                        if (typeof(hiddensections)=='string') {\n"
-                    ."                            obj[i].options[ii].selected = (hiddensections=='all' ? true : false);\n"
-                    ."                        } else {\n"
-                    ."                            obj[i].options[ii].selected = (hiddensections[ii+1] ? true : false);\n"
-                    ."                        }\n"
-                    ."                    }\n"
-                    ."                    break;\n"
-                    ."            }\n"
+                    ."                }\n"
+                    ."                break;\n"
                     ."        }\n"
                     ."    }\n"
                     ."}\n"
@@ -1395,7 +1393,7 @@ class block_taskchain_navigation extends block_base {
                     // hiddensectionstitle: 0=number, 1=text, 2=number and text
                     if ($this->config->hiddensectionstitle==0) {
                         $tag = 'span';
-                        $style = ' style="white-space: nowrap"';
+                        $style = ' style="white-space: nowrap;"';
                         $text2 = '';
                     } else { // 1, 2
                         $tag = 'div';
@@ -2059,7 +2057,7 @@ class block_taskchain_navigation extends block_base {
     function get_sectiontext($modinfo, $sectionnum) {
 
         $text = '';
-        if ($section = $this->get_section_info($modinfo, $sectionnum)) {
+        if ($section = self::get_section_info($modinfo, $sectionnum)) {
             if (isset($section->name)) {
                 $text = self::filter_text($section->name);
             }
@@ -2109,7 +2107,7 @@ class block_taskchain_navigation extends block_base {
 
         $sectioninfo = array();
 
-        $sections = $this->get_section_info_all($modinfo);
+        $sections = self::get_section_info_all($modinfo);
         if (empty($sections)) {
             $sections = array(); // shouldn't happen !!
         }
@@ -2544,7 +2542,7 @@ class block_taskchain_navigation extends block_base {
         global $CFG, $COURSE, $DB, $USER, $modinfo, $mods;
 
         $modinfo = get_fast_modinfo($COURSE, $USER->id);
-        $sections = $this->get_section_info_all($modinfo);
+        $sections = self::get_section_info_all($modinfo);
 
         if (empty($sections)) {
             return false;
@@ -3134,8 +3132,7 @@ class block_taskchain_navigation extends block_base {
         }
         if (isset($course->format)) {
             // Moodle >= 2.4
-            $params = array('courseid' => $course->id, 'format' => $course->format, 'name' => 'numsections');
-            return $DB->get_field('course_format_options', 'value', $params);
+            return course_get_format($course)->get_last_section_number();
         }
         return 0; // shouldn't happen !!
     }
@@ -3150,7 +3147,7 @@ class block_taskchain_navigation extends block_base {
      * @param xxx $sectionnum
      * @return xxx
      */
-    function get_section_info($modinfo, $sectionnum) {
+    static function get_section_info($modinfo, $sectionnum) {
         global $DB;
 
         if (method_exists($modinfo, 'get_section_info')) {
@@ -3173,7 +3170,7 @@ class block_taskchain_navigation extends block_base {
      * @param xxx $modinfo
      * @return xxx
      */
-    function get_section_info_all($modinfo) {
+    static function get_section_info_all($modinfo) {
         global $DB;
 
         if (method_exists($modinfo, 'get_section_info_all')) {

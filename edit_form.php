@@ -851,32 +851,31 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
     protected function add_field_languages($mform, $plugin) {
         global $COURSE, $DB;
 
+        $modinfo = get_fast_modinfo($COURSE);
+
         $langs = array('' => get_string('default'));
-        if ($sections = $DB->get_records('course_sections', array('course' => $COURSE->id), '', 'id,summary')) {
-            foreach ($sections as $section) {
-                if (preg_match_all('/<span[^>]*class="multilang"[^>]*>/', $section->summary, $matches)) {
+        $translations = get_string_manager()->get_list_of_translations();
+
+        $fields = array('name', 'summary');
+        $search = '/<span[^>]*class="multilang"[^>]*>/';
+
+        // Get localized lang names used in coure section names/summaries.
+        $sections = block_taskchain_navigation::get_section_info_all($modinfo);
+        foreach ($sections as $sectionnum => $section) {
+            foreach ($fields as $field) {
+                if (preg_match_all($search, $section->$field, $matches)) {
                     foreach ($matches[0] as $match) {
                         if (preg_match('/lang="(\w+)"/', $match, $lang)) {
-                            $lang = substr($lang[1], 0, 2);
-                            $langs[$lang] = '';
+                            $lang = $lang[1];
+                            if (array_key_exists($lang, $translations)) {
+                                $langs[$lang] = $translations[$lang];
+                            }
                         }
                     }
                 }
             }
-        }
-
-        // get localized lang names
-        $translations = get_string_manager()->get_list_of_translations();
-        foreach ($translations as $lang => $text) {
-            $lang = substr($lang, 0, 2);
-            if (isset($langs[$lang])) {
-                $langs[$lang] = $text;
-            }
-        }
+        }        
         unset($translations);
-
-        // remove languages that are not available on this site
-        $langs = array_filter($langs);
 
         // cache some useful strings and textbox params
         $total = html_writer::tag('small', get_string('total', $plugin).': ');
@@ -904,7 +903,9 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
             $elements[] = $mform->createElement('text', $headlength, '', $params);
             $elements[] = $mform->createElement('static', '', '', $tail);
             $elements[] = $mform->createElement('text', $taillength, '', $params);
-            $elements[] = $mform->createElement('static', '', '', html_writer::tag('small', $text));
+            if ($lang || count($langs) > 1) {
+                $elements[] = $mform->createElement('static', '', '', html_writer::tag('small', $text));
+            }
         }
 
         $name = 'sectiontextlength';
