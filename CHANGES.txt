@@ -2,408 +2,378 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2019-11-10 (20)
+ - standardize layout and spelling in CHANGES.txt
+
 2019-07-31 (17)
- -  fix display and setting of hidden sections via taskchain_navigation block 
+ - fix display and setting of hidden sections via taskchain_navigation block
 
 2019-07-30 (16)
- -  Fix errors about incomplete object, caused by class not existing before unserialize 
+ - Fix errors about incomplete object, caused by class not existing before unserialize
 
 2019-06-10 (15)
- -  fix 'continue' statement within 'switch' block 
- -  fix 'continue' statement within 'switch' block 
+ - fix 'continue' statement within 'switch' block
 
 2019-05-30 (14)
- -  remove 'continue' statement inside SWITCH block 
+ - remove 'continue' statement inside SWITCH block
 
 2019-05-25 (13)
- -  be aware availability settings when deciding whether or not to display a link to a section 
-
-2018-03-18 (12)
- -  be aware availability settings when deciding whether or not to display a link to a section 
- -  block/taskchain_navigation remove tags from 'title' attribute of section links 
+ - be aware availability settings when deciding whether or not to display a link to a section
+ - remove tags from 'title' attribute of section links
 
 2018-03-16 (11)
- -  block/taskchain_navigation do not remove Javascript from Section 0 that is not connected to this block 
+ - do not remove Javascript from Section 0 that is not connected to this block
 
 2018-02-27 (10)
- -  prevent text color of nav links being overridden by theme 
+ - prevent text color of nav links being overridden by theme
 
 2018-02-12 (09)
- -  block/taskchain_navigation replce obsolete lang string, 'finalgrade', with 'coursegrade' 
+ - replace obsolete lang string, 'finalgrade', with 'coursegrade'
 
 2018-01-04 (08)
- -  block/taskchain_navigation fix SQL to fetch group menu when groupmode is SEPARATE_GROUPS 
+ - fix SQL to fetch group menu when groupmode is SEPARATE_GROUPS
 
 2017-09-04 (07)
- -  remove nested use of loop index, $i, when checking availability conditions 
+ - remove nested use of loop index, $i, when checking availability conditions
 
 2017-09-02 (06)
- -  fix undefined variables ($labelmods, $resourcemods, $course, $cm) in is_valid_restriction() method 
+ - fix undefined variables ($labelmods, $resourcemods, $course, $cm) in is_valid_restriction() method
 
 2017-06-27 (05)
- -  handle activities, such as workshop, that have more than one grade item 
+ - handle activities, such as workshop, that have more than one grade item
 
 2017-06-16 (04)
- -  rename $str variable to $chars for readability and to avoid confusion with $str variable used elsewhere 
+ - rename $str variable to $chars for readability and to avoid confusion with $str variable used elsewhere
 
 2017-06-15 (03)
- -  fix typo introduced in previous commit 
+ - fix typo introduced in previous commit
 
 2017-06-15 (02)
- -  allow visibility setting for stealth activities in Moodle >= 3.3 
+ - allow visibility setting for stealth activities in Moodle >= 3.3
 
 2017-06-12 (01)
- -  accommodate new availablefrom/until fields in Reader module 
+ - accommodate new availablefrom/until fields in Reader module
 
 2017-06-08 (00)
- -  fix faulty version number in recent commit 
- -  use 'prop' instead of 'attr' when getting and setting element properties 
+ - fix faulty version number in recent commit
+ - use 'prop' instead of 'attr' when getting and setting element properties
 
 2017-06-07 (99)
- -  improve display of category names in menu of grade items 
+ - improve display of category names in menu of grade items
 
 2017-06-07 (98)
- -  remove superfluous characters from the grade item menu 'Access restrictions' -> Grade 
+ - remove superfluous characters from the grade item menu 'Access restrictions' -> Grade
 
 2017-06-07 (97)
- -  implement event handlers using jQuery for compatability with Moodle >= 3.3 
+ - implement event handlers using jQuery for compatability with Moodle >= 3.3
 
 2017-06-06 (96)
- -  implement All/None text using jQuery for compliance with Moodle >= 3.3 
+ - implement All/None text using jQuery for compliance with Moodle >= 3.3
 
 2017-06-05 (95)
- -  allow for multiple grade_items for a single activity (e.g. workshop) 
+ - allow for multiple grade_items for a single activity (e.g. workshop)
 
 2017-06-03 (94)
- -  add descriptor string for new SCORM completiion setting in Moodle >= 3.4 
+ - add descriptor string for new SCORM completiion setting in Moodle >= 3.4
 
 2017-06-01 (93)
- -  remove duplicated textlib code 
+ - remove duplicated textlib code
 
 2017-06-01 (92)
- -  share duplicate code via new function is_valid_restirction() 
+ - share duplicate code via new function is_valid_restirction()
 
 2017-05-31 (91)
- -  add new setting 'conditiontype' to set availability->op in Moodle >= 2.7 
+ - add new setting 'conditiontype' to set availability->op in Moodle >= 2.7
 
 2017-05-31 (90)
- -  be sure to trigger onclick event when selecting all/none on access control page 
+ - be sure to trigger onclick event when selecting all/none on access control page
 
 2017-04-13 (89)
- -  use pix_icon instead of pix_url for compatability with Moodle 3.3 
-
-2017-04-13 (88)
- -  use pix_icon instead of pix_url for compatability with Moodle 3.3 
+ - use pix_icon instead of pix_url for compatability with Moodle 3.3
 
 2017-03-22 (87)
- -  fix 'undefined property ' during setup via CLI 
+ - fix 'undefined property ' during setup via CLI
 
 2016-12-03 (86)
- -  use scaled grade to determine CSS class and ignore extra credit grade items 
+ - use scaled grade to determine CSS class and ignore extra credit grade items
 
 2016-11-27 (85)
- -  block_takschain_navigation use anchors instead of query parameters to link to section in courses that display all sections on one page 
+ - use anchors instead of query parameters to link to section in courses that display all sections on one page
 
 2016-11-25 (84)
- -  specify URLs using moodle_url class instead of plain strings, in order to ensure that navigation links work even when block is not being displayed on course page 
+ - specify URLs using moodle_url class instead of plain strings, in order to ensure that navigation links work even when block is not being displayed on course page
 
 2016-11-08 (83)
- -  set default singlesection to '0' when creating new instances of this block 
+ - set default singlesection to '0' when creating new instances of this block
 
 2016-10-11 (82)
- -  bklock_taskchain_navigation fix formatting of Grade/Scale values 
+ - bklock_taskchain_navigation fix formatting of Grade/Scale values
 
 2016-10-08 (81)
- -  improve functionality to handle standard grading (in assignment, data, forum, glossary and lesson modules) 
- -  blocks/taskchain_navigation improve disable/enable of standard grading elements 
- -  begin new settings for standard grading 
+ - improve functionality to handle standard grading (in assignment, data, forum, glossary and lesson modules)
+ - improve disable/enable of standard grading elements
+ - begin new settings for standard grading
 
 2016-10-06 (80)
- -  complete the functionality to allow filters to be enabled/disabled for activity modules 
-
-2016-09-19 (79)
- -  complete the functionality to allow filters to be enabled/disabled for activity modules 
- -  begin new settings for setting filters for selected activities 
- -  fix small typing mistake when getting list of languages 
+ - complete the functionality to allow filters to be enabled/disabled for activity modules
+ - begin new settings for setting filters for selected activities
+ - fix small typing mistake when getting list of languages
 
 2016-09-09 (78)
- -  use moodleform style form in export/import scripts 
+ - use moodleform style form in export/import scripts
 
 2016-08-21 (77)
- -  add new index.php to find and list TN blocks in a course, in case they become invisible for any reason 
+ - add new index.php to find and list TN blocks in a course, in case they become invisible for any reason
 
 2016-08-20 (76)
- -  fix missing string sectiontitletags 
+ - fix missing string sectiontitletags
 
 2016-08-18 (75)
- -  (1) replace tabs used as white space in accesscontrol.php, and (2) allow specification of sectiontags, which are HTML tags used to identify a title in the summary field of a section that has no explicit name. 
+ - (1) replace tabs used as white space in accesscontrol.php, and (2) allow specification of sectiontags, which are HTML tags used to identify a title in the summary field of a section that has no explicit name.
 
 2016-06-15 (74)
- -  fix setting of current group id during and between Moodle sessions 
- -  fix setting of current group id during and between Moodle sessions 
- -  fix setting of current group id during and between Moodle sessions 
+ - fix setting of current group id during and between Moodle sessions
 
 2016-06-01 (73)
- -  fix error when checking existence of section 0 in course 
+ - fix error when checking existence of section 0 in course
 
 2016-06-01 (72)
- -  add competency settings for Moodle >= 3.1 
+ - add competency settings for Moodle >= 3.1
 
 2016-05-31 (71)
- -  add date settings for questionnaire module and improve  fetching of section_info for Moodle <= 2.2 
- -  add date settings for questionnaire module and improve  fetching of section_info for Moodle <= 2.2 
+ - add date settings for questionnaire module and improve  fetching of section_info for Moodle <= 2.2
 
 2016-05-31 (70)
- -  add compatability for Moodle 2.0 
+ - add compatability for Moodle 2.0
 
 2016-05-30 (69)
- -  add new Completion fields for Lesson module in Moodle >= 3.2 
+ - add new Completion fields for Lesson module in Moodle >= 3.2
 
 2016-02-28 (68)
- -  standardize GPL licensing info 
+ - standardize GPL licensing info
 
 2016-02-22 (67)
- -  fix setting of cm show/hide 
+ - fix setting of cm show/hide
 
 2016-02-21 (66)
- -  fix moving of activities to different sections 
+ - fix moving of activities to different sections
 
 2016-02-20 (65)
- -  fix display of border for ungraded items; fix non-display of course grade when it is not required 
+ - fix display of border for ungraded items; fix non-display of course grade when it is not required
 
 2015-12-16 (64)
- -  block/taskchain_navigation fix SQL syntax for MSSQL 
+ - fix SQL syntax for MSSQL
 
 2015-12-14 (63)
- -  block/taskchain_navigation use icons instead of text to show info and settings in file uploads section of access control form 
+ - use icons instead of text to show info and settings in file uploads section of access control form
 
 2015-12-14 (62)
- -  block/taskchain_navigation replace text strings with icons for "info" and "settings" 
- -  block/taskchain_navigation fix strings and image URLs in Moodle 2.0 
- -  block/taskchain_navigation fix strings and image URLs in Moodle 2.0 
+ - replace text strings with icons for "info" and "settings"
+ - fix strings and image URLs in Moodle 2.0
 
 2015-12-13 (61)
- -  block/taskchain_navigation add settings for file upload limits (used by assign, forum, workshop) 
+ - add settings for file upload limits (used by assign, forum, workshop)
 
 2015-12-10 (60)
- -  block/taskchain_navigation fix undefined vars: $field, and $completion, on accesscontrol page 
+ - fix undefined vars: $field, and $completion, on accesscontrol page
 
 2015-12-10 (59)
- -  block/taskchain_navigation add dependancy info to version.php 
+ - add dependancy info to version.php
 
 2015-12-10 (58)
- -  block/taskchain_navigation fix setting of manual completion (=1) 
+ - fix setting of manual completion (=1)
 
 2015-12-08 (57)
- -  block/taskchain_navigation allow specification of ALL modules to be have their grade shown 
+ - allow specification of ALL modules to be have their grade shown
 
 2015-12-08 (56)
- -  block/taskchain_navigation improve white space around completion items on access control page 
+ - improve white space around completion items on access control page
 
 2015-12-08 (55)
- -  block/taskchain_navigation fix transfer of setting from one block to another 
+ - fix transfer of setting from one block to another
 
 2015-12-07 (54)
- -  block/taskchain_navigation imrpvoe behavior of expanable form sections 
+ - imrpvoe behavior of expanable form sections
 
 2015-12-06 (53)
- -  block/taskchain_navigation add jquery to show/hide sections 
+ - add jquery to show/hide sections
 
 2015-11-27 (52)
- -  block/taskchain_navigation allow greater flexibility for name to use as course grade label 
+ - allow greater flexibility for name to use as course grade label
 
 2015-10-27 (51)
- -  block/taskchain_navigation fix vertical alignment of multi-select elements in completion fields section of access control page 
+ - fix vertical alignment of multi-select elements in completion fields section of access control page
 
 2015-10-01 (50)
- -  blocks/taskchain_navigation standardize format of release string in version.php 
- -  block/taskchain_navigation allow setting of cutoffdate in assign(ment) module 
+ - standardize format of release string in version.php
+ - allow setting of cutoffdate in assign(ment) module
 
 2015.09.09 (49)
- -  block/taskchain_navigation add 'component' and 'maturity' settings to version.php 
+ - add 'component' and 'maturity' settings to version.php
 
 2015.08.22 (48)
- -  block/taskchain_navigation rephrase "Remove conditions" to "Remove restrictions" 
- -  block/taskchain_navigation add self-referencing link to navigation bar on import page 
- -  block/taskchain_navigation add self-referencing link to navigation bar on access control page 
+ - rephrase "Remove conditions" to "Remove restrictions"
+ - add self-referencing link to navigation bar on import page
+ - add self-referencing link to navigation bar on access control page
 
 2015.08.22 (47)
- -  block/taskchain_navigation add new setting to erase all manual completion data 
- -  block/taskchain_navigation add new setting to erase all manual completion data 
+ - add new setting to erase all manual completion data
 
 2015.07.16 (46)
- -  blocks/taskchain_navigation fix error trying to access maxlength field instead of max_length 
- -  block/taskchain_navigation prevent activity being marked as both label and resource 
- -  block/taskchain_navigation force automatic completion if any completion fields are set 
+ - fix error trying to access maxlength field instead of max_length
+ - prevent activity being marked as both label and resource
+ - force automatic completion if any completion fields are set
 
 2015.07.16 (45)
- -  block/taskchain_navigation add settings for rating (data, forum, glossary) and grade to pass (all) 
+ - add settings for rating (data, forum, glossary) and grade to pass (all)
 
 2015.07.14 (44)
- -  block/taskchain_navigation fix field names of some activity modules 
- -  block/taskchain_navigation block/taskchain_navigation fix availability settings on Moodle <= 2.6 
- -  block/taskchain_navigation fix availability settings on Moodle <= 2.6 
+ - fix field names of some activity modules
+ - block/taskchain_navigation fix availability settings on Moodle <= 2.6
+ - fix availability settings on Moodle <= 2.6
 
 2015.07.13 (43)
- -  block/taskchain_navigation fix setting of completiongradeitemnumber 
- -  block/taskchain_navigation improve detection of resources and labels 
- -  block/taskchain_navigation improve detection of resources and labels 
- -  block/taskchain_navigation improve detection of resources and labels 
- -  block/taskchain_navigation improve detection of resources and labels 
+ - fix setting of completiongradeitemnumber
+ - improve detection of resources and labels
 
 2015.07.12 (41)
- -  block/taskchain_navigation improve granularity of conditional activity selection 
+ - improve granularity of conditional activity selection
 
 2015.07.10 (40)
- -  block/taskchain_navigation add functionality to remove all completion settings from selected activities 
- -  block/taskchain_navigation add functionality to remove all completion settings from selected activities 
- -  block/taskchain_navigation add functionality to remove all completion settings from selected activities 
- -  block/taskchain_navigation add functionality to remove all completion settings from selected activities 
+ - add functionality to remove all completion settings from selected activities
 
 2015.07.09 (39)
- -  block/taskchain_navigation fix compatability with Moodle 2.0 
- -  block/taskchain_navigation fix compatability with Moodle 2.2 
- -  block/taskchain_navigation fix compatability with Moodle 2.6 
- -  block/taskchain_navigation improve handling of completion fields in forum and scorm 
- -  block/taskchain_navigation improve handling of completion fields in forum and scorm 
+ - fix compatability with Moodle 2.0
+ - fix compatability with Moodle 2.2
+ - fix compatability with Moodle 2.6
+ - improve handling of completion fields in forum and scorm
 
 2015.07.07 (38)
- -  block/taskchain_navigation handle completion fields that are not simple YES/NO fields 
- -  block/taskchain_navigation handle missing activity modules when building list of activity types in edit form 
+ - handle completion fields that are not simple YES/NO fields
+ - handle missing activity modules when building list of activity types in edit form
 
 2015.07.07 (37)
- -  block/taskchain_navigation disable availability/completion setting is that functionality is not enabled in the current course context 
- -  block/taskchain_navigation disable availability/completion setting is that functionality is not enabled in the current course context 
- -  block/taskchain_navigation disable availability/completion setting is that functionality is not enabled in the current course context 
+ - disable availability/completion setting is that functionality is not enabled in the current course context
 
 2015.06.07 (36)
- -  block/taskchain_navigation handle activity specific completion fields 
-
-2015.06.06 (35)
- -  block/taskchain_navigation handle activity specific completion fields 
- -  block/taskchain_navigation add new completion conditions: pass grade and all available attempts 
+ - handle activity specific completion fields
+ - add new completion conditions: pass grade and all available attempts
 
 2015.05.14 (34)
- -  block/taskchain_navigation fix setting or conditional access dates 
+ - fix setting or conditional access dates
 
 2015.04.29 (33)
- -  block/taskchain_navigation add new setting 'showactivitygrades' 
+ - add new setting 'showactivitygrades'
 
 2015.04.20 (32)
- -  block/taskchain_navigation pass section nnumber when selecting groups from drop-down menu 
- -  block/taskchain_navigation fix $DB methods missing the leading $DB-> 
+ - pass section nnumber when selecting groups from drop-down menu
+ - fix $DB methods missing the leading $DB->
 
 2015.03.09 (31)
- -  block/taskchain_navigation used standard token 'section' in URLs that navigate to a particular section of the course 
+ - used standard token 'section' in URLs that navigate to a particular section of the course
 
 2015.03.07 (30)
- -  block/taskchain_navigation fix missing $DB when delting course 
+ - fix missing $DB when delting course
 
 2015.03.05 (29)
- -  block/taskchain_navigation fix error importing settings into a new block instance that has no config settings initially set up 
+ - fix error importing settings into a new block instance that has no config settings initially set up
 
 2015.03.01 (28)
- -  block/taskchain_navigation fix display of default section names 
- -  block/taskchain_navigation fix display of default section names 
- -  block/taskchain_navigation fix display of default section names 
+ - fix display of default section names
 
 2015.02.28 (27)
- -  block/taskchain_navigation fix mapping of setting field name to DB field name when updating available from/until dates 
+ - fix mapping of setting field name to DB field name when updating available from/until dates
 
 2015.02.18 (26)
- -  block/taskchain_navigation allow setting of access restrictions by date on Moodle <= 2.6 
- -  block/taskchain_navigation allow setting of access restrictions by date 
- -  block/taskchain_navigation fix setting of access retrictions based on completion of other activites 
-
-2015.02.112 (25)
- -  block/taskchain_navigation fix setting of access retrictions based on completion of other activites 
- -  block/taskchain_navigation improve format of messages in selectedactivitylist 
+ - allow setting of access restrictions by date on Moodle <= 2.6
+ - allow setting of access restrictions by date
+ - fix setting of access retrictions based on completion of other activites
+ - improve format of messages in selectedactivitylist
 
 2015.02.11 (24)
- -  block/taskchain_navigation new functionality to allow removal of empty grade categories from the gradebook 
+ - new functionality to allow removal of empty grade categories from the gradebook
 
 2015.01.26 (23)
- -  block/taskchain_navigation fix error message: Table "taskchain_units" does not exist 
- -  block/taskchain_navigation fix error: Undefined variable: conditionactionmenu 
+ - fix error message: Table "taskchain_units" does not exist
+ - fix error: Undefined variable: conditionactionmenu
 
 2015.01.24 (22)
- -  block/taskchain_navigation fix error message in Moodle <= 2.2 when setting course display mode 
+ - fix error message in Moodle <= 2.2 when setting course display mode
 
 2015.01.18 (21)
- -  block/taskchain_navigation small improvement to CSS in order to give more width to item names on accesscontrol form 
+ - small improvement to CSS in order to give more width to item names on accesscontrol form
 
 2015.01.15 (20)
- -  block/taskchain_navigation fix deletion of course modules on Moodle >= 2.5 
+ - fix deletion of course modules on Moodle >= 2.5
 
 2015.01.09 (19)
- -  block/taskchain_navigation improve setting of access restrictions and completion criteria 
- -  block/taskchain_navigation improve setting of access strictions and completion criteria 
- -  block/taskchain_navigation fix changes to availability conditions in Moodle >= 2.7 
+ - improve setting of access restrictions and completion criteria
+ - improve setting of access strictions and completion criteria
+ - fix changes to availability conditions in Moodle >= 2.7
 
 2015.01.08 (18)
- -  block/taskchain_navigation limit length of grade item names in condition select menu 
+ - limit length of grade item names in condition select menu
 
 2015.01.08 (17)
- -  block/taskchain_navigation fix display of access restrictions on Moodle >= 2.7 
+ - fix display of access restrictions on Moodle >= 2.7
 
 2015.01.06 (16)
- -  block/taskchain_navigation fix small bug accessing undefined options in new course 
+ - fix small bug accessing undefined options in new course
 
 2014.12.16 (15)
- -  block/taskchain_navigation add missing capability string for 'addinstance' 
+ - add missing capability string for 'addinstance'
 
 2014.12.12 (14)
- -  block/taskchain_navigation improve styles and section title selection in Moodle >=2.8 
+ - improve styles and section title selection in Moodle >=2.8
 
 2014.11.12 (13)
- -  block/taskchain_navigation format availability condition 
- -  block/taskchain_navigation format completion settings correctly when reporting which settings were updated 
- -  block/taskchain_navigation finish adding settings for activity completion (they still don't do anything yet though) 
- -  block/taskchain_navigation finish adding settings for activity completion (they still don't do anything yet though) 
- -  block/taskchain_navigation add Conditional Activity elements to accesscontrol form (they don't do anything yet) 
- -  block/taskchain_navigation add Activity completion elements to accesscontrol form (they don't do anything yet) 
- -  block/taskchain_navigation remove left margin on multi-item groups in edit form e.g. Hidden sections 
+ - format availability condition
+ - format completion settings correctly when reporting which settings were updated
+ - finish adding settings for activity completion (they still don't do anything yet though)
+ - add Conditional Activity elements to accesscontrol form (they don't do anything yet)
+ - add Activity completion elements to accesscontrol form (they don't do anything yet)
+ - remove left margin on multi-item groups in edit form e.g. Hidden sections
 
 2014.10.15 (12)
- -  block/taskchain_navigation fix width of multirow cell on left side of grade table 
+ - fix width of multirow cell on left side of grade table
 
 2014.09.03 (11)
- -  blocks/taskchain_navigation fix cell width for Moodle >= 2.7 
+ - fix cell width for Moodle >= 2.7
 
 2014.08.12 (10)
- -  block/taskchain_navigation fix transfer of settings to similar blocks in other courses 
- -  block/taskchain_navigation use Moodle 2.x version of get|set_field from $DB 
+ - fix transfer of settings to similar blocks in other courses
+ - use Moodle 2.x version of get|set_field from $DB
 
 2014.06.24 (09)
- -  block/taskchain_navigation fix display of single couse ection in Moodle 2.x 
+ - fix display of single couse ection in Moodle 2.x
 
 2014.06.19 (08)
- -  blocks/taskchain_navigation fix select_ checkbox names on edit_form 
- -  block/taskchain_navigation fix undefined method get_sequence() 
+ - fix select_ checkbox names on edit_form
+ - fix undefined method get_sequence()
 
 2014.05.29 (07)
- -  block/taskchain_navigation tidy up comments 
- -  block/taskchain_navigation fix import/export scripts 
- -  block/taskchain_navigation make export compatiebl with Moodle 2.x 
+ - tidy up comments
+ - fix import/export scripts
+ - make export compatiebl with Moodle 2.x
 
 2014.05.25 (06)
- -  block/taskchain_taskchain add select all/none to settings page 
+ - add select all/none to settings page
 
 2014.05.24 (05)
- -  block/taskchain_navigation prefix names of all edit forms elements with 'config_' 
- -  block/taskchain_navigation restrict form styles to edit form for this block 
+ - prefix names of all edit forms elements with 'config_'
+ - restrict form styles to edit form for this block
 
 2014.05.18 (04)
- -  block/taskchain_navigation add select checkboxes to edit form 
- -  block/taskchain_navigation styles to improve layout of settings page 
+ - add select checkboxes to edit form
+ - styles to improve layout of settings page
 
 2014.05.17 (03)
- -  block/taskchain_navigation convert accesscontrol page to be compatible with Moodle 2.x 
- -  block/taskchain_navigation optimze main code to generate block content 
- -  block/taskchain_navigation improve compatability with Moodle 2.0 
- -  block/taskchain_navigation migrate config_instance.html to edit_form.php 
+ - convert accesscontrol page to be compatible with Moodle 2.x
+ - optimze main code to generate block content
+ - improve compatability with Moodle 2.0
+ - migrate config_instance.html to edit_form.php
 
 2014.05.16 (01)
- -  mod/taskchain merge Moodle1 help files into Moodle2 lang pack 
- -  blocks/taskchain_navigation add preliminary versions of all files 
- -  moodle.2x add folders for new blocks: activity_list, taskchain_navigation, ungraded_actvities 
+ - mod/taskchain merge Moodle1 help files into Moodle2 lang pack
+ - add preliminary versions of all files
+ - moodle.2x add folders for new blocks: activity_list, taskchain_navigation, ungraded_actvities

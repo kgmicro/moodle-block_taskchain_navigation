@@ -1414,22 +1414,23 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
         $success = true;
         $fields = array(
-            'assign'        => array('availablefrom' => 'allowsubmissionsfromdate', 'availableuntil' => 'duedate',   'maxgrade' => 'grade',      'rating' => ''),
-            'assignment'    => array('availablefrom' => 'timeavailable',     'availableuntil' => 'timedue',          'maxgrade' => 'grade',      'rating' => ''),
-            'attendance'    => array('availablefrom' => '',                  'availableuntil' => '',                 'maxgrade' => 'grade',      'rating' => ''),
-            'choice'        => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => '',           'rating' => ''),
-            'data'          => array('availablefrom' => 'timeavailablefrom', 'availableuntil' => 'timeavailableto',  'maxgrade' => 'scale',      'rating' => 'assessed'),
-            'feedback'      => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => '',           'rating' => ''),
-            'forum'         => array('availablefrom' => 'assesstimestart',   'availableuntil' => 'assesstimefinish', 'maxgrade' => 'scale',      'rating' => 'assessed'),
-            'glossary'      => array('availablefrom' => 'assesstimestart',   'availableuntil' => 'assesstimefinish', 'maxgrade' => 'scale',      'rating' => 'assessed'),
-            'hotpot'        => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'grade',      'rating' => ''),
-            'lesson'        => array('availablefrom' => 'available',         'availableuntil' => 'deadline',         'maxgrade' => 'grade',      'rating' => ''),
-            'questionnaire' => array('availablefrom' => 'opendate',          'availableuntil' => 'closedate',        'maxgrade' => 'grade',      'rating' => ''),
-            'quiz'          => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'grade',      'rating' => ''),
-            'reader'        => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'maxgrade',   'rating' => ''),
-            'scorm'         => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'maxgrade',   'rating' => ''),
-            'taskchain'     => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'gradelimit', 'rating' => ''),
-            'workshop'      => array('availablefrom' => 'assessmentstart',   'availableuntil' => 'assessmentend',    'maxgrade' => 'grade ',     'rating' => ''),
+            'assign'         => array('availablefrom' => 'allowsubmissionsfromdate', 'availableuntil' => 'duedate',   'maxgrade' => 'grade',      'rating' => ''),
+            'assignment'     => array('availablefrom' => 'timeavailable',     'availableuntil' => 'timedue',          'maxgrade' => 'grade',      'rating' => ''),
+            'attendance'     => array('availablefrom' => '',                  'availableuntil' => '',                 'maxgrade' => 'grade',      'rating' => ''),
+            'choice'         => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => '',           'rating' => ''),
+            'data'           => array('availablefrom' => 'timeavailablefrom', 'availableuntil' => 'timeavailableto',  'maxgrade' => 'scale',      'rating' => 'assessed'),
+            'englishcentral' => array('availablefrom' => 'activityopen',      'availableuntil' => 'activityclose',    'maxgrade' => 'grade',      'rating' => ''),
+            'feedback'       => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => '',           'rating' => ''),
+            'forum'          => array('availablefrom' => 'assesstimestart',   'availableuntil' => 'assesstimefinish', 'maxgrade' => 'scale',      'rating' => 'assessed'),
+            'glossary'       => array('availablefrom' => 'assesstimestart',   'availableuntil' => 'assesstimefinish', 'maxgrade' => 'scale',      'rating' => 'assessed'),
+            'hotpot'         => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'grade',      'rating' => ''),
+            'lesson'         => array('availablefrom' => 'available',         'availableuntil' => 'deadline',         'maxgrade' => 'grade',      'rating' => ''),
+            'questionnaire'  => array('availablefrom' => 'opendate',          'availableuntil' => 'closedate',        'maxgrade' => 'grade',      'rating' => ''),
+            'quiz'           => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'grade',      'rating' => ''),
+            'reader'         => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'maxgrade',   'rating' => ''),
+            'scorm'          => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'maxgrade',   'rating' => ''),
+            'taskchain'      => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'gradelimit', 'rating' => ''),
+            'workshop'       => array('availablefrom' => 'assessmentstart',   'availableuntil' => 'assessmentend',    'maxgrade' => 'grade ',     'rating' => ''),
         );
         $table_columns = array();
 
@@ -1545,7 +1546,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         // update activity instance record, if field exists
                         if (empty($table_columns[$table][$field])) {
                             $skipped = true;
-                        } else if ($DB->set_field($table, $field, $$setting, array('id' => $id))) { // $$ is on purpose
+                        } else if ($DB->set_field($table, $field, $$setting, array('id' => $id))) { // $$ is deliberate
                             $updated = true;
                         } else {
                             $success = false;
