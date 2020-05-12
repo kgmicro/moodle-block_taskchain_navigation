@@ -2792,7 +2792,7 @@ class block_taskchain_navigation extends block_base {
         }
         $from   = "{$CFG->prefix}groups g";
         if ($this->config->groupscountusers) {
-            $select .= ', gm.groupid, COUNT(gm.userid) AS countusers';
+            $select .= ', COUNT(gm.userid) AS countusers';
             $from   .= " JOIN {$CFG->prefix}groups_members gm ON g.id = gm.groupid";
         }
 

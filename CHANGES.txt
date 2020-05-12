@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2020-05-12 (21)
+ - small fix to SQL for compatability with PostgreSQL
+
 2019-11-10 (20)
  - standardize layout and spelling in CHANGES.txt
 
