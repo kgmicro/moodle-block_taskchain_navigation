@@ -195,6 +195,7 @@ $string['gradebooklink_help'] = '**Yes**
 $string['gradecategorynames'] = 'Grade category names';
 $string['gradedisplay'] = 'Grade display';
 $string['gradedisplay_help'] = 'xxx';
+$string['gradeexplanation'] = 'Settings for individual student grades in the gradebook.';
 $string['gradeitemhidden'] = 'Hide grade item';
 $string['groupscountusers'] = 'Count group members';
 $string['groupscountusers_help'] = '**Yes**

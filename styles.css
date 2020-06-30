@@ -171,7 +171,8 @@
 
 #page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.sortgradeitems,
 #page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.creategradecategories,
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.removegradecategories {
+#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.removegradecategories,
+#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.gradeexplanation {
     font-size: 0.8em;
     font-weight: normal;
     font-style: italic;

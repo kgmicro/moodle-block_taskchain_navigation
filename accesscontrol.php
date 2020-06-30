@@ -119,6 +119,28 @@ if (data_submitted()) {
     }
 }
 
+// set up date menus
+$years = array();
+for ($i=1970; $i<=2020; $i++) {
+    $years[$i] = $i;
+}
+$months = array();
+for ($i=1; $i<=12; $i++) {
+    $months[$i] = userdate(gmmktime(12,0,0, $i, 15, 2000), '%B');
+}
+$days = array();
+for ($i=1; $i<=31; $i++) {
+    $days[$i] = $i;
+}
+$hours = array();
+for ($i=0; $i<=23; $i++) {
+    $hours[$i] = sprintf('%02d', $i);
+}
+$minutes = array();
+for ($i=0; $i<60; $i+=5) {
+    $minutes[$i] = sprintf('%02d', $i);
+}
+
 // show the access control form
 taskchain_navigation_accesscontrol_form($course, $block_instance, $action);
 
@@ -135,6 +157,7 @@ echo $OUTPUT->footer($course);
  */
 function taskchain_navigation_accesscontrol_form($course, $block_instance, $action) {
     global $CFG, $DB, $OUTPUT, $PAGE;
+    global $years, $months, $days, $hours, $minutes;
 
     // site and system contexts
     if (class_exists('context')) {
@@ -174,12 +197,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
     // available from/until dates
     $time  = time();
-    $fromdisable = optional_param('fromdisable',  0, PARAM_INT);
-    $untildisable = optional_param('untildisable', 0, PARAM_INT);
-    $cutoffdisable = optional_param('cutoffdisable', 0, PARAM_INT);
-    list($availablefrom, $fromdate) = get_timestamp_and_date('from',  null, $time, $fromdisable);
-    list($availableuntil, $untildate) = get_timestamp_and_date('until', null, $time, $untildisable);
-    list($availablecutoff, $cutoffdate) = get_timestamp_and_date('cutoff', null, $time, $cutoffdisable);
+    list($availablefrom, $fromdate, $fromdisable) = get_timestamp_and_date('from',  null, $time);
+    list($availableuntil, $untildate, $untildisable) = get_timestamp_and_date('until', null, $time);
+    list($availablecutoff, $cutoffdate, $cutoffdisable) = get_timestamp_and_date('cutoff', null, $time);
 
     $sortgradeitems   = optional_param('sortgradeitems',   0, PARAM_INT);
     $creategradecats  = optional_param('creategradecats',  0, PARAM_INT);
@@ -191,6 +211,14 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $gradeitemhidden  = optional_param('gradeitemhidden',  0, PARAM_INT);
     $extracredit      = optional_param('extracredit',      0, PARAM_INT);
     $regrade          = optional_param('regrade',          0, PARAM_INT);
+
+    $gradeoverridden  = optional_param('gradeoverridden',  0, PARAM_INT);
+    $gradeexcluded    = optional_param('gradeexcluded',    0, PARAM_INT);
+    $gradehidden      = optional_param('gradehidden',      0, PARAM_INT);
+    $gradelocked      = optional_param('gradelocked',      0, PARAM_INT);
+
+    list($gradehiddenuntil, $gradehiddenuntildate, $gradehiddenuntildisable) = get_timestamp_and_date('gradehiddenuntil', null, $time);
+    list($gradelocktime, $gradelocktimedate, $gradelocktimedisable) = get_timestamp_and_date('gradelocktime', null, $time);
 
     $modgradetype     = optional_param('modgradetype',    '', PARAM_ALPHA);
     $modgradescale    = optional_param('modgradescale',    0, PARAM_INT);
@@ -269,7 +297,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             case 2: $d = '<='; break;
             default: $d = '';
         }
-        list($t, $date) = get_timestamp_and_date('conditiondatetime', $i, $time);
+        list($t, $date, $disable) = get_timestamp_and_date('conditiondatetime', $i, $time);
         $conditiondate[$i] = (object)array(
             'type' => 'date',
             'd' => $d, // direction
@@ -355,6 +383,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                       'rating',          'modgrade',
                       'maxgrade',        'gradepass',      'gradecat',
                       'gradeitemhidden', 'extracredit',    'regrade',
+                      'gradeoverridden', 'gradehidden',    'gradehiddenuntil',
+                      'gradeexcluded',   'gradelocked',    'gradelocktime',
                       'groupmode',       'groupingid',     'groupmembersonly',
                       'visible',         'indent',         'section',    'uploadlimit');
 
@@ -855,26 +885,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $modules = implode("\n", $modules);
     $modules = '<select id="id_modules" name="modules[]" size="'.min($select_size, $count_modules).'" multiple="multiple">'."\n".$modules."\n".'</select>'."\n";
 
-    $days = array();
-    for ($i=1; $i<=31; $i++) {
-        $days[$i] = $i;
-    }
-    $months = array();
-    for ($i=1; $i<=12; $i++) {
-        $months[$i] = userdate(gmmktime(12,0,0, $i,15,2000), '%B');
-    }
-    $years = array();
-    for ($i=1970; $i<=2020; $i++) {
-        $years[$i] = $i;
-    }
-    $hours = array();
-    for ($i=0; $i<=23; $i++) {
-        $hours[$i] = sprintf('%02d', $i);
-    }
-    $minutes = array();
-    for ($i=0; $i<60; $i+=5) {
-        $minutes[$i] = sprintf('%02d', $i);
-    }
     $visibilitymenu = array(
        -1  => '',
         0  => get_string('hidden', 'grades'),
@@ -1681,7 +1691,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         }
                         break;
 
-                    // gradebook settings
+                    // gradebook item settings
                     case 'gradecat':
                     case 'gradeitemhidden':
                     case 'gradepass':
@@ -1699,6 +1709,32 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             $regrade_item_id = $DB->get_field_select('grade_items', 'id', $select, $params);
                         } else {
                             $success = false;
+                        }
+                        break;
+
+                    // gradebook grades settings
+                    case 'gradeexcluded':
+                    case 'gradeoverridden':
+                    case 'gradehidden':
+                    case 'gradehiddenuntil':
+                    case 'gradelocked':
+                    case 'gradelocktime':
+                        $success = false;
+                        switch ($setting) {
+                            case 'gradehiddenuntil': $field = 'hidden'; break;
+                            default: $field = substr($setting, 5); // e.g. locked
+                        }
+                        $select = 'courseid = ? AND itemtype = ? AND itemmodule = ? AND iteminstance = ?';
+                        $params = array($course->id, 'mod', $cm->modname, $cm->instance);
+                        if ($grade_items = $DB->get_records_select('grade_items', $select, $params, 'itemnumber')) {
+                            $regrade_item_id = key($grade_items); // usually there's only one grade item
+                            foreach ($grade_items as $grade_item) {
+                                $params = array('itemid' => $grade_item->id);
+                                if ($DB->set_field('grade_grades', $field, $$setting, $params)) {
+                                    $success = true;
+                                    $updated = true;
+                                }
+                            }
                         }
                         break;
 
@@ -1901,6 +1937,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                             }
                         }
                         break;
+
                     default:
                         if (array_key_exists($setting, $completionfields)) {
                             // completion fields
@@ -2254,12 +2291,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
 
     // ============================
-    // Grades
+    // Grade items
     // ============================
     //
     echo '<tr class="sectionheading" id="id_section_grades">'."\n";
     echo '<th colspan="2">';
-    echo get_string('grades');
+    echo get_string('gradeitems', 'grades');
     echo ' &nbsp; <span class="sortgradeitems">';
     if ($sortgradeitems) {
         echo ' '.get_string('sortedgradeitems', $plugin);
@@ -2431,6 +2468,42 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo html_writer::checkbox('select_regrade', 1, optional_param('select_regrade', 0, PARAM_INT), '', array('onclick' => $script));
     echo '</td>'."\n";
     echo '</tr>'."\n";
+
+    // ============================
+    // Individual grades
+    // ============================
+    //
+    $name = 'gradeexplanation';
+    $label = get_string($name, $plugin);
+    $label = html_writer::tag('span', $label, array('class' => $name));
+
+    $name = 'grades';
+    $label = get_string($name, 'grades').' '.$label;
+    print_sectionheading($label, $name, true);
+
+    $name = 'gradeoverridden';
+    $label = get_string('overridden', 'grades');
+    print_yes_no_row($name, $label, $gradeoverridden);
+
+    $name = 'gradeexcluded';
+    $label = get_string('excluded', 'grades');
+    print_yes_no_row($name, $label, $gradeexcluded);
+
+    $name = 'gradehidden';
+    $label = get_string('hidden', 'grades');
+    print_yes_no_row($name, $label, $gradehidden);
+
+    $name = 'gradehiddenuntil';
+    $label = get_string('hiddenuntil', 'grades');
+    print_date_row($name, $label, $gradehiddenuntildate, $gradehiddenuntildisable);
+
+    $name = 'gradelocked';
+    $label = get_string('locked', 'grades');
+    print_yes_no_row($name, $label, $gradelocked);
+
+    $name = 'gradelocktime';
+    $label = get_string('locktime', 'grades');
+    print_date_row($name, $label, $gradelocktimedate, $gradelocktimedisable);
 
     // ============================
     // Groups
@@ -3094,7 +3167,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         print_sectionheading(get_string('competencies', 'competency'), 'competency', true);
 
         echo '<tr>'."\n";
-        echo '<td class="itemname">'.get_string('uponcoursemodulecompletion', 'tool_lp').':</td>'."\n";
+        echo '<td class="itemname">'.get_string('uponcoursemodulecompletion', 'tool_lp').'</td>'."\n";
         echo '<td class="itemvalue">';
         echo html_writer::select($competencyrulemenu, 'competencyrule', $competencyrule, '');
         echo html_writer::empty_tag('br').'('.get_string('usedbyall', $plugin).')';
@@ -3201,6 +3274,20 @@ function format_setting($name, $value, $str,
         case 'regrade':
             $name = get_string('regrade', $plugin);
             $value = format_yesno($value);
+            break;
+
+        case 'gradeoverridden':
+        case 'gradeexcluded':
+        case 'gradehidden':
+        case 'gradelocked':
+            $name = get_string('grade').': '.get_string(substr($name, 5), 'grades');
+            $value = format_yesno($value);
+            break;
+
+        case 'gradehiddenuntil':
+        case 'gradelocktime':
+            $name = get_string('grade').': '.get_string(substr($name, 5), 'grades');
+            $value = ($value ? userdate($value) : get_string('disable'));
             break;
 
         case 'groupmode':
@@ -3485,13 +3572,47 @@ function require_head_js() {
     $PAGE->requires->js($jquery.'/accesscontrol.js', true);
 }
 
-function print_sectionheading($text, $id, $expandable) {
-    echo '<tr class="sectionheading" id="id_section_'.$id.'">'."\n";
+function print_sectionheading($text, $sectionname, $expandable) {
+    echo '<tr class="sectionheading" id="id_section_'.$sectionname.'">'."\n";
     if ($expandable) {
         echo '<th colspan="2">'.$text.'</th><th class="toggle"></th>'."\n";
     } else {
         echo '<th colspan="3">'.$text.'</th>'."\n";
     }
+    echo '</tr>'."\n";
+}
+
+function print_yes_no_row($name, $label, $value) {
+    echo '<tr>'."\n";
+    echo '<td class="itemname">'.$label.':</td>'."\n";
+    echo '<td class="itemvalue">';
+    echo html_writer::select_yes_no($name, $value);
+    echo '</td>'."\n";
+    echo '<td class="itemselect">';
+    echo html_writer::checkbox('select_'.$name, 1, optional_param('select_'.$name, 0, PARAM_INT));
+    echo '</td>'."\n";
+    echo '</tr>'."\n";
+}
+
+function print_date_row($name, $label, $date, $disable) {
+    global $years, $months, $days, $hours, $minutes;
+    echo '<tr>'."\n";
+    echo '<td class="itemname">'.$label.':</td>'."\n";
+
+    echo '<td class="itemvalue">';
+    $date['minutes'] = intval($date['minutes']) - (intval($date['minutes']) % 5);
+    echo html_writer::select($days,    $name.'day',     intval($date['mday']),    '').' ';
+    echo html_writer::select($months,  $name.'month',   intval($date['mon']),     '').' ';
+    echo html_writer::select($years,   $name.'year',    intval($date['year']),    '').' ';
+    echo html_writer::select($hours,   $name.'hours',   intval($date['hours']),   '').' ';
+    echo html_writer::select($minutes, $name.'minutes', intval($date['minutes']), '').' ';
+    echo html_writer::checkbox($name.'disable', '1', $disable, get_string('disable'));
+    echo '</td>'."\n";
+
+    echo '<td class="itemselect">';
+    $checked = optional_param('select_'.$name, 0, PARAM_INT);
+    echo html_writer::checkbox('select_'.$name, 1, $checked, '');
+    echo '</td>'."\n";
     echo '</tr>'."\n";
 }
 
@@ -4117,39 +4238,41 @@ function fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $target
     return 0;
 }
 
-function get_timestamp_and_date($name, $i, $default, $disable=false) {
-    if ($i===null) {
-        $year    = optional_param($name.'year',    0, PARAM_INT);
-        $month   = optional_param($name.'month',   0, PARAM_INT);
-        $day     = optional_param($name.'day',     0, PARAM_INT);
-        $hours   = optional_param($name.'hours',   0, PARAM_INT);
-        $minutes = optional_param($name.'minutes', 0, PARAM_INT);
-    } else {
-        $year    = optional_param_array($name.'year',    array(), PARAM_INT);
-        $month   = optional_param_array($name.'month',   array(), PARAM_INT);
-        $day     = optional_param_array($name.'day',     array(), PARAM_INT);
-        $hours   = optional_param_array($name.'hours',   array(), PARAM_INT);
-        $minutes = optional_param_array($name.'minutes', array(), PARAM_INT);
-        $year    = (empty($year[$i]) ?    0 : $year[$i]);
-        $month   = (empty($month[$i]) ?   0 : $month[$i]);
-        $day     = (empty($day[$i]) ?     0 : $day[$i]);
-        $hours   = (empty($hours[$i]) ?   0 : $hours[$i]);
-        $minutes = (empty($minutes[$i]) ? 0 : $minutes[$i]);
-    }
-    if ($year) {
-        $seconds  = 0; // always 0
-        $timezone = 99; // always 99
-        $applydst = false; // always false
-        $date = make_timestamp($year, $month, $day, $hours, $minutes, $seconds, $timezone, $applydst);
-    } else {
-        $date = $default;
-    }
-    if ($disable) {
+function get_timestamp_and_date($name, $i, $default) {
+    if ($disable = optional_param($name.'disable', 0, PARAM_INT)) {
         $timestamp = 0;
+        $date = '';
     } else {
+        if ($i===null) {
+            $year    = optional_param($name.'year',    0, PARAM_INT);
+            $month   = optional_param($name.'month',   0, PARAM_INT);
+            $day     = optional_param($name.'day',     0, PARAM_INT);
+            $hours   = optional_param($name.'hours',   0, PARAM_INT);
+            $minutes = optional_param($name.'minutes', 0, PARAM_INT);
+        } else {
+            $year    = optional_param_array($name.'year',    array(), PARAM_INT);
+            $month   = optional_param_array($name.'month',   array(), PARAM_INT);
+            $day     = optional_param_array($name.'day',     array(), PARAM_INT);
+            $hours   = optional_param_array($name.'hours',   array(), PARAM_INT);
+            $minutes = optional_param_array($name.'minutes', array(), PARAM_INT);
+            $year    = (empty($year[$i]) ?    0 : $year[$i]);
+            $month   = (empty($month[$i]) ?   0 : $month[$i]);
+            $day     = (empty($day[$i]) ?     0 : $day[$i]);
+            $hours   = (empty($hours[$i]) ?   0 : $hours[$i]);
+            $minutes = (empty($minutes[$i]) ? 0 : $minutes[$i]);
+        }
+        if ($year) {
+            $seconds  = 0; // always 0
+            $timezone = 99; // always 99
+            $applydst = false; // always false
+            $date = make_timestamp($year, $month, $day, $hours, $minutes, $seconds, $timezone, $applydst);
+        } else {
+            $date = $default;
+        }
         $timestamp = $date;
+        $date = usergetdate($date);
     }
-    return array($timestamp, usergetdate($date));
+    return array($timestamp, $date, $disable);
 }
 
 function get_completionfield($strman, $plugin, $modname, $name, $value, $fields) {
