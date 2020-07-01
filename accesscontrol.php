@@ -197,9 +197,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
     // available from/until dates
     $time  = time();
-    list($availablefrom, $fromdate, $fromdisable) = get_timestamp_and_date('from',  null, $time);
-    list($availableuntil, $untildate, $untildisable) = get_timestamp_and_date('until', null, $time);
-    list($availablecutoff, $cutoffdate, $cutoffdisable) = get_timestamp_and_date('cutoff', null, $time);
+    list($availablefrom, $availablefromdate, $availablefromdisable) = get_timestamp_and_date('availablefrom',  null, $time);
+    list($availableuntil, $availableuntildate, $availableuntildisable) = get_timestamp_and_date('availableuntil', null, $time);
+    list($cutoff, $cutoffdate, $cutoffdisable) = get_timestamp_and_date('cutoff', null, $time);
+    list($gradingdue, $gradingduedate, $gradingduedisable) = get_timestamp_and_date('gradingdue', null, $time);
 
     $sortgradeitems   = optional_param('sortgradeitems',   0, PARAM_INT);
     $creategradecats  = optional_param('creategradecats',  0, PARAM_INT);
@@ -379,7 +380,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
 
     // add standard settings
-    $settings = array('availablefrom',   'availableuntil', 'availablecutoff',
+    $settings = array('availablefrom',   'availableuntil', 'cutoff', 'gradingdue',
                       'rating',          'modgrade',
                       'maxgrade',        'gradepass',      'gradecat',
                       'gradeitemhidden', 'extracredit',    'regrade',
@@ -530,7 +531,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $modules  = array();
     $sections = array();
 
-    $cutoffdatemods = array();
+    $cutoffmods     = array();
+    $gradingduemods = array();
     $filemods       = array();
     $gradingareas   = array();
     $gradingmods    = array();
@@ -585,10 +587,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $filepath = "$CFG->dirroot/mod/$cm->modname/mod_form.php";
                 if (file_exists($filepath)) {
                     $filecontents = file_get_contents($filepath);
-                    $has_cutoffdate = preg_match('/cutoffdate/', $filecontents);
+                    $has_cutoff = preg_match('/cutoffdate/', $filecontents);
+                    $has_gradingdue = preg_match('/gradingduedate/', $filecontents);
                     $has_standardgrading = preg_match('/standard_grading_coursemodule_elements/', $filecontents);
                 } else {
-                    $has_cutoffdate = in_array($cm->modname, array('assign'));
+                    $has_cutoff = in_array($cm->modname, array('assign'));
+                    $has_gradingdue = in_array($cm->modname, array('assign'));
                     $has_standardgrading = in_array($cm->modname, array('assign', 'data', 'forum', 'glossary', 'lesson', 'lti', 'quiz'));
                 }
 
@@ -601,8 +605,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 if ($has_standardgrading) {
                     $gradingmods[$cm->modname] = $modules[$cm->modname];
                 }
-                if ($has_cutoffdate) {
-                    $cutoffdatemods[$cm->modname] = $modules[$cm->modname];
+                if ($has_cutoff) {
+                    $cutoffmods[$cm->modname] = $modules[$cm->modname];
+                }
+                if ($has_gradingdue) {
+                    $gradingduemods[$cm->modname] = $modules[$cm->modname];
                 }
 
                 $filepath = "$CFG->dirroot/mod/$cm->modname/lib.php";
@@ -693,7 +700,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 //        unset($gradingareas[$cm->modname]);
                 //    }
                 //}
-                unset($filepath, $filecontents, $has_completion, $has_cutoffdate, $has_grading,
+                unset($filepath, $filecontents, $has_completion, $has_cutoff, $has_gradingdue, $has_grading,
                       $has_libfile, $has_rating, $has_standardgrading, $is_label, $is_resource);
             }
 
@@ -1519,7 +1526,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     // activity instance settings
                     case 'availablefrom':
                     case 'availableuntil':
-                    case 'availablecutoff':
+                    case 'cutoff':
+                    case 'gradingdue':
                     case 'maxgrade':
                     case 'rating':
 
@@ -1547,8 +1555,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                         // convert setting name to database field name
                         if (isset($fields[$cm->modname][$setting])) {
                             $field = $fields[$cm->modname][$setting];
-                        } else if ($setting=='availablecutoff') {
-                            $field = 'cutoffdate';
+                        } else if ($setting=='cutoff' || $setting=='gradingdue') {
+                            $field = $setting.'date';
                         } else {
                             $field = $setting;
                         }
@@ -2070,7 +2078,13 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $name = block_taskchain_navigation::filter_text($name);
             $name = trim(strip_tags($name));
             $name = block_taskchain_navigation::trim_text($name, $cm_namelength, $cm_headlength, $cm_taillength);
-            echo $name;
+
+            $params = array('update' => $cm->id, 'return' => 1);
+            $url = new moodle_url("/course/modedit.php", $params);
+
+            $params = array('onclick' => 'this.target = "_blank"');
+            echo html_writer::link($url, $name, $params);
+
             echo '</td></tr>'."\n";
         }
     }
@@ -2221,73 +2235,26 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     //
     print_sectionheading(get_string('dates', $plugin), 'dates', true);
 
-    echo '<tr>'."\n";
-    echo '<td class="itemname">'.get_string('availablefrom', $plugin).':</td>'."\n";
+    $name = 'availablefrom';
+    $label = get_string($name, $plugin);
+    print_date_row($name, $label, $availablefromdate, $availablefromdisable);
 
-    echo '<td class="itemvalue">';
-    $fromdate['minutes'] = intval($fromdate['minutes']) - (intval($fromdate['minutes']) % 5);
-    echo html_writer::select($days,    'fromday',     intval($fromdate['mday']),    '').' ';
-    echo html_writer::select($months,  'frommonth',   intval($fromdate['mon']),     '').' ';
-    echo html_writer::select($years,   'fromyear',    intval($fromdate['year']),    '').' ';
-    echo html_writer::select($hours,   'fromhours',   intval($fromdate['hours']),   '').' ';
-    echo html_writer::select($minutes, 'fromminutes', intval($fromdate['minutes']), '').' ';
-    $names = "'menufromday', 'menufrommonth', 'menufromyear', 'menufromhours', 'menufromminutes'";
-    $script = ''; // "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
-    echo html_writer::checkbox('fromdisable', '1', $fromdisable, get_string('disable'), array('onclick' => $script));
-    echo '</td>'."\n";
+    $name = 'availableuntil';
+    $label = get_string($name, $plugin);
+    print_date_row($name, $label, $availableuntildate, $availableuntildisable);
 
-    echo '<td class="itemselect">';
-    $script = ''; // "return set_disabled(this.form, new Array('fromdisable'), (! this.checked)) && this.form.fromdisable.onclick()";
-    $checked = optional_param('select_availablefrom', 0, PARAM_INT);
-    echo html_writer::checkbox('select_availablefrom', 1, $checked, '', array('onclick' => $script));
-    echo '</td>'."\n";
-    echo '</tr>'."\n";
+    if ($modnames = implode(', ', $cutoffmods)) {
+        $name = 'cutoff';
+        $label = get_string($name.'date', 'assign');
+        $modnames = get_string('usedby', $plugin, $modnames);
+        print_date_row($name, $label, $cutoffdate, $cutoffdisable, $modnames);
+    }
 
-    echo '<tr>'."\n";
-    echo '<td class="itemname">'.get_string('availableuntil', $plugin).':</td>'."\n";
-
-    echo '<td class="itemvalue">';
-    $untildate['minutes'] = intval($untildate['minutes']) - (intval($untildate['minutes']) % 5);
-    echo html_writer::select($days,    'untilday',     intval($untildate['mday']),    '').' ';
-    echo html_writer::select($months,  'untilmonth',   intval($untildate['mon']),     '').' ';
-    echo html_writer::select($years,   'untilyear',    intval($untildate['year']),    '').' ';
-    echo html_writer::select($hours,   'untilhours',   intval($untildate['hours']),   '').' ';
-    echo html_writer::select($minutes, 'untilminutes', intval($untildate['minutes']), '').' ';
-    $names = "'menuuntilday', 'menuuntilmonth', 'menuuntilyear', 'menuuntilhours', 'menuuntilminutes'";
-    $script = ''; // "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
-    echo html_writer::checkbox('untildisable', '1', $untildisable, get_string('disable'), array('onclick' => $script));
-    echo '</td>'."\n";
-
-    echo '<td class="itemselect">';
-    $script = ''; // "return set_disabled(this.form, new Array('untildisable'), (! this.checked)) && this.form.untildisable.onclick()";
-    $checked = optional_param('select_availableuntil', 0, PARAM_INT);
-    echo html_writer::checkbox('select_availableuntil', 1, $checked, '', array('onclick' => $script));
-    echo '</td>'."\n";
-    echo '</tr>'."\n";
-
-    if ($modnames = implode(', ', $cutoffdatemods)) {
-        echo '<tr>'."\n";
-        echo '<td class="itemname">'.get_string('cutoffdate', 'assign').':</td>'."\n";
-
-        echo '<td class="itemvalue">';
-        $cutoffdate['minutes'] = intval($cutoffdate['minutes']) - (intval($cutoffdate['minutes']) % 5);
-        echo html_writer::select($days,    'cutoffday',     intval($cutoffdate['mday']),    '').' ';
-        echo html_writer::select($months,  'cutoffmonth',   intval($cutoffdate['mon']),     '').' ';
-        echo html_writer::select($years,   'cutoffyear',    intval($cutoffdate['year']),    '').' ';
-        echo html_writer::select($hours,   'cutoffhours',   intval($cutoffdate['hours']),   '').' ';
-        echo html_writer::select($minutes, 'cutoffminutes', intval($cutoffdate['minutes']), '').' ';
-        $names = "'menucutoffday', 'menucutoffmonth', 'menucutoffyear', 'menucutoffhours', 'menucutoffminutes'";
-        $script = ''; // "return set_disabled(this.form, new Array($names), (this.disabled || this.checked))";
-        echo html_writer::checkbox('cutoffdisable', '1', $cutoffdisable, get_string('disable'), array('onclick' => $script));
-        echo html_writer::empty_tag('br').'('.get_string('usedby', $plugin, $modnames).')';
-        echo '</td>'."\n";
-
-        echo '<td class="itemselect">';
-        $script = ''; // "return set_disabled(this.form, new Array('cutoffdisable'), (! this.checked)) && this.form.cutoffdisable.onclick()";
-        $checked = optional_param('select_availablecutoff', 0, PARAM_INT);
-        echo html_writer::checkbox('select_availablecutoff', 1, $checked, '', array('onclick' => $script));
-        echo '</td>'."\n";
-        echo '</tr>'."\n";
+    if ($modnames = implode(', ', $gradingduemods)) {
+        $name = 'gradingdue';
+        $label = get_string($name.'date', 'assign');
+        $modnames = get_string('usedby', $plugin, $modnames);
+        print_date_row($name, $label, $gradingduedate, $gradingduedisable, $modnames);
     }
 
     // ============================
@@ -2554,7 +2521,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     //
     echo '<tr class="sectionheading" id="id_section_coursepage">'."\n";
     echo '<th colspan="2">';
-    echo get_string('coursepage', $plugin);
+    echo get_string('stickyblockscourseview', 'admin'); // Course page
     echo ' &nbsp; <span class="sortgradeitems">';
     if ($sortactivities) {
         echo ' '.get_string('sortedactivities', $plugin);
@@ -3222,8 +3189,9 @@ function format_setting($name, $value, $str,
             $value = ($value ? userdate($value) : get_string('disable'));
             break;
 
-        case 'availablecutoff':
-            $name = get_string('cutoffdate', 'assign');
+        case 'cutoff':
+        case 'gradingdue':
+            $name = get_string($name.'date', 'assign');
             $value = ($value ? userdate($value) : get_string('disable'));
             break;
 
@@ -3594,8 +3562,13 @@ function print_yes_no_row($name, $label, $value) {
     echo '</tr>'."\n";
 }
 
-function print_date_row($name, $label, $date, $disable) {
+function print_date_row($name, $label, $date, $disable, $modnames='') {
     global $years, $months, $days, $hours, $minutes;
+
+    if (empty($date)) {
+        $date = time();
+    }
+
     echo '<tr>'."\n";
     echo '<td class="itemname">'.$label.':</td>'."\n";
 
@@ -3607,6 +3580,9 @@ function print_date_row($name, $label, $date, $disable) {
     echo html_writer::select($hours,   $name.'hours',   intval($date['hours']),   '').' ';
     echo html_writer::select($minutes, $name.'minutes', intval($date['minutes']), '').' ';
     echo html_writer::checkbox($name.'disable', '1', $disable, get_string('disable'));
+    if ($modnames) {
+        echo html_writer::empty_tag('br').'('.$modnames.')';
+    }
     echo '</td>'."\n";
 
     echo '<td class="itemselect">';
@@ -4241,7 +4217,7 @@ function fix_condition_targetid($labelmods, $resourcemods, $course, $cm, $target
 function get_timestamp_and_date($name, $i, $default) {
     if ($disable = optional_param($name.'disable', 0, PARAM_INT)) {
         $timestamp = 0;
-        $date = '';
+        $date = $default;
     } else {
         if ($i===null) {
             $year    = optional_param($name.'year',    0, PARAM_INT);
@@ -4265,14 +4241,13 @@ function get_timestamp_and_date($name, $i, $default) {
             $seconds  = 0; // always 0
             $timezone = 99; // always 99
             $applydst = false; // always false
-            $date = make_timestamp($year, $month, $day, $hours, $minutes, $seconds, $timezone, $applydst);
+            $timestamp = make_timestamp($year, $month, $day, $hours, $minutes, $seconds, $timezone, $applydst);
         } else {
-            $date = $default;
+            $timestamp = $default;
         }
-        $timestamp = $date;
-        $date = usergetdate($date);
+        $date = $timestamp;
     }
-    return array($timestamp, $date, $disable);
+    return array($timestamp, usergetdate($date), $disable);
 }
 
 function get_completionfield($strman, $plugin, $modname, $name, $value, $fields) {

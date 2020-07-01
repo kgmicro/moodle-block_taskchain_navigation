@@ -155,7 +155,6 @@ $string['coursenamefield_help'] = 'This setting defines the string to be used as
 
 **Current grade**
 : The "currentgrade" string, which is in the language pack for this block, will be used as the name for the course grade category for this block.';
-$string['coursepage'] = 'Course page';
 $string['coursepageshortcuts'] = 'Course page shortcuts';
 $string['coursesections'] = 'Course sections';
 $string['courseuploadlimit'] = 'Course upload limit';
