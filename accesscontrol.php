@@ -2659,7 +2659,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $limit = get_string('sameas', $plugin, $limit);
                 $limit = html_writer::tag('i', $limit);
             }
-            $limit .= ': '.get_string('pluginname', $name);
+            $limit = get_string('pluginname', $name).': '.$limit;
             echo html_writer::tag('span', $limit, array('class' => 'uploadlimit'));
             if ($hassiteconfig) {
                 if ($name=='assign') {

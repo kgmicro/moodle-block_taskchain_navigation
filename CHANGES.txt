@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2020-07-05 (24)
+ - adjust CSS for Boost theme
+
 2020-07-01 (23)
  - add duedate (used by assign) to list of modifiable dates
 

@@ -1481,7 +1481,7 @@ class block_taskchain_navigation extends block_base {
         }
         if (count($rows)) {
             $colspan = count($depths) + 2;
-            $td = '<td colspan="'.$colspan.'" style="padding-left: 6px; padding right: 2px;">';
+            $td = '<td colspan="'.$colspan.'" style="padding-left: 6px; padding-right: 2px;">';
             $this->content->text .= '<tr>'.$td.implode('</td></tr><tr>'.$td, $rows).'</td></tr>'."\n";
         }
     }

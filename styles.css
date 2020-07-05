@@ -26,16 +26,16 @@
  * @since      Moodle 2.0
  */
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu {
     text-align: left;
     background-color: #eeeeee;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu p {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu p {
     float: left;
     margin: 0px;
     padding: 0px;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu ul {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu ul {
     float: left;
     margin: 0px;
     padding: 0px;
@@ -45,69 +45,69 @@
     font-weight: normal;
     width: 160px;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu ul li {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu ul li {
     margin: 0px;
     padding: 2px 4px;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu ul li.odd {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu ul li.odd {
     background-color: #e6e6e6;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu ul li.even {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu ul li.even {
     background-color: #d6d6d6;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu ul li a {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu ul li a {
     display: block;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable th.blockconfigmenu ul li a:hover {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu ul li a:hover {
     background-color: #eedddd;
     text-decoration: none;
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.importexport {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.importexport {
     text-align: center;
     font-size: 0.8em;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr {
     vertical-align: top;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.blockdescription {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.blockdescription {
     font-style: italic;
     text-align: center;
     padding-left: 30px;
     padding-right: 30px;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading {
     background-color: #eeeeee;
     border-top: solid 1px #999999;
     color: #000000;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr#id_section_actions {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr#id_section_actions {
     border-bottom: none;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading th {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading th {
     text-align: left;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading th.toggle {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading th.toggle {
 	text-align: center;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.blockdescription a:hover,
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading th a:hover {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.blockdescription a:hover,
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading th a:hover {
     text-decoration: none;
     color: inherit;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading td {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading td {
     text-align: center;
     vertical-align: center;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading td input.submitbutton {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading td input.submitbutton {
     border: 1px solid #bbbbbb;
     background-color: #dddddd;
 
@@ -120,69 +120,69 @@
     border-radius: 4px; /* future proofing for when border-radius is supported in CSS3 */
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemname {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemname {
     min-width: 160px;
     text-align: right;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.groupmembersonly {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.groupmembersonly {
     max-width: 120px;
     width: expression(this.clientWdith > 120 ? "120px" : "auto"); /* IE */
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td span.arrows {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td span.arrows {
     padding-left: 8px;
     word-spacing: 8px;
     font-size: 1.2em;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td span.uploadlimit {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td span.uploadlimit {
     display: inline-block;
     margin-right: 12px;
     min-width: 200px;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue {
     text-align: left;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue input#id_sectiontags + span.helptooltip img.iconhelp {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue input#id_sectiontags + span.helptooltip img.iconhelp {
     vertical-align: top;
     margin-top: 4px;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue select#menu_sections,
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue select#menu_modules,
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue select#menu_cmids {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue select#menu_sections,
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue select#menu_modules,
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue select#menu_cmids {
     min-width: 300px;
     max-width: 360px;
     width: expression(this.clientWidth < 300 ? "300px" : (this.clientWdith > 360 ? "360px" : "auto")); /* IE */
 }
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue select.completionfield {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue select.completionfield {
     vertical-align: top;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemselect {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemselect {
     text-align: center;
     font-size: 0.8em;
     background-color: #eedddd;
     min-width: 72px;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.sortgradeitems,
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.creategradecategories,
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.removegradecategories,
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable tr.sectionheading span.gradeexplanation {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading span.sortgradeitems,
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading span.creategradecategories,
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading span.removegradecategories,
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable tr.sectionheading span.gradeexplanation {
     font-size: 0.8em;
     font-weight: normal;
     font-style: italic;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue div.subitem {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue div.subitem {
 	margin-bottom: 6px;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue div.subitem div.subname {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue div.subitem div.subname {
 	width: 66px;
 	/* cross-browser inline-block */
 	display: -moz-inline-stack;
@@ -191,63 +191,69 @@
 	*display:inline;
 }
 
-#page-blocks-taskchain_navigation-accesscontrol table.blockconfigtable td.itemvalue div.subitem input {
+#page-blocks-taskchain_navigation-accesscontrol .blockconfigtable td.itemvalue div.subitem input {
 	margin-right: 6px;
 }
 
 /*
  * override standard theme styles
  */
+.block_taskchain_navigation table caption {
+    font-size: intiial;   /* default is 24px */
+}
+.block_taskchain_navigation .generaltable td {
+    padding: 4px;   /* default is 0.75rem */
+}
 
-div.block_taskchain_navigation div.gradetreebox {
+.block_taskchain_navigation div.gradetreebox {
     margin: 0px;          /* default is 4px */
     width: auto;          /* default is 90% */
 }
 
-div.block_taskchain_navigation div.block div.content {
+.block_taskchain_navigation div.block div.content {
     padding: 0px;         /* default is 4px */
     border-width: 0px;    /* default is 1px */
     border-style: none;   /* default is solid */
 }
 
-div.block_taskchain_navigation table.flexible table.generaltable {
+.block_taskchain_navigation table.flexible table.generaltable {
     width: auto;          /* default is 100% */
 }
 
-div.block_taskchain_navigation table.generaltable td {
+.block_taskchain_navigation table.generaltable td {
     border-width: 0px;    /* default is 1px */
     border-style: none;   /* default is solid */
 }
 
-div.block_taskchain_navigation table.user-grade td.rowspan {
+.block_taskchain_navigation table.user-grade td.rowspan {
     padding: 0px;         /* default is 0.25em */
     width: 4px;
     min-width: 4px;       /* default is 2.0em */
 }
 
 /** set grade table border widths to just 1px */
-div.block_taskchain_navigation table.user-grade td.b1b,
-div.block_taskchain_navigation table.user-grade td.b2b,
-div.block_taskchain_navigation table.user-grade th.b1b,
-div.block_taskchain_navigation table.user-grade th.b2b {
+.block_taskchain_navigation table.user-grade td.b1b,
+.block_taskchain_navigation table.user-grade td.b2b,
+.block_taskchain_navigation table.user-grade th.b1b,
+.block_taskchain_navigation table.user-grade th.b2b {
     border-bottom: 1px solid black;
 }
-div.block_taskchain_navigation table.user-grade td.b1l,
-div.block_taskchain_navigation table.user-grade td.b2l,
-div.block_taskchain_navigation table.user-grade th.b1l,
-div.block_taskchain_navigation table.user-grade th.b2l {
+.block_taskchain_navigation table.user-grade td.b1l,
+.block_taskchain_navigation table.user-grade td.b2l,
+.block_taskchain_navigation table.user-grade th.b1l,
+.block_taskchain_navigation table.user-grade th.b2l {
     border-left: 1px solid black;
 }
-div.block_taskchain_navigation table.user-grade td.b1r,
-div.block_taskchain_navigation table.user-grade td.b2r,
-div.block_taskchain_navigation table.user-grade th.b1r,
-div.block_taskchain_navigation table.user-grade th.b2r {
+.block_taskchain_navigation table.user-grade td.b1r,
+.block_taskchain_navigation table.user-grade td.b2r,
+.block_taskchain_navigation table.user-grade th.b1r,
+.block_taskchain_navigation table.user-grade th.b2r {
     border-right: 1px solid black;
 }
-div.block_taskchain_navigation table.user-grade td.b1t,
-div.block_taskchain_navigation table.user-grade td.b2t,
-div.block_taskchain_navigation table.user-grade th.b1t,
-div.block_taskchain_navigation table.user-grade th.b2t {
+.block_taskchain_navigation table.user-grade td.b1t,
+.block_taskchain_navigation table.user-grade td.b2t,
+.block_taskchain_navigation table.user-grade th.b1t,
+.block_taskchain_navigation table.user-grade th.b2t {
     border-top: 1px solid black;
 }
 
@@ -379,15 +385,15 @@ ul.ungraded a {
 /**
  * override standard theme settings affecting group menu
  */
-div.block_taskchain_navigation table caption {
+.block_taskchain_navigation table caption {
     font-size: initial;
     line-height: initial;
     text-align: center;
 }
-div.block_taskchain_navigation form.group_form {
+.block_taskchain_navigation form.group_form {
     margin: 0px auto;
 }
-div.block_taskchain_navigation select {
+.block_taskchain_navigation select {
     margin-top: 0px;
     margin-bottom: 3px;
 }
@@ -395,7 +401,7 @@ div.block_taskchain_navigation select {
 /**
  * grade colors in taskchain_navigation block
  */
-div.block_taskchain_navigation tr td.last div {
+.block_taskchain_navigation tr td.last div {
     -webkit-border-radius: 4px; /* for Safari and Chrome */
     -moz-border-radius: 4px; /* for Firefox */
     -o-border-radius: 4px; /* when Opera Presto 2.3 or later is released */
@@ -404,72 +410,72 @@ div.block_taskchain_navigation tr td.last div {
     padding: 1px 2px;
 }
 
-div.block_taskchain_navigation tr td.last div:hover {
+.block_taskchain_navigation tr td.last div:hover {
 	color: #333333;
 }
 
-div.block_taskchain_navigation tr td.last div a,
-div.block_taskchain_navigation tr td.last div a:hover {
+.block_taskchain_navigation tr td.last div a,
+.block_taskchain_navigation tr td.last div a:hover {
 	color: inherit;
 }
 
-div.block_taskchain_navigation tr td.last div.highgrade {
+.block_taskchain_navigation tr td.last div.highgrade {
     background-color: #ccff99; /* gentle green */
 }
-div.block_taskchain_navigation tr td.last div.highgrade:hover {
+.block_taskchain_navigation tr td.last div.highgrade:hover {
 	background-color: #96ff2D; /* darker green */
 }
 
-div.block_taskchain_navigation tr td.last div.mediumgrade {
+.block_taskchain_navigation tr td.last div.mediumgrade {
     background-color: #ffcc66; /* gentle orange */
 }
-div.block_taskchain_navigation tr td.last div.mediumgrade:hover {
+.block_taskchain_navigation tr td.last div.mediumgrade:hover {
 	background-color: #ffad02; /* darker orange */
 }
 
-div.block_taskchain_navigation tr td.last div.lowgrade {
+.block_taskchain_navigation tr td.last div.lowgrade {
 	background-color: #ff7373; /* gentle red */
 }
-div.block_taskchain_navigation tr td.last div.lowgrade:hover {
+.block_taskchain_navigation tr td.last div.lowgrade:hover {
 	background-color: #ff4040; /* darker red */
 }
 
-div.block_taskchain_navigation tr td.last div.nograde {
+.block_taskchain_navigation tr td.last div.nograde {
 	background-color: #dddddd; /* grey */
 }
-div.block_taskchain_navigation tr td.last div.nograde:hover {
+.block_taskchain_navigation tr td.last div.nograde:hover {
 	background-color: #cccccc; /* darker grey */
 }
 
-div.block_taskchain_navigation form input.submitbutton {
+.block_taskchain_navigation form input.submitbutton {
     float: right;
     font-size: 0.9em;
 }
-div.block_taskchain_navigation form.hiddensectionsform select {
+.block_taskchain_navigation form.hiddensectionsform select {
     margin-right: 0px;
     padding-right: 0px;
     width:expression("150px"); /* IE */
 }
-div.block_taskchain_navigation form.hiddensectionsform div.hiddensectionscheckboxes {
+.block_taskchain_navigation form.hiddensectionsform div.hiddensectionscheckboxes {
     margin: 6px 2px 2px 6px;
     padding: 0px;
 }
-div.block_taskchain_navigation form.hiddensectionsform div.hiddensectionscheckboxes div {
+.block_taskchain_navigation form.hiddensectionsform div.hiddensectionscheckboxes div {
     text-indent: -18px;
     padding-left: 18px;
 }
-div.block_taskchain_navigation form.hiddensectionsform  span.allresetnone {
+.block_taskchain_navigation form.hiddensectionsform  span.allresetnone {
     float: left;
     font-size: 0.9em;
     white-space: nowrap;
 }
-div.block_taskchain_navigation form.currentsectionform select {
+.block_taskchain_navigation form.currentsectionform select {
     background-color: #ffd991; /* pale orange */
 }
-div.block_taskchain_navigation form.currentsectionform select option {
+.block_taskchain_navigation form.currentsectionform select option {
     background-color: #ffffff; /* white */
 }
-div.block_taskchain_navigation form.currentsectionform select option.currentsection {
+.block_taskchain_navigation form.currentsectionform select option.currentsection {
     background-color: #ffd991; /* pale orange */
 }
 
@@ -561,12 +567,12 @@ table.selectedactivitylist span.failure {
     color: #ff0000;
 }
 
-table.blockconfigtable td.itemvalue input.completionfield,
-table.blockconfigtable td.itemvalue select.completionfield {
+.blockconfigtable td.itemvalue input.completionfield,
+.blockconfigtable td.itemvalue select.completionfield {
     margin: 0px auto;
 }
 
-table.blockconfigtable td.itemvalue label span.modnames {
+.blockconfigtable td.itemvalue label span.modnames {
     display: inline-block;
     margin-bottom: 0px;
     margin-left: 1.0em;
@@ -574,11 +580,11 @@ table.blockconfigtable td.itemvalue label span.modnames {
     margin-top:    0px;
 }
 
-table.blockconfigtable td.itemname .allornone {
+.blockconfigtable td.itemname .allornone {
     font-size:    0.75em;
     margin-right: 0.75em;
 }
 
-table.blockconfigtable td .allornone span {
+.blockconfigtable td .allornone span {
     color: #0070a8;
 }

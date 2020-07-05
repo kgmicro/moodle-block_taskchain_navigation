@@ -31,9 +31,12 @@ $(document).ready(function(){
 
     // set URL of the first available help icon
     // this will be used to generate URLs for other images
-    var helpiconurl = $("img.iconhelp").first().prop("src");
-    if (helpiconurl=='') {
-        helpiconurl = wwwroot + "/pix/help.gif";
+    var helpiconurl = $("img.iconhelp");
+    if (helpiconurl.length) {
+        helpiconurl = helpiconurl.first().prop("src");
+    } else {
+        // Boost theme has no obvious image icons
+        helpiconurl = wwwroot + "/pix/help.svg";
     }
 
     // set all itemname cells to uniform width
