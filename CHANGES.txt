@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2020-07-17 (25)
+ - fix performance of get_numsections() on Moodle 2.4 - 3.3
+
 2020-07-05 (24)
  - adjust CSS for Boost theme
 

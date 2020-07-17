@@ -3131,8 +3131,27 @@ class block_taskchain_navigation extends block_base {
             return $course->numsections;
         }
         if (isset($course->format)) {
-            // Moodle >= 2.4
-            return course_get_format($course)->get_last_section_number();
+            $format = course_get_format($course);
+            if (method_exists($format, 'get_last_section_number')) {
+                // Moodle >= 3.4
+                return $format->get_last_section_number();
+            }
+            if (method_exists($format, 'get_format_options')) {
+                // Moodle >= 2.4
+                $options = $format->get_format_options();
+                if (isset($options['numsections'])) {
+                    return $options['numsections'];
+                }
+            }
+        }
+        // Last try - shouldn't be necessary.
+        if ($modinfo = get_fast_modinfo($course)) {
+            if ($sections = $modinfo->get_section_info_all()) {
+                if (is_array($sections) && count($sections)) {
+                    // The keys are section numbers.
+                    return max(array_keys($sections));
+                }
+            }
         }
         return 0; // shouldn't happen !!
     }
