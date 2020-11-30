@@ -1051,7 +1051,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 if ($item->is_category_item() && array_key_exists($item->iteminstance, $categories)) {
                     $name = $categories[$item->iteminstance]->get_name();
                 } else {
-                    $name = $item->get_name(true);
+                    // 2020-11-30: removed the TRUE flag for get_name()
+                    //   because it only affects grade categories and
+                    //   if a category grade item gets to this point then
+                    //   it is a faulty item whose category does not exist.
+                    //   (see /lib/grade/grade_item.php, around line 1425)
+                    $name = $item->get_name();
                 }
 
                 $char = get_grade_tree_char($depth, $i, $ids, $items, $categories, $chars);
