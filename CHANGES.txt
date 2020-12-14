@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2020-12-14 (27)
+ - increase date range to 2050, and allow more granular definition of minutes
+
 2020-10-30 (26)
  - handle faulty grade items grade category does not exist
 

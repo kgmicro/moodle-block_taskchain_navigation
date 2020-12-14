@@ -121,7 +121,7 @@ if (data_submitted()) {
 
 // set up date menus
 $years = array();
-for ($i=1970; $i<=2020; $i++) {
+for ($i=1970; $i<=2050; $i++) {
     $years[$i] = $i;
 }
 $months = array();
@@ -137,7 +137,7 @@ for ($i=0; $i<=23; $i++) {
     $hours[$i] = sprintf('%02d', $i);
 }
 $minutes = array();
-for ($i=0; $i<60; $i+=5) {
+for ($i=0; $i<60; $i+=1) {
     $minutes[$i] = sprintf('%02d', $i);
 }
 
