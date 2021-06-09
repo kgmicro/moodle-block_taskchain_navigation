@@ -3083,31 +3083,50 @@ class block_taskchain_navigation extends block_base {
      * @return string
      */
      static public function get_userfields($tableprefix='', array $extrafields=null, $idalias='id', $fieldprefix='') {
-        if (class_exists('user_picture')) {
-            // Moodle >= 2.6
-            return user_picture::fields($tableprefix, $extrafields, $idalias, $fieldprefix);
-        } else {
-            // Moodle <= 2.5
-            $fields = array('id', 'firstname', 'lastname', 'picture', 'imagealt', 'email');
-            if ($tableprefix || $extrafields || $idalias) {
-                if ($tableprefix) {
-                    $tableprefix .= '.';
-                }
-                if ($extrafields) {
-                    $fields = array_unique(array_merge($fields, $extrafields));
-                }
-                if ($idalias) {
-                    $idalias = " AS $idalias";
-                }
-                if ($fieldprefix) {
-                    $fieldprefix = " AS $fieldprefix";
-                }
-                foreach ($fields as $i => $field) {
-                    $fields[$i] = "$tableprefix$field".($field=='id' ? $idalias : ($fieldprefix=='' ? '' : "$fieldprefix$field"));
-                }
+
+        // Moodle >= 3.10 (see "user/classes/fields.php")
+        if (class_exists('\\core_user\\fields')) {
+            $fields = \core_user\fields::for_userpic();
+            if ($extrafields) {
+                // NOTE: "..." is the SPLAT operator and is available in PHP >= 5.6
+                // https://lornajane.net/posts/2014/php-5-6-and-the-splat-operator
+                $fields->including(...$extrafields);
             }
-            return implode(',', $fields); // 'u.id AS userid, u.username, u.firstname, u.lastname, u.picture, u.imagealt, u.email';
+            $fields = $fields->get_sql($tableprefix, false, $fieldprefix, $idalias, false)->selects;
+            if ($tableprefix === '') {
+                // If no table alias is specified, don't add {user}. in front of fields.
+                $fields = str_replace('{user}.', '', $fields);
+            }
+            // Maintain legacy behaviour where the field list was done with 'implode' and no spaces.
+            $fields = str_replace(', ', ',', $fields);
+            return $fields;
         }
+
+        // Moodle >= 2.6
+        if (class_exists('user_picture')) {
+            return user_picture::fields($tableprefix, $extrafields, $idalias, $fieldprefix);
+        }
+
+        // Moodle <= 2.5
+        $fields = array('id', 'firstname', 'lastname', 'picture', 'imagealt', 'email');
+        if ($tableprefix || $extrafields || $idalias) {
+            if ($tableprefix) {
+                $tableprefix .= '.';
+            }
+            if ($extrafields) {
+                $fields = array_unique(array_merge($fields, $extrafields));
+            }
+            if ($idalias) {
+                $idalias = " AS $idalias";
+            }
+            if ($fieldprefix) {
+                $fieldprefix = " AS $fieldprefix";
+            }
+            foreach ($fields as $i => $field) {
+                $fields[$i] = "$tableprefix$field".($field=='id' ? $idalias : ($fieldprefix=='' ? '' : "$fieldprefix$field"));
+            }
+        }
+        return implode(',', $fields); // 'u.id AS userid, u.username, u.firstname, u.lastname, u.picture, u.imagealt, u.email';
     }
 
     /**
