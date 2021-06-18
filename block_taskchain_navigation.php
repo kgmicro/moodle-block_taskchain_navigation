@@ -3090,7 +3090,10 @@ class block_taskchain_navigation extends block_base {
             if ($extrafields) {
                 // NOTE: "..." is the SPLAT operator and is available in PHP >= 5.6
                 // https://lornajane.net/posts/2014/php-5-6-and-the-splat-operator
-                $fields->including(...$extrafields);
+                // $fields->including(...$extrafields);
+                // However, the splat-operator produces a syntax error in PHP 5.4,
+                // and we don't use $extrafields anyway, so we stick with the old synxtax
+                $fields->including($extrafields);
             }
             $fields = $fields->get_sql($tableprefix, false, $fieldprefix, $idalias, false)->selects;
             if ($tableprefix === '') {
