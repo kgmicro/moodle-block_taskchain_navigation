@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2021-09-14 (20)
+ - modify markdown syntax for long help messages (for compatability with Moodle 3.11)
+
 2021-06-18 (29)
  - remove use of the splat-operator, because it causes a syntax error in PHP 5.4
 

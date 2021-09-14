@@ -39,11 +39,11 @@ $string['accesscontrol_help'] = 'This setting specifies whether or not to displa
 
 The "Access control" page is a web page that can be used to select course activities by section number, by activity type or by name, and then apply any of a number of common access control settings, such visibility and availability dates.
 
-**Yes**
-: a link to the access control page for this course will be displayed.
+**Yes**  
+&nbsp; a link to the access control page for this course will be displayed.
 
-**No**
-: a link to the access control page for this course will NOT be displayed.';
+**No**  
+&nbsp; a link to the access control page for this course will NOT be displayed.';
 $string['accesscontrolpage'] = 'Access control page';
 $string['accesscontrolsettings'] = 'Access control settings';
 $string['accesspagedescription'] = 'On this page you can update settings for multiple Moodle activities, including resources and labels.';
@@ -72,48 +72,48 @@ $string['availableuntil'] = 'Available until';
 $string['categorycollapse'] = 'Collapse single-child categories';
 $string['categorycollapse_help'] = 'This setting specifies how grade categories which contain activities from only one section will be displayed in this block.
 
-**No**
-: both the grade category name and the section title will be displayed in this block
+**No**  
+&nbsp; both the grade category name and the section title will be displayed in this block
 
-**Yes - display child name**
-: only the section title will be displayed in this block
+**Yes - display child name**  
+&nbsp; only the section title will be displayed in this block
 
-**Yes - display parent name**
-: only the grade category name will be displayed in this block';
+**Yes - display parent name**  
+&nbsp; only the grade category name will be displayed in this block';
 $string['categorygradeposition'] = 'Grade position';
 $string['categoryignorechars'] = 'Ignore these characters';
 $string['categoryignorechars_help'] = 'any characters specified here will be removed from the grade category names';
 $string['categoryprefixes'] = 'Grade category name prefixes';
 $string['categoryshortnames'] = 'Shorten category names';
-$string['categoryshortnames_help'] = '**Yes**
-: if the names of the child grade categories of a parent grade category share a common prefix with the name of the parent grade category, then the prefix will be removed from the names of the child grade categories
+$string['categoryshortnames_help'] = '**Yes**  
+&nbsp; if the names of the child grade categories of a parent grade category share a common prefix with the name of the parent grade category, then the prefix will be removed from the names of the child grade categories
 
-**No**
-: the full name of all child categories will always be displayed in this block';
+**No**  
+&nbsp; the full name of all child categories will always be displayed in this block';
 $string['categoryshowweighting'] = 'Show grade weighting';
-$string['categoryshowweighting_help'] = '**Yes**
-: the weighting of a grade category will be appended to its name
+$string['categoryshowweighting_help'] = '**Yes**  
+&nbsp; the weighting of a grade category will be appended to its name
 
-**No**
-: the weighting of a grade category will not be appended to its name';
+**No**  
+&nbsp; the weighting of a grade category will not be appended to its name';
 $string['categoryskipempty'] = 'Skip empty categories';
-$string['categoryskipempty_help'] = '**Yes**
-: empty grade categories will not be displayed in this block
+$string['categoryskipempty_help'] = '**Yes**  
+&nbsp; empty grade categories will not be displayed in this block
 
-**No**
-: grade categories will be displayed in this block even if they do not contain any activities';
+**No**  
+&nbsp; grade categories will be displayed in this block even if they do not contain any activities';
 $string['categoryskiphidden'] = 'Skip hidden categories';
-$string['categoryskiphidden_help'] = '**Yes**
-: hidden grade categories will not be displayed in this block
+$string['categoryskiphidden_help'] = '**Yes**  
+&nbsp; hidden grade categories will not be displayed in this block
 
-**No**
-: grade categories will be displayed in this block even if they are hidden';
+**No**  
+&nbsp; grade categories will be displayed in this block even if they are hidden';
 $string['categoryskipzeroweighted'] = 'Skip zero-weighted categories';
-$string['categoryskipzeroweighted_help'] = '**Yes**
-: grade categories with a weighting of zero will not be displayed in this block
+$string['categoryskipzeroweighted_help'] = '**Yes**  
+&nbsp; grade categories with a weighting of zero will not be displayed in this block
 
-**No**
-: grade categories will be displayed in this block even if their weighting is zero';
+**No**  
+&nbsp; grade categories will be displayed in this block even if their weighting is zero';
 $string['categorysuffixes'] = 'Grade category name suffixes';
 $string['checkboxes'] = 'Checkboxes';
 $string['completionattemptsexhausted_desc'] = 'Student must use all available quiz attempts';
@@ -138,23 +138,23 @@ $string['coursegradeposition_help'] = 'xxx';
 $string['coursenamefield'] = 'Name';
 $string['coursenamefield_help'] = 'This setting defines the string to be used as the name for the course grade category in this block. Note that this setting has no effect if "Course grade category: Show" is set to "No", or the "Minimum category depth" is greater than zero.
 
-**Short name**
-: The course\'s short name will be used as the name for the course grade category in this block.
+**Short name**  
+&nbsp; The course\'s short name will be used as the name for the course grade category in this block.
 
-**Full name**
-: The course\'s full name will be used as the name for the course grade category in this block.
+**Full name**  
+&nbsp; The course\'s full name will be used as the name for the course grade category in this block.
 
-**Grade**
-: The "currentgrade" string, which is in the grades language pack, will be used as the name for the course grade category for this block.
+**Grade**  
+&nbsp; The "currentgrade" string, which is in the grades language pack, will be used as the name for the course grade category for this block.
 
-**Your Grade**
-: The "yourgrade" string, which is in the grades language pack, will be used as the name for the course grade category for this block.
+**Your Grade**  
+&nbsp; The "yourgrade" string, which is in the grades language pack, will be used as the name for the course grade category for this block.
 
-**Course grade**
-: The "coursegrade" string, which is in the language pack for this block, will be used as the name for the course grade category for this block.
+**Course grade**  
+&nbsp; The "coursegrade" string, which is in the language pack for this block, will be used as the name for the course grade category for this block.
 
-**Current grade**
-: The "currentgrade" string, which is in the language pack for this block, will be used as the name for the course grade category for this block.';
+**Current grade**  
+&nbsp; The "currentgrade" string, which is in the language pack for this block, will be used as the name for the course grade category for this block.';
 $string['coursepageshortcuts'] = 'Course page shortcuts';
 $string['coursesections'] = 'Course sections';
 $string['courseuploadlimit'] = 'Course upload limit';
@@ -186,50 +186,50 @@ $string['externalcss'] = 'Custom stylesheet URL';
 $string['externalcss_help'] = 'This setting, if specified, is the absolute URL of a stylesheet that is to be used when displaying this block';
 $string['firstsection'] = 'First';
 $string['gradebooklink'] = 'Link to grade book';
-$string['gradebooklink_help'] = '**Yes**
-: a link directly to the grade book will be displayed in this block
+$string['gradebooklink_help'] = '**Yes**  
+&nbsp; a link directly to the grade book will be displayed in this block
 
-**No**
-: a link to the grade book will not be displayed in this block';
+**No**  
+&nbsp; a link to the grade book will not be displayed in this block';
 $string['gradecategorynames'] = 'Grade category names';
 $string['gradedisplay'] = 'Grade display';
 $string['gradedisplay_help'] = 'xxx';
 $string['gradeexplanation'] = 'Settings for individual student grades in the gradebook.';
 $string['gradeitemhidden'] = 'Hide grade item';
 $string['groupscountusers'] = 'Count group members';
-$string['groupscountusers_help'] = '**Yes**
-: The group menu will show how many members are in each group.
+$string['groupscountusers_help'] = '**Yes**  
+&nbsp; The group menu will show how many members are in each group.
 
-**No**
-: The group menu will show only the names of groups in this course.';
+**No**  
+&nbsp; The group menu will show only the names of groups in this course.';
 $string['groupslabel'] = 'Show group menu label';
-$string['groupslabel_help'] = '**Yes**
-: If the group menu is displayed, it will appear with a label saying "Group"
+$string['groupslabel_help'] = '**Yes**  
+&nbsp; If the group menu is displayed, it will appear with a label saying "Group"
 
-**No**
-: The group menu label will not be displayed.';
+**No**  
+&nbsp; The group menu label will not be displayed.';
 $string['groupsmenu'] = 'Show group menu';
-$string['groupsmenu_help'] = '**Yes**
-: If averages are enabled on this block, the teacher can choose to show scores for students in a specific group in this course.
+$string['groupsmenu_help'] = '**Yes**  
+&nbsp; If averages are enabled on this block, the teacher can choose to show scores for students in a specific group in this course.
 
-**No**
-: No list of groups will be displayed to any user.A "teacher" is considered to be someone who has the "moodle/grade:viewall" capability in the course where this block is displayed.
+**No**  
+&nbsp; No list of groups will be displayed to any user.A "teacher" is considered to be someone who has the "moodle/grade:viewall" capability in the course where this block is displayed.
 
 If the course is using "separate groups" and the user is a non-editing teacher assigned to a specific group, he or she can only see groups to which he or she belongs.
 
 If the course is not using groups, or it is using visible groups, or if the user is a teacher or other user who has the "moodle/site:accessallgroups" capability in this course, the full list of groups will be displayed.';
 $string['groupssort'] = 'Sort groups menu';
-$string['groupssort_help'] = '**Name**
-: The list of groups will be sorted by group name.
+$string['groupssort_help'] = '**Name**  
+&nbsp; The list of groups will be sorted by group name.
 
-**ID number**
-: The list of groups will be sorted by group ID number.
+**ID number**  
+&nbsp; The list of groups will be sorted by group ID number.
 
-**Date and time created**
-: The list of groups will sorted by the date and time that each group was created.
+**Date and time created**  
+&nbsp; The list of groups will sorted by the date and time that each group was created.
 
-**Date and time modified**
-: The list of groups will sorted by the date and time that each group was last modified.';
+**Date and time modified**  
+&nbsp; The list of groups will sorted by the date and time that each group was last modified.';
 $string['head'] = 'Head';
 $string['hiddensections'] = 'Hidden sections';
 $string['hiddensections_help'] = 'If this setting is set to "Yes", then this block will display a list of course sections that allows a teacher to select which sections are visible and which are hidden.
@@ -242,11 +242,11 @@ $string['ignore'] = 'Ignore';
 $string['ignorecase'] = 'Ignore upper/lower case';
 $string['ignorecase_help'] = 'When comparing the prefixes and suffixes of section titles, this setting specifies whether to ignore or detect differences between upper and lowercase letters.
 
-**Yes**
-: differences between upper and lowercase letters will be ignored
+**Yes**  
+&nbsp; differences between upper and lowercase letters will be ignored
 
-**No**
-: differences between upper and lowercase letters will be detected';
+**No**  
+&nbsp; differences between upper and lowercase letters will be detected';
 $string['importsettings'] = 'Import settings';
 $string['importsettings_help'] = 'This link takes you to a screen where you can import configuration settings from a TaskChain navigation block configuration settings file.
 
@@ -262,23 +262,23 @@ $string['invalidimportfile'] = 'Import file was missing, empty or invalid';
 $string['invalidinstanceid'] = 'Invalid block instance id: id = {$a}';
 $string['lastsection'] = 'Last';
 $string['loginasmenu'] = 'Show login-as menu';
-$string['loginasmenu_help'] = '**Yes**
-: A list of student names will displayed, allowing teachers to easily select and login as any student in the course.
+$string['loginasmenu_help'] = '**Yes**  
+&nbsp; A list of student names will displayed, allowing teachers to easily select and login as any student in the course.
 
-**No**
-: The login-as menu will not be displayed.';
+**No**  
+&nbsp; The login-as menu will not be displayed.';
 $string['loginassort'] = 'Sort login-as menu';
-$string['loginassort_help'] = '**First name**
-: The list of students will be sorted by first name.
+$string['loginassort_help'] = '**First name**  
+&nbsp; The list of students will be sorted by first name.
 
-**Surname**
-: The list of students will be sorted by surname (i.e. last name).
+**Surname**  
+&nbsp; The list of students will be sorted by surname (i.e. last name).
 
-**Username**
-: The list of students will be sorted by Moodle username.
+**Username**  
+&nbsp; The list of students will be sorted by Moodle username.
 
-**ID number**
-: The list of students will be sorted by ID number. Note, that this is the ID number as it appears on the user profile, not the "id" field in the user table of the Moodle database';
+**ID number**  
+&nbsp; The list of students will be sorted by ID number. Note, that this is the ID number as it appears on the user profile, not the "id" field in the user table of the Moodle database';
 $string['long'] = 'Long';
 $string['lowgrade'] = 'Minimum low grade';
 $string['lowgrade_help'] = 'The lower limit for grades that will be will be treated as a low grade and will be displayed with a red background.';
@@ -296,20 +296,20 @@ then the course grade category, whose depth is zero, will be shown regardless of
 $string['moodlecss'] = 'Standard Moodle styles';
 $string['moodlecss_help'] = 'This setting specifies which of the standard Moodle stylesheets should be used when displaying this block.
 
-**None**
-: no standard Moodle stylesheet will be used
+**None**  
+&nbsp; no standard Moodle stylesheet will be used
 
-**Gradebook setup (Moodle 3.0 and later)**
-: the stylesheet for the "Gradebook setup" page in the gradebook for Moodle 3.0 and later will be used
+**Gradebook setup (Moodle 3.0 and later)**  
+&nbsp; the stylesheet for the "Gradebook setup" page in the gradebook for Moodle 3.0 and later will be used
 
-**Categories and items (Moodle 2.8 and 2.9)**
-: the stylesheet for the "Categories and items" page in the gradebook for Moodle 2.8 and 2.9 will be used
+**Categories and items (Moodle 2.8 and 2.9)**  
+&nbsp; the stylesheet for the "Categories and items" page in the gradebook for Moodle 2.8 and 2.9 will be used
 
-**Simple view (Moodle 2.7 and earlier)**
-: the stylesheet for the "Simple view" in the gradebook for Moodle 2.7 and earlier will be used
+**Simple view (Moodle 2.7 and earlier)**  
+&nbsp; the stylesheet for the "Simple view" in the gradebook for Moodle 2.7 and earlier will be used
 
-**User report**
-: the stylesheet for the "User report" in the Moodle grade book will be used';
+**User report**  
+&nbsp; the stylesheet for the "User report" in the Moodle grade book will be used';
 $string['multiselect'] = 'Multi-select menu';
 $string['mycourses'] = 'My courses';
 $string['mycourses_help'] = 'On this list you can specify other courses to which you wish to copy this block\'s settings. The list only includes courses where you are a teacher and which already have a TaskChain navigation block.';
@@ -327,22 +327,22 @@ $string['pluginuploadlimits'] = 'Plugin upload limits';
 $string['prefixchars'] = 'Prefix delimiters';
 $string['prefixchars_help'] = 'If any characters are specified here, they will be used to detect the end of the prefix.
 
-: For a "short" prefix, the prefix ends at the **first** of these characters that is detected.
-: For a "long" prefix, the prefix ends at the **last** of these characters that is detected.';
+&nbsp; For a "short" prefix, the prefix ends at the **first** of these characters that is detected.
+&nbsp; For a "long" prefix, the prefix ends at the **last** of these characters that is detected.';
 $string['prefixkeep'] = 'Keep or remove prefix';
-$string['prefixkeep_help'] = '**Remove**
-: the prefix will be removed and the rest of the name or title will be kept
+$string['prefixkeep_help'] = '**Remove**  
+&nbsp; the prefix will be removed and the rest of the name or title will be kept
 
-**Keep**
-: the prefix will be kept and the rest of the name or title will be removed';
+**Keep**  
+&nbsp; the prefix will be kept and the rest of the name or title will be removed';
 $string['prefixlength'] = 'Fixed prefix length';
 $string['prefixlength_help'] = 'This setting specifies the number of characters in a fixed-length prefix.';
 $string['prefixlong'] = 'Long or short prefix';
-$string['prefixlong_help'] = '**Short**
-: the shortest possible prefix will be used
+$string['prefixlong_help'] = '**Short**  
+&nbsp; the shortest possible prefix will be used
 
-**Long**
-: the longest prefix will be used';
+**Long**  
+&nbsp; the longest prefix will be used';
 $string['previousanycourse'] = 'Previous activity, of any type, in this course';
 $string['previousanysection'] = 'Previous activity, of any type, in this section';
 $string['previoussamecourse'] = 'Previous activity, of the same type, in this course';
@@ -366,84 +366,84 @@ $string['sectionignorechars_help'] = 'any characters specified here will be remo
 $string['sectionjumpmenu'] = 'Display section jump menu';
 $string['sectionjumpmenu_help'] = 'This setting specifies whether or not to display the menu allowing students to jump between sections on the course page.
 
-**Yes**
-: the jump will be displayed on the course page
+**Yes**  
+&nbsp; the jump will be displayed on the course page
 
-**No**
-: the jump menu on the course page will be hidden';
+**No**  
+&nbsp; the jump menu on the course page will be hidden';
 $string['sectionnumber'] = 'Section number';
 $string['sectionnumbers'] = 'Display section numbers';
 $string['sectionnumbers_help'] = 'This setting specifies whether or not to display section numbers on left hand side of each section displayed on the course page.
 
-**Yes**
-: the section numbers will be displayed on the course page
+**Yes**  
+&nbsp; the section numbers will be displayed on the course page
 
-**No**
-: the section numbers on the course page will be hiddenIf the course is using a format, such as the weekly course format, that does not show section numbers, then this setting will have no effect.';
+**No**  
+&nbsp; the section numbers on the course page will be hiddenIf the course is using a format, such as the weekly course format, that does not show section numbers, then this setting will have no effect.';
 $string['sectionnumbertext'] = 'Section number and text';
 $string['sectionprefixes'] = 'Section title prefixes';
 $string['sections'] = 'Sections';
 $string['sectionshorttitles'] = 'Shorten section titles';
-$string['sectionshorttitles_help'] = '**Yes**
-: if the titles of the sections within a grade category share a common prefix with the name of the grade category, then the prefix will be removed from the titles of those sections
+$string['sectionshorttitles_help'] = '**Yes**  
+&nbsp; if the titles of the sections within a grade category share a common prefix with the name of the grade category, then the prefix will be removed from the titles of those sections
 
-**No**
-: the full title of all sections will always be displayed in this block';
+**No**  
+&nbsp; the full title of all sections will always be displayed in this block';
 $string['sectionshowburied'] = 'Buried sections';
 $string['sectionshowburied_help'] = 'A "buried" section is one that contains only activities in grade categories that are below the maximum grade category to be displayed in this block. Ordinarily,
 this block would not display links to such sections, but you can force the links to be displayed by promoting then to higher grade categories using this setting.
 
-**Hide**
-: buried sections will not be displayed in this block
+**Hide**  
+&nbsp; buried sections will not be displayed in this block
 
-**Promote to visible grade category**
-: buried sections will be promoted to the nearest visible grade category';
+**Promote to visible grade category**  
+&nbsp; buried sections will be promoted to the nearest visible grade category';
 $string['sectionshowhidden'] = 'Hidden sections';
-$string['sectionshowhidden_help'] = '**Hide**
-: hidden sections will not be displayed in this block
+$string['sectionshowhidden_help'] = '**Hide**  
+&nbsp; hidden sections will not be displayed in this block
 
-**Show (with link)**
-: links to hidden sections will be displayed in this block
+**Show (with link)**  
+&nbsp; links to hidden sections will be displayed in this block
 
-**Show (without link)**
-: students viewing this block will see the names of hidden sections without a link to the section';
+**Show (without link)**  
+&nbsp; students viewing this block will see the names of hidden sections without a link to the section';
 $string['sectionshowuncategorized'] = 'Uncategorized sections';
 $string['sectionshowuncategorized_help'] = 'An "uncategorized" section is one that contains activities that are not in any of the main grade categories for this course.
 
-**Show above main grade categories**
-: links to uncategorized sections will be displayed above the first main grade category for this course
+**Show above main grade categories**  
+&nbsp; links to uncategorized sections will be displayed above the first main grade category for this course
 
-**Show below main grade categories**
-: links to uncategorized sections will be displayed below the last main grade category for this course';
+**Show below main grade categories**  
+&nbsp; links to uncategorized sections will be displayed below the last main grade category for this course';
 $string['sectionshowungraded'] = 'Ungraded sections';
 $string['sectionshowungraded_help'] = 'A "ungraded" section is one that contains no activities that appear in the Moodle gradebook.
 This includes empty sections, as well as sections that contain only a mixture of labels, resources and ungraded activities such as ungraded glossaries and forums. Ordinarily, this block would not display links to such sections, but you can force the links to be displayed using this setting.
 
-**Hide**
-: ungraded sections will not be displayed in this block
+**Hide**  
+&nbsp; ungraded sections will not be displayed in this block
 
-**Show if activities exist**
-: links to ungraded sections that contain at least one activity will be displayed in this block
+**Show if activities exist**  
+&nbsp; links to ungraded sections that contain at least one activity will be displayed in this block
 
-**Show if activities or resources exist**
-: links to ungraded sections that contain at least one activity or resource will be displayed in this block
+**Show if activities or resources exist**  
+&nbsp; links to ungraded sections that contain at least one activity or resource will be displayed in this block
 
-**Show if activities, resources or labels exist**
-: links to ungraded sections that contain at least one activity, resource or label will be displayed in this block
+**Show if activities, resources or labels exist**  
+&nbsp; links to ungraded sections that contain at least one activity, resource or label will be displayed in this block
 
-**Show even if no activities, resources or labels exist**
-: links to ungraded sections will always be shown even if they are empty';
+**Show even if no activities, resources or labels exist**  
+&nbsp; links to ungraded sections will always be shown even if they are empty';
 $string['sectionshowzeroweighted'] = 'Zero-weighted sections';
 $string['sectionshowzeroweighted_help'] = 'A "zero-weighted" section is one that contains only activities whose weighting is zero.
 
-**Hide**
-: links to zero-weighted sections will not be displayed
+**Hide**  
+&nbsp; links to zero-weighted sections will not be displayed
 
-**Show**
-: links to zero-weighted sections will be displayed
+**Show**  
+&nbsp; links to zero-weighted sections will be displayed
 
-**Merge with ungraded sections**
-: zero-weighted sections will be merged into the list of ungraded sections that appears under the main grade categories';
+**Merge with ungraded sections**  
+&nbsp; zero-weighted sections will be merged into the list of ungraded sections that appears under the main grade categories';
 $string['sectionsuffixes'] = 'Section title suffixes';
 $string['sectiontags'] = 'Section tags';
 $string['sectiontext'] = 'Section text';
@@ -491,11 +491,11 @@ $string['showabovemaingradecategories'] = 'Show above main grade categories';
 $string['showactivitygrades'] = 'Show activity grades';
 $string['showactivitygrades_help'] = 'The grades of any activity types selected here will be displayed next to the activities that appear in the main content of the Moodle course page.';
 $string['showaverages'] = 'Show averages to teachers';
-$string['showaverages_help'] = '**Yes**
-: on a teacher\'s course page, this block will display, for each grade category, the average grade for students in the class and the number of students who have attempted activities in the grade category.
+$string['showaverages_help'] = '**Yes**  
+&nbsp; on a teacher\'s course page, this block will display, for each grade category, the average grade for students in the class and the number of students who have attempted activities in the grade category.
 
-**No**
-: this block will always display only the grades of the current user, even if the current user is a teacherA "teacher" is considered to be someone who has the "moodle/grade:viewall"
+**No**  
+&nbsp; this block will always display only the grades of the current user, even if the current user is a teacherA "teacher" is considered to be someone who has the "moodle/grade:viewall"
 capability in the course where this block is displayed.
 
 This block is aware of groups, so if the course is using "separate groups"
@@ -506,21 +506,21 @@ capability in this course, will see the average grade for all students enrolled 
 regardless of the group settings.';
 $string['showbelowmaingradecategories'] = 'Show below main grade categories';
 $string['showcourse'] = 'Show course category';
-$string['showcourse_help'] = '**Yes**
-: the course grade category will be displayed in this block, even if the minimum grade category depth is greater than zero.
+$string['showcourse_help'] = '**Yes**  
+&nbsp; the course grade category will be displayed in this block, even if the minimum grade category depth is greater than zero.
 
-**No**
-: the course grade category will only be shown in this block if the minimum grade category depth is set to "None"';
+**No**  
+&nbsp; the course grade category will only be shown in this block if the minimum grade category depth is set to "None"';
 $string['showgradedetails'] = 'Show grade details';
 $string['showlabels'] = 'Show labels';
 $string['showwithlink'] = 'Show (with link)';
 $string['showwithoutlink'] = 'Show (without link)';
 $string['singlesection'] = 'Display only one section';
-$string['singlesection_help'] = '**Yes**
-: users will be forced to view only one section of the course at a time
+$string['singlesection_help'] = '**Yes**  
+&nbsp; users will be forced to view only one section of the course at a time
 
-**No**
-: users will be allowed to expand the course to view all sections if they want to';
+**No**  
+&nbsp; users will be allowed to expand the course to view all sections if they want to';
 $string['siteuploadlimit'] = 'Site upload limit';
 $string['specificactivitytypes'] = 'Specific activity types';
 $string['specifictext'] = 'Specific text';
@@ -545,19 +545,19 @@ $string['suffixchars_help'] = 'If any characters are specified here, they will b
 For a "short" suffix, the suffix starts at the **last** of these characters that is detected.
 For a "long" suffix, the suffix starts at the **first** of these characters that is detected.';
 $string['suffixkeep'] = 'Keep or remove suffix';
-$string['suffixkeep_help'] = '**Remove**
-: the suffix will be removed and the rest of the name or title will be kept
+$string['suffixkeep_help'] = '**Remove**  
+&nbsp; the suffix will be removed and the rest of the name or title will be kept
 
-**Keep**
-: the suffix will be kept and the rest of the name or title will be removed';
+**Keep**  
+&nbsp; the suffix will be kept and the rest of the name or title will be removed';
 $string['suffixlength'] = 'Fixed suffix length';
 $string['suffixlength_help'] = 'This setting specifies the number of characters in a fixed-length suffix.';
 $string['suffixlong'] = 'Long or short suffix';
-$string['suffixlong_help'] = '**Short**
-: the shortest possible suffix will be used
+$string['suffixlong_help'] = '**Short**  
+&nbsp; the shortest possible suffix will be used
 
-**Long**
-: the longest suffix will be used';
+**Long**  
+&nbsp; the longest suffix will be used';
 $string['tail'] = 'Tail';
 $string['timecreated'] = 'Date and time created';
 $string['timemodified'] = 'Date and time modified';
