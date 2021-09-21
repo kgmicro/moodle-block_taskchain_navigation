@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2021-09-21 (21)
+ - fix code that add checkboxes to allow settings to be copied to similar blocks in other courses
+
 2021-09-14 (20)
  - modify markdown syntax for long help messages (for compatability with Moodle 3.11)
 

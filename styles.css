@@ -26,6 +26,18 @@
  * @since      Moodle 2.0
  */
 
+/*
+ * styles for block settings edit form
+ */
+
+#block_taskchain_navigation_edit_form {
+    max-width: 1000px;
+}
+
+/*
+ * styles for the taskchain_navigation block
+ */
+ 
 #page-blocks-taskchain_navigation-accesscontrol .blockconfigtable th.blockconfigmenu {
     text-align: left;
     background-color: #eeeeee;
