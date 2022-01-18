@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-01-18 (22)
+ - add new setting to allow section number of to prepended to names of single-section categories
+
 2021-09-21 (21)
  - fix code that add checkboxes to allow settings to be copied to similar blocks in other courses
 

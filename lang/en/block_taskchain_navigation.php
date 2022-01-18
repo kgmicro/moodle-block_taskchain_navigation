@@ -84,6 +84,12 @@ $string['categorygradeposition'] = 'Grade position';
 $string['categoryignorechars'] = 'Ignore these characters';
 $string['categoryignorechars_help'] = 'any characters specified here will be removed from the grade category names';
 $string['categoryprefixes'] = 'Grade category name prefixes';
+$string['categorysectionnum'] = 'Prepend section number';
+$string['categorysectionnum_help'] = '**Yes**  
+&nbsp; the section number will be prepended to the name of any grade categories whose activities are all in a single section of the course
+
+**No**  
+&nbsp; section numbers will not be added to any category names';
 $string['categoryshortnames'] = 'Shorten category names';
 $string['categoryshortnames_help'] = '**Yes**  
 &nbsp; if the names of the child grade categories of a parent grade category share a common prefix with the name of the parent grade category, then the prefix will be removed from the names of the child grade categories

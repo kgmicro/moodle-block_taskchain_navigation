@@ -213,6 +213,13 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, $name, $plugin);
 
+        $name = 'categorysectionnum';
+        $config_name = 'config_'.$name;
+        $mform->addElement('selectyesno', $config_name, get_string($name, $plugin));
+        $mform->setType($config_name, PARAM_TEXT);
+        $mform->setDefault($config_name, $this->defaultvalue($name));
+        $mform->addHelpButton($config_name, $name, $plugin);
+
         $name = 'categoryignorechars';
         $config_name = 'config_'.$name;
         $mform->addElement('text', $config_name, get_string($name, $plugin), array('size' => 10));

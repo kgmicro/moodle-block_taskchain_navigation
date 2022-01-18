@@ -103,6 +103,7 @@ class block_taskchain_navigation extends block_base {
 
             'categoryshortnames'   => 0,
             'categoryshowweighting' => 0,
+            'categorysectionnum'   => 0,
             'categoryignorechars'  => '',
 
             'categoryprefixlength' => 0, // fixed length prefix
@@ -658,7 +659,7 @@ class block_taskchain_navigation extends block_base {
                         if ($this->config->categoryshowweighting && $show_category) {
                             $items[$id]->fullname = preg_replace('/\s*[0-9]+%$/', '', $items[$id]->fullname);
                             if ($items[$parentid]->aggregation==GRADE_AGGREGATE_WEIGHTED_MEAN) {
-                                $items[$id]->fullname .= ' '.$this->fix_precision($weighting * 100).'%';
+                                $items[$id]->fullname .= ' '.$this->fix_precision($weighting).'%';
                             }
                         }
 
@@ -1608,6 +1609,9 @@ class block_taskchain_navigation extends block_base {
                             $categoryname = $this->get_section_text($sectioninfo, $sectionnum);
                         } else {
                             $categoryname = $this->get_section_link($sectioninfo, $sectionnum, $categoryname);
+                        }
+                        if ($this->config->categorysectionnum) {
+                            $categoryname = "$sectionnum. $categoryname";
                         }
                         $categoryhref = $sectioninfo[$sectionnum]->href;
                     }
