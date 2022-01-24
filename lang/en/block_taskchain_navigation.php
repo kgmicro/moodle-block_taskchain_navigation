@@ -182,6 +182,12 @@ setting is "Yes"
 
 If the "Display only one section" setting is "No", then this setting has no effect.';
 $string['defaulttitle'] = 'TaskChain Navigation';
+$string['editsettings'] = 'Link to edit settings';
+$string['editsettings_help'] = '**Yes**  
+&nbsp; a link directly to the settings page for this block will be displayed to teachers and administrators, even when the course page is not in edit mode.
+
+**No**  
+&nbsp; a link to the settings page for this block will not be displayed';
 $string['endofsection'] = 'End of section';
 $string['erasecompletion'] = 'Erase data';
 $string['erasecompletion_help'] = 'All completion data on selected activities will be erased';

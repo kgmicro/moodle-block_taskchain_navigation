@@ -624,6 +624,13 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $this->add_header($mform, $plugin, 'coursepageshortcuts');
         //-----------------------------------------------------------------------------
 
+        $name = 'editsettings';
+        $config_name = 'config_'.$name;
+        $mform->addElement('selectyesno', $config_name, get_string($name, $plugin));
+        $mform->setType($config_name, PARAM_INT);
+        $mform->setDefault($config_name, $this->defaultvalue($name));
+        $mform->addHelpButton($config_name, $name, $plugin);
+
         $name = 'accesscontrol';
         $config_name = 'config_'.$name;
         $mform->addElement('selectyesno', $config_name, get_string($name, $plugin));
@@ -1147,10 +1154,27 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
     }
 
     protected function create_linebreak($mform) {
-        // Most themes use flex layout, so the only way to force a newline
-        // is to insert a DIV that is fullwidth and minimal height.
-        $params = array('style' => 'width: 100%; height: 4px;');
-        $linebreak = html_writer::tag('div', '', $params);
+        global $CFG;
+
+        static $bootstrap =  null;
+        if ($bootstrap === null) {
+            if (file_exists($CFG->dirroot.'/theme/bootstrapbase')) {
+                $bootstrap = 3; // Moodle >= 2.5 (until 3.6)
+            } else if (file_exists($CFG->dirroot.'/theme/boost')) {
+                $bootstrap = 4; // Moodle >= 3.2
+            } else {
+                $bootstrap = 0;
+            }
+        }
+
+        if ($bootstrap) {
+            // Most modern themes use flex layout, so the only way to force a newline
+            // is to insert a DIV that is fullwidth and minimal height.
+            $params = array('style' => 'width: 100%; height: 4px;');
+            $linebreak = html_writer::tag('div', '', $params);
+        } else {
+            $linebreak = html_writer::empty_tag('br');
+        }
         return $mform->createElement('static', '', '', $linebreak);
     }
 }

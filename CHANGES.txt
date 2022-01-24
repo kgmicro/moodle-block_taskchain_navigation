@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-01-24 (23)
+ - add new setting to offer link directly to edit page, regardless of course page edit more
+
 2022-01-18 (22)
  - add new setting to allow section number of to prepended to names of single-section categories
 

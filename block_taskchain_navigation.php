@@ -151,8 +151,9 @@ class block_taskchain_navigation extends block_base {
             'arrowup'         => '', // previous section
             'arrowdown'       => '', // next section
 
-            'gradebooklink'   => 0, // 0=hide, 1=show
+            'editsettings'    => 0, // 0=hide, 1=show
             'accesscontrol'   => 0, // 0=hide, 1=show
+            'gradebooklink'   => 0, // 0=hide, 1=show
             'hiddensections'  => 0, // 0=hide, 1=show
             'hiddensectionstitle' => 0, // 0=number, 1=text, 2=number and text
             'hiddensectionsstyle' => 0, // 0=checkboxes, 1=multi-select
@@ -1302,7 +1303,7 @@ class block_taskchain_navigation extends block_base {
      * @return xxx
      */
     function format_shortcuts($sectioninfo, $modinfo, $depths) {
-        global $COURSE, $USER;
+        global $COURSE, $PAGE, $USER;
 
         $sections = self::get_section_info_all($modinfo);
 
@@ -1324,6 +1325,17 @@ class block_taskchain_navigation extends block_base {
             if ($this->config->accesscontrol) {
                 $href = new moodle_url('/blocks/taskchain_navigation/accesscontrol.php', array('id' => $this->instance->id));
                 $rows[] = '<a href="'.$href.'">'.get_string('accesscontrolpage', 'block_taskchain_navigation').'</a>';
+            }
+            if ($this->config->editsettings && $PAGE->user_can_edit_blocks()) { // user_allowed_editing
+                $params = array('id' => $COURSE->id, 'bui_editid' => $this->instance->id);
+                $href = new moodle_url('/course/view.php', $params);
+                if (empty($USER->editing)) {
+                    // Edit mode is currently off, so we need to switch it on and redirect.
+                    $href = $href->out_as_local_url(false);
+                    $params = array('id' => $COURSE->id, 'edit' => 1, 'sesskey' => sesskey(), 'return' => $href);
+                    $href = new moodle_url('/course/view.php', $params);
+                }
+                $rows[] = '<a href="'.$href.'">'.get_string('editsettings', 'moodle').'</a>';
             }
             if ($this->config->hiddensections) {
                 $content = ''
@@ -1481,7 +1493,7 @@ class block_taskchain_navigation extends block_base {
             }
         }
         if (count($rows)) {
-            $colspan = count($depths) + 2;
+            $colspan = count($depths) + 3;
             $td = '<td colspan="'.$colspan.'" style="padding-left: 6px; padding-right: 2px;">';
             $this->content->text .= '<tr>'.$td.implode('</td></tr><tr>'.$td, $rows).'</td></tr>'."\n";
         }
