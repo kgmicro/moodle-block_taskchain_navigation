@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-02-02 (24)
+ - modify Bootstrap classes so that item select boxes are also shown on small screens
+
 2022-01-24 (23)
  - add new setting to offer link directly to edit page, regardless of course page edit more
 

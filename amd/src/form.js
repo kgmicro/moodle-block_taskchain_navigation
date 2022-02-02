@@ -51,6 +51,12 @@ define(["core/str"], function(STR) {
             JS.str.exportsettings = s[i++];
             JS.str.importsettings = s[i++];
 
+            // less than the "md" size
+            // sm: for tablets - screens equal to or greater than 768px wide
+            // md: for small laptops - screens equal to or greater than 992px wide
+            var viewportwidth = Math.max(document.documentElement.clientWidth, (window.innerWidth || 0));
+            var smallviewport = (viewportwidth < 992);
+
             var elm = document.querySelector("select[name^=config_mycourses]");
             if (elm) {
                 var fieldsets = "#id_title, #id_coursegradecategory, "
@@ -59,7 +65,7 @@ define(["core/str"], function(STR) {
                               + "#id_sections, #id_sectiontitles, "
                               + "#id_sectionprefixes, #id_sectionsuffixes, "
                               + "#id_groups, #id_grades, "
-                              + "#coursesections, #id_coursepageshortcuts, "
+                              + "#id_coursesections, #id_coursepageshortcuts, "
                               + "#id_styles, #id_applyselectedvalues";
                 document.querySelectorAll(fieldsets).forEach(function(fieldset){
                     fieldset.querySelectorAll(".row.fitem .col-md-9").forEach(function(elm, i){
@@ -75,10 +81,14 @@ define(["core/str"], function(STR) {
 
                         if (name == "description") {
                             elm.classList.remove("col-md-9");
-                            elm.classList.add("col-md-7");
+                            elm.classList.add("col-7");
+                            //elm.classList.add("bg-light");
+                            //elm.classList.add("border-top");
+                            //elm.classList.add("border-bottom");
 
-                            div.classList.add("d-none");
-                            div.classList.add("d-md-block");
+                            //div.classList.add("d-none");
+                            //div.classList.add("d-md-block");
+                            div.classList.add("col-5");
                             div.classList.add("col-md-2");
                             div.classList.add("px-0");
                             div.classList.add("text-right");
@@ -111,7 +121,7 @@ define(["core/str"], function(STR) {
 
                             node = document.createElement("DIV");
                             node.classList.add("bg-secondary");
-                            if (i == 0) {
+                            if (i == 0 || smallviewport) {
                                 node.classList.add("border-top");
                             }
                             node.classList.add("border-bottom");
@@ -128,17 +138,21 @@ define(["core/str"], function(STR) {
                             div.appendChild(node);
                         } else {
                             elm.classList.remove("col-md-9");
+                            elm.classList.add("col-10");
                             elm.classList.add("col-md-8");
 
-                            div.classList.add("d-none");
-                            div.classList.add("d-md-block");
+                            //div.classList.add("d-none");
+                            //div.classList.add("d-md-block");
+                            div.classList.add("col-2");
                             div.classList.add("col-md-1");
                             div.classList.add("bg-secondary");
-                            if (i == 0) {
+                            if (i == 0 || smallviewport) {
                                 div.classList.add("border-top");
                             }
                             div.classList.add("border-bottom");
                             div.classList.add("border-dark");
+                            div.classList.add("px-0");
+                            div.classList.add("py-1");
                             div.classList.add("text-center");
                             div.classList.add("itemselect");
 
