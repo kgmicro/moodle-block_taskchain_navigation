@@ -129,7 +129,11 @@ define(["core/str"], function(STR) {
                             node.classList.add("w-100"); // width: 100%
                             node.classList.add("py-1");
                             node.classList.add("text-right");
-                            node.style.paddingRight = "35px";
+                            if (smallviewport) {
+                                node.style.paddingRight = "24px";
+                            } else {
+                                node.style.paddingRight = "35px";
+                            }
                             node.classList.add("itemselect");
 
                             node.appendChild(label);
