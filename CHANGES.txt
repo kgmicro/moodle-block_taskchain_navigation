@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-02-21 (26)
+ - do not try to regrade data, forum and glossary activities for which ratings are disabled.
+
 2022-02-02 (24)
  - modify Bootstrap classes so that item select boxes are also shown on small screens
 

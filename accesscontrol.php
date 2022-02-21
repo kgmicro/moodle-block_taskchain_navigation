@@ -1782,13 +1782,18 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
                         // Note: the lib.php for this mod was included earlier
 
-                        // if we use just the "update_grades" function,
+                        // If we use just the "update_grades" function,
                         // we cannot know if it is successful or not ...
                         // $update_grades = $cm->modname.'_update_grades';
                         // ... so we use the following functions instead:
                         $get_user_grades = $cm->modname.'_get_user_grades';
                         $grade_item_update = $cm->modname.'_grade_item_update';
-                        if (function_exists($get_user_grades) && function_exists($grade_item_update)) {
+
+                        $skipped = true;
+                        if (property_exists($instance, 'assessed') && empty($instance->assessed)) {
+                            // Could also check: array_key_exists($cm->modname, $ratingmods)
+                            // Skip data, forum and glossary if rating is not enabled.
+                        } else if (function_exists($get_user_grades) && function_exists($grade_item_update)) {
                             $grades = $get_user_grades($instance);
                             if ($grade_item_update($instance, $grades)==GRADE_UPDATE_OK) { // GRADE_UPDATE_OK = 0
                                 $updated = true;
@@ -1796,8 +1801,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                                 $success = false;
                             }
                             $skipped = false;
-                        } else {
-                            $skipped = true;
                         }
                         break;
 
