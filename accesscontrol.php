@@ -718,6 +718,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             $style = ' style="background-image: url('.$url.'); '.
                              'background-repeat: no-repeat; '.
                              'background-position: 1px 2px; '.
+                             'background-size: 1em; '. // 16px
                              'min-height: 20px; '.
                              'padding-left: 12px;"';
             $name = urldecode($cm->name);
@@ -4348,11 +4349,7 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
 
         case ($name=='completionpass'):
             // modules: quiz, taskchain, reader
-            if ($strman->string_exists($name, 'quiz')) {
-                $text = get_string($name, 'quiz');
-            } else {
-                $text = get_string($name, $modname);
-            }
+            $text = block_taskchain_get_string($strman, $name, $modname, 'quiz');
             $desc = get_string($name.'_desc', $plugin);
             $type = 'checkbox';
             break;
@@ -4360,11 +4357,7 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
         case ($name=='completionsubmit'):
             // modules: assign(ment), choice, feedback, questionnaire
             $text = get_string($name, $plugin);
-            if ($strman->string_exists($name, 'assign')) {
-                $desc = get_string($name, 'assign');
-            } else {
-                $desc = get_string($name, $modname);
-            }
+            $desc = block_taskchain_get_string($strman, $name, $modname, 'assign');
             $type = 'checkbox';
             break;
 
@@ -4483,4 +4476,18 @@ function convert_seconds_to_duration($seconds) {
         }
     }
     return array($seconds, 1); // shouldn't happen !!
+}
+
+function block_taskchain_get_string($strman, $name, $modname1, $modname2) {
+    if ($strman->string_exists($name, $modname2)) {
+        if ($strman->string_deprecated($name, $modname2)) {
+            // get the string without the "deprecated" message
+            $strings = $strman->load_component_strings($modname2, current_language());
+            return $strings[$name];
+        } else {
+            return get_string($name, $modname2);
+        }
+    } else {
+        return get_string($name, $modname1);
+    }
 }
