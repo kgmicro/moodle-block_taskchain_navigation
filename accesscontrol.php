@@ -3257,13 +3257,13 @@ function format_setting($name, $value, $str,
         case 'gradeexcluded':
         case 'gradehidden':
         case 'gradelocked':
-            $name = get_string('grade').': '.get_string(substr($name, 5), 'grades');
+            $name = get_string('grade', 'grades').': '.get_string(substr($name, 5), 'grades');
             $value = format_yesno($value);
             break;
 
         case 'gradehiddenuntil':
         case 'gradelocktime':
-            $name = get_string('grade').': '.get_string(substr($name, 5), 'grades');
+            $name = get_string('grade', 'grades').': '.get_string(substr($name, 5), 'grades');
             $value = ($value ? userdate($value) : get_string('disable'));
             break;
 

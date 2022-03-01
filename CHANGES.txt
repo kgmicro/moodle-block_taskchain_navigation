@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-03-01 (29)
+ - replace use of deprecated string: grade,core
+
 2022-03-01 (28)
  - add zebra stripes to the settings page if 'itemslect' checkboxes are used
 
