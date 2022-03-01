@@ -519,9 +519,12 @@ ul.ungraded a {
 
 #block_taskchain_navigation_edit_form div.fitem div.itemselect {
     background-color: pink;
-    float: right;
     text-align: center;
     width: 72px;
+}
+
+#block_taskchain_navigation_edit_form div.fitem:not(.row) div.itemselect {
+    float: right;
 }
 
 #block_taskchain_navigation_edit_form div#fgroup_id_elements_showactivitygrades select {
