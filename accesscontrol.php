@@ -1455,6 +1455,11 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             'taskchain'      => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'gradelimit', 'rating' => ''),
             'workshop'       => array('availablefrom' => 'assessmentstart',   'availableuntil' => 'assessmentend',    'maxgrade' => 'grade ',     'rating' => ''),
         );
+        // DATA: timeavailablefrom, timeavailableto, timeviewfrom, timeviewto
+        // ENGLSIHCENTRAL: activityopen, activityclose, videoopen, videoclose
+        // readonlyfrom
+        // readonlyuntil
+        
         $table_columns = array();
 
         // make sure mod pix path is set
@@ -2163,14 +2168,16 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
 
     echo "if (window.TCN==null) {\n";
     echo "    window.TCN = {};\n";
-    echo "}\n";
+    echo "}\n";    
     echo "TCN.msg = {all:'".js(get_string('all'))."',\n".
          "           none:'".js(get_string('none'))."',\n".
+         "           labels:'".js(get_string('modulenameplural', 'label'))."',\n".
+         "           resources:'".js(get_string('resources'))."',\n".
+         "           activities:'".js(get_string('activities'))."',\n".
          "           nosettings:'".js(get_string('nosettingsselected', $plugin))."',\n".
          "           noactivities:'".js(get_string('noactivitiesselected', $plugin))."',\n".
          "           confirmapply:'".js(get_string('confirmapply', $plugin))."',\n".
          "           confirmdelete:'".js(get_string('confirmdelete', $plugin))."'};\n";
-
     echo "//]]>\n";
     echo '</script>'."\n";
 

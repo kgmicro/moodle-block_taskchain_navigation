@@ -112,27 +112,71 @@ $(document).ready(function(){
         $(this).width(w);
     });
 
+    // cache some useful strings and regular expressions.
+    var modtypes = new Array("labels", "resources", "activities");
+    var resources = new Array("book", "folder", "imscp", "page", "resource", "url");
+    var iconurl = new RegExp("^" + 'url\\(".*/(\\w+)/\\d+/icon"\\)' + "$");
+
     // add "All / None" toggles to multi-select elements
     $("tr#id_section_activityfilters").nextUntil("tr.sectionheading").find("select[multiple]").each(function(){
 
-        var selector = "#" + $(this).prop("id") + " option";
+        var id = $(this).prop("id");
+        var selector = "#" + id + " option";
         $(this).parent("td.itemvalue").prev("td.itemname").each(function(){
 
-            // setup the "All" SPAN
+            // Setup container DIV.
+            var div = $("<div>", {"class": "allornone"});
+
+            // Setup the "All" SPAN
             var txt = document.createTextNode(TCN.msg.all);
-            var span1 = $("<span>").append(txt).click(function(evt){
+            div.append($("<span>").append(txt).click(function(){
                 $(selector).prop("selected", true);
-            });
+            }));
 
-            // setup the "None" SPAN
-            var txt = document.createTextNode(TCN.msg.none);
-            var span2 = $("<span>").append(txt).click(function(evt){
-                $(selector).prop("selected", false);
-            });
-
-            // setup the containing DIV ("class" must be a string for IE compatability)
             var txt = document.createTextNode(' / ');
-            var div = $("<div>", {"class": "allornone"}).append(span1, txt, span2);
+            div.append($("<span>").append(txt));
+
+            // Setup the "None" SPAN
+            var txt = document.createTextNode(TCN.msg.none);
+            div.append($("<span>").append(txt).click(function(){
+                $(selector).prop("selected", false);
+            }));
+
+            // If necessary, setup modtypes DIV.
+            if (id == "id_modules" || id == "id_cmids") {
+                for (var i=0; i<modtypes.length; i++) {
+                    if (i == 1) {
+                        div.append($("<br>"));
+                    } else {
+                        div.append(document.createTextNode(" / "));
+                    }
+                    var txt = document.createTextNode(TCN.msg[modtypes[i]]);
+                    var span = $("<span>", {"data-modtype": modtypes[i]});
+                    span.append(txt);
+                    span.click(function(){
+                        var modname = "";
+                        var modtype = $(this).data("modtype");
+                        $(selector).each(function(){
+                            if (id == "id_modules") {
+                                modname = $(this).val();
+                            } else {
+                                // Extract the mod name from the background image icon.
+                                modname = $(this).css("background-image").replace(iconurl, "$1");
+                            }
+                            var selected = false;
+                            if (modname == "label") {
+                                selected = (modtype == "labels");
+                            } else if (resources.indexOf(modname) >= 0) {
+                                selected = (modtype == "resources");
+                            } else {
+                                selected = (modtype == "activities");
+                            }
+                            $(this).prop("selected", selected);
+                        });
+                    });
+                    div.append(span);
+                }
+            }
 
             $(this).append(div);
         });
@@ -215,7 +259,7 @@ $(document).ready(function(){
                 }
             });
             if (ok==false) {
-                alert(TCN.msg["noactivities"]);
+                alert(TCN.msg.noactivities);
                 return false;
             }
             if (name=="apply") {
@@ -227,7 +271,7 @@ $(document).ready(function(){
                 });
             }
             if (ok==false) {
-                alert(TCN.msg["nosettings"]);
+                alert(TCN.msg.nosettings);
                 return false;
             }
             return confirm(TCN.msg["confirm" + name]);

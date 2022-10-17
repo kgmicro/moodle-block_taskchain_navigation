@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-10-17 (32)
+ - add lnks for module types to aid easy selection of modules on access control page.
+
 2022-07-08 (31)
  - improve insertion of script to display grades on course page by not using document.write().
 
