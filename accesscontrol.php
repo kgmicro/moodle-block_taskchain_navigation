@@ -199,7 +199,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $time  = time();
     list($availablefrom, $availablefromdate, $availablefromdisable) = get_timestamp_and_date('availablefrom',  null, $time);
     list($availableuntil, $availableuntildate, $availableuntildisable) = get_timestamp_and_date('availableuntil', null, $time);
+    list($viewableuntil, $viewableuntildate, $viewableuntildisable) = get_timestamp_and_date('viewableuntil', null, $time);
+    list($viewablefrom, $viewablefromdate, $viewablefromdisable) = get_timestamp_and_date('viewablefrom', null, $time);
     list($cutoff, $cutoffdate, $cutoffdisable) = get_timestamp_and_date('cutoff', null, $time);
+
     list($gradingdue, $gradingduedate, $gradingduedisable) = get_timestamp_and_date('gradingdue', null, $time);
 
     $sortgradeitems   = optional_param('sortgradeitems',   0, PARAM_INT);
@@ -380,7 +383,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     }
 
     // add standard settings
-    $settings = array('availablefrom',   'availableuntil', 'cutoff', 'gradingdue',
+    $settings = array('availablefrom',   'availableuntil',
+                      'viewableuntil',   'viewablefrom',
+                      'cutoff',          'gradingdue',
                       'rating',          'modgrade',
                       'maxgrade',        'gradepass',      'gradecat',
                       'gradeitemhidden', 'extracredit',    'regrade',
@@ -531,6 +536,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $modules  = array();
     $sections = array();
 
+    $activitymods   = array();
     $cutoffmods     = array();
     $gradingduemods = array();
     $filemods       = array();
@@ -539,6 +545,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $labelmods      = array();
     $ratingmods     = array();
     $resourcemods   = array();
+    $viewablemods   = array();
+
 
     $completionfields = array();
     $durationfields = array('completiontimespent');
@@ -583,20 +591,27 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             if (empty($modules[$cm->modname])) {
                 $modules[$cm->modname] = get_string('modulename', $cm->modname);
 
-                // check use of standard grading and cut-off date
+                // check use of standard grading, cut-off date, read-only dates
                 $filepath = "$CFG->dirroot/mod/$cm->modname/mod_form.php";
                 if (file_exists($filepath)) {
                     $filecontents = file_get_contents($filepath);
                     $has_cutoff = preg_match('/cutoffdate/', $filecontents);
                     $has_gradingdue = preg_match('/gradingduedate/', $filecontents);
+                    $has_viewable = preg_match('/timeview(from|to)/', $filecontents);
                     $has_standardgrading = preg_match('/standard_grading_coursemodule_elements/', $filecontents);
                 } else {
                     $has_cutoff = in_array($cm->modname, array('assign'));
                     $has_gradingdue = in_array($cm->modname, array('assign'));
+                    $has_viewable = in_array($cm->modname, array('data'));
                     $has_standardgrading = in_array($cm->modname, array('assign', 'data', 'forum', 'glossary', 'lesson', 'lti', 'quiz'));
                 }
 
-                // the quiz module calls "standard_grading_coursemodule_elements()"
+                // The EnglishCentral module defines it form elements in "classes/utils.php".
+                if ($cm->modname=='englishcentral') {
+                    $has_viewable = true;
+                }
+
+                // The Quiz module calls "standard_grading_coursemodule_elements()"
                 // but then immediately removes the "grade" field - not sure why ?!
                 if ($cm->modname=='quiz') {
                     $has_standardgrading = false;
@@ -607,6 +622,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 }
                 if ($has_cutoff) {
                     $cutoffmods[$cm->modname] = $modules[$cm->modname];
+                }
+                if ($has_viewable) {
+                    $viewablemods[$cm->modname] = $modules[$cm->modname];
                 }
                 if ($has_gradingdue) {
                     $gradingduemods[$cm->modname] = $modules[$cm->modname];
@@ -687,6 +705,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $labelmods[] = $cm->modname;
                 } else if ($is_resource) {
                     $resourcemods[] = $cm->modname;
+                } else {
+                    $activitymods[] = $cm->modname;
                 }
                 if ($has_rating) {
                     $ratingmods[$cm->modname] = $modules[$cm->modname];
@@ -701,7 +721,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 //    }
                 //}
                 unset($filepath, $filecontents, $has_completion, $has_cutoff, $has_gradingdue, $has_grading,
-                      $has_libfile, $has_rating, $has_standardgrading, $is_label, $is_resource);
+                      $has_libfile, $has_rating, $has_viewable, $has_standardgrading, $is_label, $is_resource);
             }
 
             if (empty($cms[$sectionnum])) {
@@ -1455,11 +1475,9 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
             'taskchain'      => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'gradelimit', 'rating' => ''),
             'workshop'       => array('availablefrom' => 'assessmentstart',   'availableuntil' => 'assessmentend',    'maxgrade' => 'grade ',     'rating' => ''),
         );
-        // DATA: timeavailablefrom, timeavailableto, timeviewfrom, timeviewto
-        // ENGLSIHCENTRAL: activityopen, activityclose, videoopen, videoclose
-        // readonlyfrom
-        // readonlyuntil
-        
+        $fields['data'] = array_merge($fields['data'], array('viewablefrom' => 'timeviewfrom' , 'viewableuntil' => 'timeviewto'));
+        $fields['englishcentral'] = array_merge($fields['data'], array('viewablefrom' => 'videoopen', 'viewableuntil' => 'videoclose'));
+
         $table_columns = array();
 
         // make sure mod pix path is set
@@ -1537,6 +1555,8 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     // activity instance settings
                     case 'availablefrom':
                     case 'availableuntil':
+                    case 'viewableuntil':
+                    case 'viewablefrom':
                     case 'cutoff':
                     case 'gradingdue':
                     case 'maxgrade':
@@ -2163,21 +2183,41 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '</tbody></table>'."\n";
     }
 
+    $modtypes = array();
+    if (count($labelmods)) {
+        sort($labelmods);
+        $modtypes[] = '"labels": ["'.implode('", "', $labelmods).'"]';
+    }
+    if (count($resourcemods)) {
+        sort($resourcemods);
+        $modtypes[] = '"resources": ["'.implode('", "', $resourcemods).'"]';
+    }
+    if (count($activitymods)) {
+        sort($activitymods);
+        $modtypes[] = '"activities": ["'.implode('", "', $activitymods).'"]';
+    }
+    if ($modtypes = implode(",\n    ", $modtypes)) {
+        $modtypes = "\n    ".$modtypes."\n";
+    }
+
     echo '<script type="text/javascript">'."\n";
     echo "//<![CDATA[\n";
 
     echo "if (window.TCN==null) {\n";
     echo "    window.TCN = {};\n";
     echo "}\n";    
-    echo "TCN.msg = {all:'".js(get_string('all'))."',\n".
-         "           none:'".js(get_string('none'))."',\n".
-         "           labels:'".js(get_string('modulenameplural', 'label'))."',\n".
-         "           resources:'".js(get_string('resources'))."',\n".
-         "           activities:'".js(get_string('activities'))."',\n".
-         "           nosettings:'".js(get_string('nosettingsselected', $plugin))."',\n".
-         "           noactivities:'".js(get_string('noactivitiesselected', $plugin))."',\n".
-         "           confirmapply:'".js(get_string('confirmapply', $plugin))."',\n".
-         "           confirmdelete:'".js(get_string('confirmdelete', $plugin))."'};\n";
+    echo "TCN.msg = {\n".
+         '    "all": "'.js(get_string("all")).'",'."\n".
+         '    "none": "'.js(get_string("none")).'",'."\n".
+         '    "labels": "'.js(get_string("modulenameplural", "label")).'",'."\n".
+         '    "resources": "'.js(get_string("resources")).'",'."\n".
+         '    "activities": "'.js(get_string("activities")).'",'."\n".
+         '    "nosettings": "'.js(get_string("nosettingsselected", $plugin)).'",'."\n".
+         '    "noactivities": "'.js(get_string("noactivitiesselected", $plugin)).'",'."\n".
+         '    "confirmapply": "'.js(get_string("confirmapply", $plugin)).'",'."\n".
+         '    "confirmdelete": "'.js(get_string("confirmdelete", $plugin)).'"'."\n".
+         '};'."\n";
+    echo "TCN.modtypes = {".$modtypes."};\n";
     echo "//]]>\n";
     echo '</script>'."\n";
 
@@ -2258,6 +2298,18 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $name = 'availableuntil';
     $label = get_string($name, $plugin);
     print_date_row($name, $label, $availableuntildate, $availableuntildisable);
+
+    if ($modnames = implode(', ', $viewablemods)) {
+        $name = 'viewablefrom';
+        $label = get_string($name, $plugin);
+        $modnames = get_string('usedby', $plugin, $modnames);
+        print_date_row($name, $label, $viewablefromdate, $viewablefromdisable, $modnames);
+
+        $name = 'viewableuntil';
+        $label = get_string($name, $plugin);
+        $modnames = get_string('usedby', $plugin, $modnames);
+        print_date_row($name, $label, $viewableuntildate, $viewableuntildisable, $modnames);
+    }
 
     if ($modnames = implode(', ', $cutoffmods)) {
         $name = 'cutoff';
@@ -3202,6 +3254,16 @@ function format_setting($name, $value, $str,
         case 'availablefrom':
         case 'availableuntil':
             $name = get_string($name, $plugin);
+            $value = ($value ? userdate($value) : get_string('disable'));
+            break;
+
+        case 'viewableuntil':
+            $name = get_string('viewableuntil', $plugin);
+            $value = ($value ? userdate($value) : get_string('disable'));
+            break;
+
+        case 'viewablefrom':
+            $name = get_string('viewablefrom', $plugin);
             $value = ($value ? userdate($value) : get_string('disable'));
             break;
 

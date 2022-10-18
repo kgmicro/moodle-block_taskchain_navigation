@@ -586,4 +586,6 @@ $string['usedby'] = 'used by {$a}';
 $string['usedbyall'] = 'used by ALL activities, resources and labels';
 $string['useparentcategory'] = 'Yes - display parent name';
 $string['validimportfile'] = 'Configuration settings were successfully imported';
+$string['viewablefrom'] = 'Viewable from';
+$string['viewableuntil'] = 'Viewable until';
 $string['visibility'] = 'Visibility filter';

@@ -113,8 +113,8 @@ $(document).ready(function(){
     });
 
     // cache some useful strings and regular expressions.
-    var modtypes = new Array("labels", "resources", "activities");
-    var resources = new Array("book", "folder", "imscp", "page", "resource", "url");
+    var labels = (TCN.modtypes.labels ? TCN.modtypes.labels : []);
+    var resources = (TCN.modtypes.resources ? TCN.modtypes.resources : []);
     var iconurl = new RegExp("^" + 'url\\(".*/(\\w+)/\\d+/icon"\\)' + "$");
 
     // add "All / None" toggles to multi-select elements
@@ -144,14 +144,23 @@ $(document).ready(function(){
 
             // If necessary, setup modtypes DIV.
             if (id == "id_modules" || id == "id_cmids") {
-                for (var i=0; i<modtypes.length; i++) {
-                    if (i == 1) {
+                var i = 0, imax = 0, type = "";
+
+                if (TCN.modtypes.keys) {
+                    imax = TCN.modtypes.keys.kength
+                } else {
+                    for (type in TCN.modtypes) {
+                        imax++;
+                    }
+                }
+                for (type in TCN.modtypes) {
+                    if (i == (imax - 2)) {
                         div.append($("<br>"));
                     } else {
                         div.append(document.createTextNode(" / "));
                     }
-                    var txt = document.createTextNode(TCN.msg[modtypes[i]]);
-                    var span = $("<span>", {"data-modtype": modtypes[i]});
+                    var txt = document.createTextNode(TCN.msg[type]);
+                    var span = $("<span>", {"data-modtype": type});
                     span.append(txt);
                     span.click(function(){
                         var modname = "";
@@ -164,7 +173,7 @@ $(document).ready(function(){
                                 modname = $(this).css("background-image").replace(iconurl, "$1");
                             }
                             var selected = false;
-                            if (modname == "label") {
+                            if (labels.indexOf(modname) >= 0) {
                                 selected = (modtype == "labels");
                             } else if (resources.indexOf(modname) >= 0) {
                                 selected = (modtype == "resources");
@@ -175,6 +184,7 @@ $(document).ready(function(){
                         });
                     });
                     div.append(span);
+                    i++;
                 }
             }
 

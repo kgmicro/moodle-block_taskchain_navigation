@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-10-18 (33)
+ - add new date setting: viewable from/until
+
 2022-10-17 (32)
  - add lnks for module types to aid easy selection of modules on access control page.
 
