@@ -144,32 +144,20 @@ $(document).ready(function(){
 
             // If necessary, setup modtypes DIV.
             if (id == "id_modules" || id == "id_cmids") {
-                var i = 0, imax = 0, type = "";
-
-                if (TCN.modtypes.keys) {
-                    imax = TCN.modtypes.keys.kength
-                } else {
-                    for (type in TCN.modtypes) {
-                        imax++;
-                    }
-                }
-                for (type in TCN.modtypes) {
-                    if (i == (imax - 2)) {
-                        div.append($("<br>"));
-                    } else {
-                        div.append(document.createTextNode(" / "));
-                    }
+                for (var type in TCN.modtypes) {
+                    div.append(document.createTextNode(" / "));
                     var txt = document.createTextNode(TCN.msg[type]);
-                    var span = $("<span>", {"data-modtype": type});
+                    var span = $("<span>", {"class": "text-nowrap", "data-modtype": type});
                     span.append(txt);
                     span.click(function(){
                         var modname = "";
                         var modtype = $(this).data("modtype");
                         $(selector).each(function(){
                             if (id == "id_modules") {
+                                // id_modules: Module name is the "value" of this option.
                                 modname = $(this).val();
                             } else {
-                                // Extract the mod name from the background image icon.
+                                // id_cmids: Extract the module name from the background image icon.
                                 modname = $(this).css("background-image").replace(iconurl, "$1");
                             }
                             var selected = false;
@@ -184,7 +172,6 @@ $(document).ready(function(){
                         });
                     });
                     div.append(span);
-                    i++;
                 }
             }
 

@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-10-19 (34)
+ - only show available dates if there are any modules that use them
+
 2022-10-18 (33)
  - add new date setting: viewable from/until
 

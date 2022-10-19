@@ -536,6 +536,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $modules  = array();
     $sections = array();
 
+    $availablemods  = array();
     $activitymods   = array();
     $cutoffmods     = array();
     $gradingduemods = array();
@@ -546,7 +547,6 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     $ratingmods     = array();
     $resourcemods   = array();
     $viewablemods   = array();
-
 
     $completionfields = array();
     $durationfields = array('completiontimespent');
@@ -595,19 +595,22 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 $filepath = "$CFG->dirroot/mod/$cm->modname/mod_form.php";
                 if (file_exists($filepath)) {
                     $filecontents = file_get_contents($filepath);
+                    $has_available = preg_match("/'(accesscontrol|availability|timing)'/", $filecontents);
+                    $has_viewable = preg_match('/timeview(from|to)/', $filecontents);
                     $has_cutoff = preg_match('/cutoffdate/', $filecontents);
                     $has_gradingdue = preg_match('/gradingduedate/', $filecontents);
-                    $has_viewable = preg_match('/timeview(from|to)/', $filecontents);
                     $has_standardgrading = preg_match('/standard_grading_coursemodule_elements/', $filecontents);
                 } else {
+                    $has_available = in_array($cm->modname, array('assign', 'choice', 'data', 'feedback', 'forum', 'hotpot', 'lesson', 'quiz', 'reader', 'scorm', 'workshop'));
+                    $has_viewable = in_array($cm->modname, array('data'));
                     $has_cutoff = in_array($cm->modname, array('assign'));
                     $has_gradingdue = in_array($cm->modname, array('assign'));
-                    $has_viewable = in_array($cm->modname, array('data'));
                     $has_standardgrading = in_array($cm->modname, array('assign', 'data', 'forum', 'glossary', 'lesson', 'lti', 'quiz'));
                 }
 
-                // The EnglishCentral module defines it form elements in "classes/utils.php".
+                // The EnglishCentral module defines its form elements in "classes/utils.php".
                 if ($cm->modname=='englishcentral') {
+                    $has_available = true;
                     $has_viewable = true;
                 }
 
@@ -617,17 +620,20 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                     $has_standardgrading = false;
                 }
 
-                if ($has_standardgrading) {
-                    $gradingmods[$cm->modname] = $modules[$cm->modname];
-                }
-                if ($has_cutoff) {
-                    $cutoffmods[$cm->modname] = $modules[$cm->modname];
+                if ($has_available) {
+                    $availablemods[$cm->modname] = $modules[$cm->modname];
                 }
                 if ($has_viewable) {
                     $viewablemods[$cm->modname] = $modules[$cm->modname];
                 }
+                if ($has_cutoff) {
+                    $cutoffmods[$cm->modname] = $modules[$cm->modname];
+                }
                 if ($has_gradingdue) {
                     $gradingduemods[$cm->modname] = $modules[$cm->modname];
+                }
+                if ($has_standardgrading) {
+                    $gradingmods[$cm->modname] = $modules[$cm->modname];
                 }
 
                 $filepath = "$CFG->dirroot/mod/$cm->modname/lib.php";
@@ -720,8 +726,10 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
                 //        unset($gradingareas[$cm->modname]);
                 //    }
                 //}
-                unset($filepath, $filecontents, $has_completion, $has_cutoff, $has_gradingdue, $has_grading,
-                      $has_libfile, $has_rating, $has_viewable, $has_standardgrading, $is_label, $is_resource);
+                unset($filepath, $filecontents, $has_available, $has_completion,
+                      $has_cutoff, $has_grading, $has_gradingdue,
+                      $has_libfile, $has_rating, $has_standardgrading,
+                      $has_viewable, $is_label, $is_resource);
             }
 
             if (empty($cms[$sectionnum])) {
@@ -1456,27 +1464,27 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     if (count($selected_cmids) && (count($selected_settings) || $action=='delete')) {
 
         $success = true;
+        $fields = array('availablefrom', 'availableuntil','viewablefrom', 'viewableuntil', 'maxgrade', 'rating');
         $fields = array(
-            'assign'         => array('availablefrom' => 'allowsubmissionsfromdate', 'availableuntil' => 'duedate',   'maxgrade' => 'grade',      'rating' => ''),
-            'assignment'     => array('availablefrom' => 'timeavailable',     'availableuntil' => 'timedue',          'maxgrade' => 'grade',      'rating' => ''),
-            'attendance'     => array('availablefrom' => '',                  'availableuntil' => '',                 'maxgrade' => 'grade',      'rating' => ''),
-            'choice'         => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => '',           'rating' => ''),
-            'data'           => array('availablefrom' => 'timeavailablefrom', 'availableuntil' => 'timeavailableto',  'maxgrade' => 'scale',      'rating' => 'assessed'),
-            'englishcentral' => array('availablefrom' => 'activityopen',      'availableuntil' => 'activityclose',    'maxgrade' => 'grade',      'rating' => ''),
-            'feedback'       => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => '',           'rating' => ''),
-            'forum'          => array('availablefrom' => 'assesstimestart',   'availableuntil' => 'assesstimefinish', 'maxgrade' => 'scale',      'rating' => 'assessed'),
-            'glossary'       => array('availablefrom' => 'assesstimestart',   'availableuntil' => 'assesstimefinish', 'maxgrade' => 'scale',      'rating' => 'assessed'),
-            'hotpot'         => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'grade',      'rating' => ''),
-            'lesson'         => array('availablefrom' => 'available',         'availableuntil' => 'deadline',         'maxgrade' => 'grade',      'rating' => ''),
-            'questionnaire'  => array('availablefrom' => 'opendate',          'availableuntil' => 'closedate',        'maxgrade' => 'grade',      'rating' => ''),
-            'quiz'           => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'grade',      'rating' => ''),
-            'reader'         => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'maxgrade',   'rating' => ''),
-            'scorm'          => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'maxgrade',   'rating' => ''),
-            'taskchain'      => array('availablefrom' => 'timeopen',          'availableuntil' => 'timeclose',        'maxgrade' => 'gradelimit', 'rating' => ''),
-            'workshop'       => array('availablefrom' => 'assessmentstart',   'availableuntil' => 'assessmentend',    'maxgrade' => 'grade ',     'rating' => ''),
+            'assign'         => array_combine($fields, array('allowsubmissionsfromdate', 'duedate', '', '', 'grade', '')),
+            'assignment'     => array_combine($fields, array('timeavailable', 'timedue', '', '', 'grade', '')),
+            'attendance'     => array_combine($fields, array('', '', '', '', 'grade', '')),
+            'choice'         => array_combine($fields, array('timeopen', 'timeclose', '', '', '', '')),
+            'data'           => array_combine($fields, array('timeavailablefrom', 'timeavailableto', 'timeviewfrom', 'timeviewto', 'scale', 'assessed')),
+            'englishcentral' => array_combine($fields, array('activityopen', 'activityclose', 'videoopen', 'videoclose', 'grade', '')),
+            'feedback'       => array_combine($fields, array('timeopen', 'timeclose', '', '', '', '')),
+            'forum'          => array_combine($fields, array('assesstimestart', 'assesstimefinish', '', '', 'scale', 'assessed')),
+            'glossary'       => array_combine($fields, array('assesstimestart', 'assesstimefinish', '', '', 'scale', 'assessed')),
+            'hotpot'         => array_combine($fields, array('timeopen', 'timeclose', '', '', 'grade', '')),
+            'lesson'         => array_combine($fields, array('available', 'deadline', '', '', 'grade', '')),
+            'questionnaire'  => array_combine($fields, array('opendate', 'closedate', '', '', 'grade', '')),
+            'quiz'           => array_combine($fields, array('timeopen', 'timeclose', '', '', 'grade', '')),
+            'reader'         => array_combine($fields, array('timeopen', 'timeclose', '', '', 'maxgrade', '')),
+            'scorm'          => array_combine($fields, array('timeopen', 'timeclose', '', '', 'maxgrade', '')),
+            'taskchain'      => array_combine($fields, array('timeopen', 'timeclose', '', '', 'gradelimit', '')),
+            'workshop'       => array_combine($fields, array('submissionstart', 'submissionend', 'assessmentstart', 'assessmentend', 'grade ', ''))
         );
-        $fields['data'] = array_merge($fields['data'], array('viewablefrom' => 'timeviewfrom' , 'viewableuntil' => 'timeviewto'));
-        $fields['englishcentral'] = array_merge($fields['data'], array('viewablefrom' => 'videoopen', 'viewableuntil' => 'videoclose'));
+
 
         $table_columns = array();
 
@@ -2291,13 +2299,17 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     //
     print_sectionheading(get_string('dates', $plugin), 'dates', true);
 
-    $name = 'availablefrom';
-    $label = get_string($name, $plugin);
-    print_date_row($name, $label, $availablefromdate, $availablefromdisable);
+    if ($modnames = implode(', ', $availablemods)) {
+        $modnames = get_string('usedby', $plugin, $modnames);
 
-    $name = 'availableuntil';
-    $label = get_string($name, $plugin);
-    print_date_row($name, $label, $availableuntildate, $availableuntildisable);
+        $name = 'availablefrom';
+        $label = get_string($name, $plugin);
+        print_date_row($name, $label, $availablefromdate, $availablefromdisable, $modnames);
+
+        $name = 'availableuntil';
+        $label = get_string($name, $plugin);
+        print_date_row($name, $label, $availableuntildate, $availableuntildisable, $modnames);
+    }
 
     if ($modnames = implode(', ', $viewablemods)) {
         $name = 'viewablefrom';
