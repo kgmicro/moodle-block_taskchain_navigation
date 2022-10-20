@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2022-10-20 (35)
+ - sort list of mods that use each setting
+
 2022-10-19 (34)
  - only show available dates if there are any modules that use them
 

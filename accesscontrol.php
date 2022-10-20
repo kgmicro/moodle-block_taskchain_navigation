@@ -790,6 +790,12 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     // fields used by activity modules on this Moodle site
     // these fields have also been added to $settings
 
+    // Sort the list of mods that use each completion field.
+    foreach ($completionfields as $name => $field) {
+        asort($field->mods);
+        $completionfields[$name] = $field;
+    }
+
     $selected_settings = array();
     if ($action=='apply') {
         foreach ($settings as $setting) {
@@ -2299,6 +2305,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     //
     print_sectionheading(get_string('dates', $plugin), 'dates', true);
 
+    asort($availablemods);
     if ($modnames = implode(', ', $availablemods)) {
         $modnames = get_string('usedby', $plugin, $modnames);
 
@@ -2311,29 +2318,34 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         print_date_row($name, $label, $availableuntildate, $availableuntildisable, $modnames);
     }
 
+    asort($viewablemods);
     if ($modnames = implode(', ', $viewablemods)) {
+        $modnames = get_string('usedby', $plugin, $modnames);
+
         $name = 'viewablefrom';
         $label = get_string($name, $plugin);
-        $modnames = get_string('usedby', $plugin, $modnames);
         print_date_row($name, $label, $viewablefromdate, $viewablefromdisable, $modnames);
 
         $name = 'viewableuntil';
         $label = get_string($name, $plugin);
-        $modnames = get_string('usedby', $plugin, $modnames);
         print_date_row($name, $label, $viewableuntildate, $viewableuntildisable, $modnames);
     }
 
+    asort($cutoffmods);
     if ($modnames = implode(', ', $cutoffmods)) {
+        $modnames = get_string('usedby', $plugin, $modnames);
+
         $name = 'cutoff';
         $label = get_string($name.'date', 'assign');
-        $modnames = get_string('usedby', $plugin, $modnames);
         print_date_row($name, $label, $cutoffdate, $cutoffdisable, $modnames);
     }
 
+    asort($gradingduemods);
     if ($modnames = implode(', ', $gradingduemods)) {
+        $modnames = get_string('usedby', $plugin, $modnames);
+
         $name = 'gradingdue';
         $label = get_string($name.'date', 'assign');
-        $modnames = get_string('usedby', $plugin, $modnames);
         print_date_row($name, $label, $gradingduedate, $gradingduedisable, $modnames);
     }
 
@@ -2378,6 +2390,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     echo '<th class="toggle"></th>'."\n";
     echo '</tr>'."\n";
 
+    asort($ratingmods);
     if ($modnames = implode(', ', $ratingmods)) {
         // 'data', 'forum', 'glossary'
         echo '<tr>'."\n";
@@ -2393,6 +2406,7 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
         echo '</tr>'."\n";
     }
 
+    asort($gradingmods);
     if ($modnames = implode(', ', $gradingmods)) {
         // 'assign', 'data', 'forum', 'glossary', 'lesson', 'lti'
         // see "lib/form/modgrade.php"
