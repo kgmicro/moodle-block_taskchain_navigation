@@ -207,7 +207,7 @@ class block_taskchain_navigation extends block_base {
 
         // make sure user is only shown one course section at a time
 
-        if (isset($USER->id) && isset($COURSE->id) && $this->config->singlesection) {
+        if (false) {
             $update = false;
             if (function_exists('course_get_display')) {
                 // Moodle <= 2.2
