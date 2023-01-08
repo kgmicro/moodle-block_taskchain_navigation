@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2023-01-08 (36)
+ - when course display specifies one section at time, ensure that all sections are shown when URL includes 'section=0'
+
 2022-10-20 (35)
  - sort list of mods that use each setting
 

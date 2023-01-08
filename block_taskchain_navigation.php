@@ -213,9 +213,7 @@ class block_taskchain_navigation extends block_base {
                 // Moodle >= 2.3
                 $name = get_class($this).'_course'.$COURSE->id;
                 $displaysection = get_user_preferences($name, 0);
-                if ($section==0) {
-                    $section = $displaysection;
-                } else if ($displaysection==$section) {
+                if ($displaysection==$section) {
                     // do nothing
                 } else {
                     $displaysection = $section;
