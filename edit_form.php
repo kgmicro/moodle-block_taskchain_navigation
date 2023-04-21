@@ -82,6 +82,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $length_options = range(0, 20);
         $grade_options  = array_reverse(range(0, 100), true);
         $keep_options   = array(0 => get_string('remove'), 1 => get_string('keep'));
+        $text_options   = array('size' => 10);
 
         //-----------------------------------------------------------------------------
         $this->add_header($mform, $plugin, 'title');
@@ -222,7 +223,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $name = 'categoryignorechars';
         $config_name = 'config_'.$name;
-        $mform->addElement('text', $config_name, get_string($name, $plugin), array('size' => 10));
+        $mform->addElement('text', $config_name, get_string($name, $plugin), $text_options);
         $mform->setType($config_name, PARAM_TEXT);
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, $name, $plugin);
@@ -240,7 +241,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $name = 'categoryprefixchars';
         $config_name = 'config_'.$name;
-        $mform->addElement('text', $config_name, get_string('prefixchars', $plugin), array('size' => 10));
+        $mform->addElement('text', $config_name, get_string('prefixchars', $plugin), $text_options);
         $mform->setType($config_name, PARAM_TEXT);
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, 'prefixchars', $plugin);
@@ -276,7 +277,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $name = 'categorysuffixchars';
         $config_name = 'config_'.$name;
-        $mform->addElement('text', $config_name, get_string('suffixchars', $plugin), array('size' => 10));
+        $mform->addElement('text', $config_name, get_string('suffixchars', $plugin), $text_options);
         $mform->setType($config_name, PARAM_TEXT);
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, 'suffixchars', $plugin);
@@ -371,7 +372,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $name = 'sectiontitletags';
         $config_name = 'config_'.$name;
-        $mform->addElement('text', $config_name, get_string('sectiontitletags', $plugin), array('size' => 10));
+        $mform->addElement('text', $config_name, get_string('sectiontitletags', $plugin), $text_options);
         $mform->setType($config_name, PARAM_TEXT);
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, $name, $plugin);
@@ -392,7 +393,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $name = 'sectionignorechars';
         $config_name = 'config_'.$name;
-        $mform->addElement('text', $config_name, get_string($name, $plugin), array('size' => 10));
+        $mform->addElement('text', $config_name, get_string($name, $plugin), $text_options);
         $mform->setType($config_name, PARAM_TEXT);
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, $name, $plugin);
@@ -410,7 +411,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $name = 'sectionprefixchars';
         $config_name = 'config_'.$name;
-        $mform->addElement('text', $config_name, get_string('prefixchars', $plugin), array('size' => 10));
+        $mform->addElement('text', $config_name, get_string('prefixchars', $plugin), $text_options);
         $mform->setType($config_name, PARAM_TEXT);
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, 'prefixchars', $plugin);
@@ -446,7 +447,7 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $name = 'sectionsuffixchars';
         $config_name = 'config_'.$name;
-        $mform->addElement('text', $config_name, get_string('suffixchars', $plugin), array('size' => 10));
+        $mform->addElement('text', $config_name, get_string('suffixchars', $plugin), $text_options);
         $mform->setType($config_name, PARAM_TEXT);
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, 'suffixchars', $plugin);
@@ -577,6 +578,34 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         if ($options = $this->get_graded_activity_types()) {
             $this->add_field_showactivitygrades($mform, $plugin, $options);
+
+            $name = 'gradelinecolor';
+            $config_name = 'config_'.$name;
+            $mform->addElement('text', $config_name, get_string($name, $plugin), $text_options);
+            $mform->setType($config_name, PARAM_ALPHANUM);
+            $mform->setDefault($config_name, $this->defaultvalue($name));
+            $mform->addHelpButton($config_name, $name, $plugin);
+
+            $name = 'gradelinestyle';
+            $config_name = 'config_'.$name;
+            $options = array(
+                // These strings are available in Moodle >= 3.x
+                '' => get_string('none', 'atto_table'),
+                'dotted' => get_string('dotted', 'atto_table'),
+                'dashed' => get_string('dashed', 'atto_table'),
+                'solid'  => get_string('solid', 'atto_table'),
+            );
+            $mform->addElement('select', $config_name, get_string($name, $plugin), $options);
+            $mform->setType($config_name, PARAM_ALPHANUM);
+            $mform->setDefault($config_name, $this->defaultvalue($name));
+            $mform->addHelpButton($config_name, $name, $plugin);
+
+            $name = 'gradelinewidth';
+            $config_name = 'config_'.$name;
+            $mform->addElement('text', $config_name, get_string($name, $plugin), $text_options);
+            $mform->setType($config_name, PARAM_ALPHANUM);
+            $mform->setDefault($config_name, $this->defaultvalue($name));
+            $mform->addHelpButton($config_name, $name, $plugin);
         }
 
         //-----------------------------------------------------------------------------

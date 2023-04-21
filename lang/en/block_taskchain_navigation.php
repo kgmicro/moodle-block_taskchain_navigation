@@ -208,6 +208,12 @@ $string['gradedisplay'] = 'Grade display';
 $string['gradedisplay_help'] = 'xxx';
 $string['gradeexplanation'] = 'Settings for individual student grades in the gradebook.';
 $string['gradeitemhidden'] = 'Hide grade item';
+$string['gradelinecolor'] = 'Grade line color';
+$string['gradelinecolor_help'] = 'The color of the line running from the activity name to the grade. Any CSS color is acceptable, but do not include the leading hash-sign, \'#\', for RGB colors.';
+$string['gradelinestyle'] = 'Grade line style';
+$string['gradelinestyle_help'] = 'The style of the line running from the activity name to the grade.';
+$string['gradelinewidth'] = 'Grade line width';
+$string['gradelinewidth_help'] = 'The width of the line running from the activity name to the grade. Include the width number and the unit, e.g. 640px';
 $string['groupscountusers'] = 'Count group members';
 $string['groupscountusers_help'] = '**Yes**  
 &nbsp; The group menu will show how many members are in each group.

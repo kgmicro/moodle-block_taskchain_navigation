@@ -143,6 +143,9 @@ class block_taskchain_navigation extends block_base {
             'mediumgrade'        => 60,
             'lowgrade'           => 0,
             'showactivitygrades' => '',
+            'gradelinecolor'     => '666',
+            'gradelinestyle'     => 'dashed',
+            'gradelinewidth'     => '640px',
 
             'sectionjumpmenu' => 1, // 0=hide, 1=show
             'sectionnumbers'  => 1, // 0=hide, 1=show
