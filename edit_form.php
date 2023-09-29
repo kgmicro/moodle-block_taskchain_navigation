@@ -578,34 +578,9 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         if ($options = $this->get_graded_activity_types()) {
             $this->add_field_showactivitygrades($mform, $plugin, $options);
-
-            $name = 'gradelinecolor';
-            $config_name = 'config_'.$name;
-            $mform->addElement('text', $config_name, get_string($name, $plugin), $text_options);
-            $mform->setType($config_name, PARAM_ALPHANUM);
-            $mform->setDefault($config_name, $this->defaultvalue($name));
-            $mform->addHelpButton($config_name, $name, $plugin);
-
-            $name = 'gradelinestyle';
-            $config_name = 'config_'.$name;
-            $options = array(
-                // These strings are available in Moodle >= 3.x
-                '' => get_string('none', 'atto_table'),
-                'dotted' => get_string('dotted', 'atto_table'),
-                'dashed' => get_string('dashed', 'atto_table'),
-                'solid'  => get_string('solid', 'atto_table'),
-            );
-            $mform->addElement('select', $config_name, get_string($name, $plugin), $options);
-            $mform->setType($config_name, PARAM_ALPHANUM);
-            $mform->setDefault($config_name, $this->defaultvalue($name));
-            $mform->addHelpButton($config_name, $name, $plugin);
-
-            $name = 'gradelinewidth';
-            $config_name = 'config_'.$name;
-            $mform->addElement('text', $config_name, get_string($name, $plugin), $text_options);
-            $mform->setType($config_name, PARAM_ALPHANUM);
-            $mform->setDefault($config_name, $this->defaultvalue($name));
-            $mform->addHelpButton($config_name, $name, $plugin);
+            $this->add_field_gradelinecolor($mform, $plugin, $text_options);
+            $this->add_field_gradelinestyle($mform, $plugin);
+            $this->add_field_gradelinewidth($mform, $plugin, $text_options);
         }
 
         //-----------------------------------------------------------------------------
@@ -1058,6 +1033,95 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
 
         $mform->addGroup($elements, $elements_name, get_string($name, $plugin), ' ', false);
         $mform->setType($config_name, PARAM_TEXT);
+    }
+
+    /**
+     * add_field_gradelinecolor
+     *
+     * @param object  $mform
+     * @param string  $plugin
+     * @return void, but will update $mform
+     */
+    protected function add_field_gradelinecolor($mform, $plugin, $options) {
+        $name = 'gradelinecolor';
+        $config_name = 'config_'.$name;
+        $elements_name = 'elements_'.$name;
+        $label = get_string($name, $plugin);
+
+        switch (substr(current_language(), 0, 2)) {
+            case 'ja':
+                $help = 'https://standards.mitsue.co.jp/resources/w3c/TR/css3-color';
+                break;
+            case 'ko':
+                $help = 'https://techhtml.github.io/css3-color';
+                break;
+            default:
+                $help = 'https://www.w3.org/TR/css-color-3';
+        }
+        $params = array('href' => "$help/#svg-color", 'target' => '_blank');
+        $help = html_writer::tag('a', get_string('help'), $params);
+        $help = html_writer::tag('small', $help);
+
+        $elements = array(
+            $mform->createElement('text', $config_name, $label, $options),
+            $mform->createElement('static', '', '', $help)
+        );
+
+        $mform->addGroup($elements, $elements_name, $label, ' ', false);
+        $mform->setType($config_name, PARAM_ALPHANUM);
+        $mform->setDefault($config_name, $this->defaultvalue($name));
+        $mform->addHelpButton($elements_name, $name, $plugin);
+    }
+
+    /**
+     * add_field_gradelinestyle
+     *
+     * @param object  $mform
+     * @param string  $plugin
+     * @return void, but will update $mform
+     */
+    protected function add_field_gradelinestyle($mform, $plugin) {
+        $name = 'gradelinestyle';
+        $config_name = 'config_'.$name;
+
+        $strman = get_string_manager();
+        if ($strman->string_exists('none', 'atto_table')) {
+            // Moodle >= 3.x
+            $options = array(
+                '' => get_string('none', 'atto_table'),
+                'dotted' => get_string('dotted', 'atto_table'),
+                'dashed' => get_string('dashed', 'atto_table'),
+                'solid'  => get_string('solid', 'atto_table'),
+            );
+        } else {
+            // Moodle <= 2.9
+            $options = array(
+                '' => get_string('none'),
+                'dotted' => '...',
+                'dashed' => '_ _ _',
+                'solid'  => '_____',
+            );
+        }
+        $mform->addElement('select', $config_name, get_string($name, $plugin), $options);
+        $mform->setType($config_name, PARAM_ALPHANUM);
+        $mform->setDefault($config_name, $this->defaultvalue($name));
+        $mform->addHelpButton($config_name, $name, $plugin);
+    }
+
+    /**
+     * add_field_gradelinewidth
+     *
+     * @param object  $mform
+     * @param string  $plugin
+     * @return void, but will update $mform
+     */
+    protected function add_field_gradelinewidth($mform, $plugin, $options) {
+        $name = 'gradelinewidth';
+        $config_name = 'config_'.$name;
+        $mform->addElement('text', $config_name, get_string($name, $plugin), $options);
+        $mform->setType($config_name, PARAM_TEXT); // PARAM_ALPHANUM
+        $mform->setDefault($config_name, $this->defaultvalue($name));
+        $mform->addHelpButton($config_name, $name, $plugin);
     }
 
     /**
