@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2024-01-16 (39)
+ - move code from __construct method to 'definition' method because '__construct' is 'final' and cannot be overridden in Moodle >=3.11
+
 2023-09-29 (38)
  - add help link to list of HTML  color names suitable for gradelinecolor setting
 

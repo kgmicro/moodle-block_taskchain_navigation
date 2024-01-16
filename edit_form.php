@@ -39,30 +39,6 @@ defined('MOODLE_INTERNAL') || die();
 class block_taskchain_navigation_edit_form extends block_edit_form {
 
     /**
-     * constructor
-     *
-     * @param object $actionurl
-     * @param object $block
-     * @param object $page
-     * @return void, but will update $this
-     */
-    function __construct($actionurl, $block, $page) {
-        if (isset($block->config->showactivitygrades)) {
-            $value = $block->config->showactivitygrades;
-        } else {
-            $value = 'all'; // default value
-        }
-        if ($value=='all') {
-            $block->config->showactivitygrades = 'all';
-            $block->config->showactivitygradestypes = '';
-        } else {
-            $block->config->showactivitygrades = 'specific';
-            $block->config->showactivitygradestypes = $value;
-        }
-        parent::__construct($actionurl, $block, $page);
-    }
-
-    /**
      * specific_definition
      *
      * @param object $mform
@@ -70,6 +46,9 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
      */
     protected function specific_definition($mform) {
         global $PAGE;
+
+        // Ensure the showactivitygrades settings is set.
+        $this->set_showactivitygrades();
 
         $this->set_form_id($mform, get_class($this));
 
@@ -1122,6 +1101,28 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $mform->setType($config_name, PARAM_TEXT); // PARAM_ALPHANUM
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, $name, $plugin);
+    }
+
+    /**
+     * set_showactivitygrades
+     *
+     * @return void, but may update internal config setting.
+     */
+    protected function set_showactivitygrades() {
+        // Set reference config settings.
+        $config = $this->block->config;
+        if (isset($config->showactivitygrades)) {
+            $value = $config->showactivitygrades;
+        } else {
+            $value = 'all'; // default value
+        }
+        if ($value == 'all') {
+            $config->showactivitygrades = 'all';
+            $config->showactivitygradestypes = '';
+        } else {
+            $config->showactivitygrades = 'specific';
+            $config->showactivitygradestypes = $value;
+        }
     }
 
     /**
