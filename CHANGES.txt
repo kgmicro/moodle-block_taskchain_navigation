@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2024-01-21 (40)
+ - workaround for deprecated strings in Moodle >= 4.3
+
 2024-01-16 (39)
  - add message to CHANGES.txt
 

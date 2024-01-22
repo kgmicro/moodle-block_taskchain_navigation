@@ -130,6 +130,7 @@ $string['completionscorerequired_desc'] = 'Student must get at least this minimu
 $string['completionstatusallscos_desc'] = 'Require all SCOs to return the required status.';
 $string['completionstatusrequired_desc'] = 'Student must get at least one of each selected status:';
 $string['completionsubmit'] = 'Require submission';
+$string['completionview'] = 'Require view';
 $string['conditioncmlabels'] = 'Include labels';
 $string['conditioncmresources'] = 'Include resources';
 $string['conditioncmungraded'] = 'Include ungraded activities';

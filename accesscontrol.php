@@ -2410,8 +2410,15 @@ function taskchain_navigation_accesscontrol_form($course, $block_instance, $acti
     if ($modnames = implode(', ', $gradingmods)) {
         // 'assign', 'data', 'forum', 'glossary', 'lesson', 'lti'
         // see "lib/form/modgrade.php"
+        if ($strman->string_exists('modgrade', 'grades')) {
+            // Moodle >= 2.7
+            $grade = get_string('modgrade', 'grades');
+        } else {
+            // Moodle <= 2.6
+            $grade = get_string('grade', 'grades');
+        }
         echo '<tr>'."\n";
-        echo '<td class="itemname">'.get_string('grade', 'grades').' / '.get_string('typescale', 'grades').':</td>'."\n";
+        echo '<td class="itemname">'.$grade.' / '.get_string('typescale', 'grades').':</td>'."\n";
         echo '<td class="itemvalue">';
         echo '('.get_string('usedby', $plugin, $modnames).')<br />';
 
@@ -4376,7 +4383,13 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
 
         case ($name=='completionview'):
             $cmfield = true;
-            $text = get_string('completionview', 'completion');
+            if ($strman->string_exists('completion_automatic', 'completion')) {
+                // Moodle >= 4.3
+                $text = get_string('completionview', $plugin);
+            } else {
+                // Moodle <= 4.2
+                $text = get_string('completionview', 'completion');
+            }
             $desc = get_string('completionview_desc', 'completion');
             $type = 'checkbox';
             break;
@@ -4408,7 +4421,7 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
                 case 'completiontimespent':
                     $type = 'duration';
                     $text = get_string($name.'group', $modname);
-                    $desc = get_string($name, $modname);
+                    $desc = get_string($name.'desc', $modname, '[x]');
                     break;
                 case 'completionendreached':
                 default:
@@ -4456,6 +4469,19 @@ function get_completionfield($strman, $plugin, $modname, $name, $value, $fields)
             $type = 'checkbox';
             break;
 
+        case ($name=='completionentries'):
+            // modules: data, glossary
+            $text = get_string($name, 'glossary');
+            $desc = get_string($name.'desc', 'glossary', '[x]');
+            $type = 'textbox';
+            break;
+
+        case ($name=='completiontimespent'):
+            // modules: lesson
+            $text = get_string($name.'group', 'lesson');
+            $desc = get_string($name.'desc', 'lesson', '[x]');
+            $type = 'textbox';
+            break;
         default:
             // e.g. taskchain.completionmingrade
             // and taskchain.completioncompleted

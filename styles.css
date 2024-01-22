@@ -587,6 +587,10 @@ table.selectedactivitylist span.failure {
     margin: 0px auto;
 }
 
+.blockconfigtable td.itemvalue label {
+    display: inline;
+}
+
 .blockconfigtable td.itemvalue label span.modnames {
     display: inline-block;
     margin-bottom: 0px;
