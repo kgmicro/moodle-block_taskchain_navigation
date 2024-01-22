@@ -3106,7 +3106,7 @@ class block_taskchain_navigation extends block_base {
      */
      static public function get_userfields($tableprefix='', array $extrafields=null, $idalias='id', $fieldprefix='') {
 
-        // Moodle >= 3.10 (see "user/classes/fields.php")
+        // Moodle >= 3.11 (see "user/classes/fields.php")
         if (class_exists('\\core_user\\fields')) {
             $fields = \core_user\fields::for_userpic();
             if ($extrafields) {

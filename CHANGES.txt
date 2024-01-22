@@ -2,6 +2,9 @@
 Change log for block_taskchain_navigation
 ========================================
 
+2024-01-22 (41)
+ - small amended to comment regarding availability of core_user::fields
+
 2024-01-21 (40)
  - workaround for deprecated strings in Moodle >= 4.3
 
