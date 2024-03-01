@@ -26,7 +26,6 @@ define(["core/str"], function(STR) {
 
     /** @alias module:block_taskchain_navigation/view */
     var JS = {};
-    window.JS = JS;
 
     // cache the plugin name and string cache
     JS.plugin = "block_taskchain_navigation";
