@@ -87,12 +87,17 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $mform->setDefault($config_name, $this->defaultvalue($name));
         $mform->addHelpButton($config_name, $name, $plugin);
 
+        // In Moodle >= 2.7, we use the "modgrade" string.
+        // In Moodle <= 2.6, we use simply "grade".
+        $modgrade = get_string_manager()->string_exists('modgrade', 'grades');
+        $modgrade = ($modgrade ? 'modgrade' : 'grade');
+
         $name = 'coursename';
         $config_name = 'config_'.$name;
         $options = array(
             'fullname'     => get_string('fullname'),
             'shortname'    => get_string('shortname'),
-            'grade'        => get_string('grade', 'grades'),
+            'grade'        => get_string($modgrade, 'grades'),
             'yourgrade'    => get_string('yourgrade', 'grades'),
             'coursegrade'  => get_string('coursegrade', $plugin),
             'currentgrade' => get_string('currentgrade', $plugin),
@@ -861,6 +866,9 @@ class block_taskchain_navigation_edit_form extends block_edit_form {
         $sections = block_taskchain_navigation::get_section_info_all($modinfo);
         foreach ($sections as $sectionnum => $section) {
             foreach ($fields as $field) {
+                if (empty($section->$field)) {
+                    continue;
+                }
                 if (preg_match_all($search, $section->$field, $matches)) {
                     foreach ($matches[0] as $match) {
                         if (preg_match('/lang="(\w+)"/', $match, $lang)) {

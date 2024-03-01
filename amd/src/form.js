@@ -26,6 +26,7 @@ define(["core/str"], function(STR) {
 
     /** @alias module:block_taskchain_navigation/view */
     var JS = {};
+    window.JS = JS;
 
     // cache the plugin name and string cache
     JS.plugin = "block_taskchain_navigation";
@@ -50,14 +51,49 @@ define(["core/str"], function(STR) {
             JS.str.exportsettings = s[i++];
             JS.str.importsettings = s[i++];
 
-            var fieldsets = "#id_title, #id_coursegradecategory, "
-                          + "#id_gradecategories, #id_gradecategorynames, "
-                          + "#id_categoryprefixes, #id_categorysuffixes, "
-                          + "#id_sections, #id_sectiontitles, "
-                          + "#id_sectionprefixes, #id_sectionsuffixes, "
-                          + "#id_groups, #id_grades, "
-                          + "#id_coursesections, #id_coursepageshortcuts, "
-                          + "#id_styles, #id_applyselectedvalues";
+            // Check for obfuscated element IDs in blocks in Moodle >= 4.2
+            // e.g. id_title_m4YI21OUPqnjI5P
+            JS.obfuscation = new RegExp("_[^_]{15}$");
+            JS.use_obfuscation = document.querySelector("fieldset").id.match(JS.obfuscation);
+
+            var fieldsets = "";
+            if (JS.use_obfuscation) {
+                // Moodle >= 4.2
+                fieldsets = "[id^=id_title_],"
+                          + "[id^=id_coursegradecategory_],"
+                          + "[id^=id_gradecategories_],"
+                          + "[id^=id_gradecategorynames_],"
+                          + "[id^=id_categoryprefixes_],"
+                          + "[id^=id_categorysuffixes_],"
+                          + "[id^=id_sections_],"
+                          + "[id^=id_sectiontitles_],"
+                          + "[id^=id_sectionprefixes_],"
+                          + "[id^=id_sectionsuffixes_],"
+                          + "[id^=id_groups_],"
+                          + "[id^=id_grades_],"
+                          + "[id^=id_coursesections_],"
+                          + "[id^=id_coursepageshortcuts_],"
+                          + "[id^=id_styles_],"
+                          + "[id^=id_applyselectedvalues_]";
+            } else {
+                // Moodle <= 4.1
+                fieldsets = "#id_title,"
+                          + "#id_coursegradecategory,"
+                          + "#id_gradecategories,"
+                          + "#id_gradecategorynames,"
+                          + "#id_categoryprefixes,"
+                          + "#id_categorysuffixes,"
+                          + "#id_sections,"
+                          + "#id_sectiontitles,"
+                          + "#id_sectionprefixes,"
+                          + "#id_sectionsuffixes,"
+                          + "#id_groups,"
+                          + "#id_grades,"
+                          + "#id_coursesections,"
+                          + "#id_coursepageshortcuts,"
+                          + "#id_styles,"
+                          + "#id_applyselectedvalues";
+            }
             JS.add_itemselect_checkboxes(fieldsets);
 
             // Adjust vertical alignment of showactivitygrades, so that it
@@ -93,9 +129,13 @@ define(["core/str"], function(STR) {
 
         var node = null;
 
-        // get name of parent element e.g. "fitem_id_description"
-        // and remove everything up to final underscore "_".
+        // Extract name of parent element from its id e.g. "fitem_id_description"
         var name = elm.parentNode.id;
+        if (JS.use_obfuscation) {
+            // Remove obfuscation chars from the end of the id.
+            name = name.replace(JS.obfuscation, "");
+        }
+        // Remove everything up to, and including,the final underscore "_".
         name = name.replace(new RegExp("^.+_"), "");
 
         if (name == "description") {
